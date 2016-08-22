@@ -1,0 +1,35 @@
+{
+  "name": "sound.js",
+  "version": "1.0.0",
+  "description": "A JavaScript library for handling Web Audio.",
+  "main": "./src/index.js",
+  "scripts": {
+    "build": "webpack --progress --profile --colors",
+    "watch": "webpack --progress --profile --colors -d <--watch></--watch>",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aleen42/sound.js.git"
+  },
+  "keywords": [
+    "sound.js",
+    "web-audio"
+  ],
+  "author": "aleen42 <aleen42@vip.qq.com> (http://aleen42.github.io/pc.html)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aleen42/sound.js/issues"
+  },
+  "homepage": "https://github.com/aleen42/sound.js#readme",
+  "devDependencies": {
+    "babel-core": "^6.13.2",
+    "babel-loader": "^6.2.5",
+    "babel-preset-es2015": "^6.13.2",
+    "babel-preset-react": "^6.11.1",
+    "webpack": "^1.13.2"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.13.0"
+  }
+}

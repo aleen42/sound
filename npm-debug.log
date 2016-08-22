@@ -1,0 +1,21 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/bin/node', '/usr/local/bin/npm', 'build', 'watch' ]
+2 info using npm@3.10.6
+3 info using node@v5.10.1
+4 info build /opt/lampp/htdocs/sound.js/watch
+5 verbose stack Error: ENOENT: no such file or directory, open '/opt/lampp/htdocs/sound.js/watch/package.json'
+5 verbose stack     at Error (native)
+6 verbose cwd /opt/lampp/htdocs/sound.js
+7 error Linux 3.13.0-43-generic
+8 error argv "/usr/local/bin/node" "/usr/local/bin/npm" "build" "watch"
+9 error node v5.10.1
+10 error npm  v3.10.6
+11 error path /opt/lampp/htdocs/sound.js/watch/package.json
+12 error code ENOENT
+13 error errno -2
+14 error syscall open
+15 error enoent ENOENT: no such file or directory, open '/opt/lampp/htdocs/sound.js/watch/package.json'
+16 error enoent ENOENT: no such file or directory, open '/opt/lampp/htdocs/sound.js/watch/package.json'
+16 error enoent This is most likely not a problem with npm itself
+16 error enoent and is related to npm not being able to find a file.
+17 verbose exit [ -2, true ]
