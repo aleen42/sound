@@ -3,20 +3,15 @@ import React from 'react';
 export class Wave extends React.Component {
 	constructor(props) {
 		super(props);
-
-		this.state = { 
-			data: this.props.sound.getBufferData(function (i) {
-				return false
-			}, this.props.px),
-			playStatus: false,
-			left: -3,
-			currentTime: 0.0
-		};
 	}
 
 	getWave() {
-		return this.state.data.map(function(elem, index) {
-			return <rect key={index + 1} x={index / this.state.data.length * 100 + '%'} y={0} width={1} height={elem.pcmData * 500 + 'px'} fill={elem.fill}></rect>;
+		const data = this.props.sound.getBufferData(function (i) {
+			return false;
+		}, this.props.px);
+
+		return data.map(function(elem, index) {
+			return <rect key={index} ref={'wave__tag' + index} x={index / data.length * 100 + '%'} y={(this.props.height - elem.pcmData * 1000) / 2 + 'px'} width={1} height={elem.pcmData * 1000 + 'px'} fill={elem.fill}></rect>;
 		}.bind(this));
 	}
 
@@ -27,40 +22,34 @@ export class Wave extends React.Component {
 	}
 
 	componentDidMount() {
+		/** give it 1 sec to render */
+		setTimeout(function () {
+			/** play when component mount */
+			this.refs.wave__container.style.opacity = 1;
+
+			this.props.sound.loop(0);
+		}.bind(this), 1000);
+
 		setInterval(function () {
-			this.setState({
-				data: this.props.sound.getBufferData(function (i) {
-					if (i + 1 <= this.props.sound.getCurrentTime() * this.props.sound.getSampleRate() * this.props.px / this.props.sound.getDataLength()) {
-						return true;
-					}
-				}.bind(this), this.props.px),
-				playStatus: this.state.playStatus,
-				left: this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3,
-				currentTime: this.props.sound.getCurrentTime()
-			});
-		}.bind(this), 20);
+			/** Wave Update */
+			this.refs['wave__tag' + Math.floor(this.props.sound.getCurrentTime() * (this.props.sound.getSampleRate() / (this.props.sound.getDataLength() / this.props.px)))].style.fill = 'rgba(0, 0, 0, 1)';
 
-		if (!this.state.playStatus) {
-			this.setState({ data: this.state.data, playStatus: true });
+			/** Time Update */
+			this.refs.wave__time.innerText = this.formatTime(Math.floor(this.props.sound.getCurrentTime())) + '/' + this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate()));
 
-			/** give it 1 sec to render */
-			setTimeout(function () {
-				/** play when component mount */
-				this.refs.wave__container.style.opacity = 1;
-
-				this.props.sound.loop(0);
-			}.bind(this), 1000);
-		}
+			/** Triangle Progress Update */
+			this.refs.wave__progress.style.left = this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3 + 'px';
+		}.bind(this), 100);
 	}
 
 	render() {
 		return (
 			<div className="wave__container" ref="wave__container">
-				<div className="wave__time">{this.formatTime(this.state.currentTime)} / {this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate()))}</div>
-				<svg className="svg__wave" xmlns="http://www.w3.org/2000/svg" width={this.props.width}>
+				<div className="wave__time" ref="wave__time"></div>
+				<svg className="svg__wave" xmlns="http://www.w3.org/2000/svg" width={this.props.width} height={this.props.height}>
 						{this.getWave()}
 				</svg>
-				<div className="wave__progress wave__position-absolute" style={{left: this.state.left}}></div>
+				<div className="wave__progress wave__position-absolute" ref="wave__progress"></div>
 			</div>
 		);
 	}

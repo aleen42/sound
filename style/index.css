@@ -15,7 +15,7 @@ body {
 }
 
 .wave__container {
-	margin: 0 30%;
+	margin: 0 10%;
 	position: relative;
 	opacity: 0;
 	-webkit-transition: all 0.5s;

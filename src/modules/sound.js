@@ -43,8 +43,9 @@ const Sound = module.exports = function (url) {
 	/** @type {Number} [current playing which song] */
 	this.currentIndex = 0;
 
-	/** @type {Number} [current time of song] */
-	this.currentTime = 0.0;
+	/** @type {Number} [start time of song] */
+	this.startTime = 0.0;
+	this.startContextTime = 0.0;
 
 	/** @type {String} [3 types of status: play, paused, stop] */
 	this.status = 'stop';
@@ -54,7 +55,8 @@ const Sound = module.exports = function (url) {
 		/** fixed up for prefixing */
 		window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
-		this.context = new AudioContext();	
+		this.context = new AudioContext();
+		this.startContextTime = new Date();
 	} catch (e) {
 		/** catch error */
 		Common.errorPrint('Failed to create AudioContext');
@@ -96,21 +98,6 @@ Sound.prototype.init = function () {
 			.load();
 	}
 
-	/** create a process to calculate current time */
-	setInterval(function () {
-		/** update per second */
-		switch (this.status) {
-			case 'play':
-				this.currentTime += 100 / 1000;
-				return;
-			case 'paused':
-				return;
-			case 'stop':
-				this.currentTime = 0.0;
-				return;
-		}
-	}.bind(this), 100);
-
 	return this;
 };
 
@@ -135,7 +122,7 @@ Sound.prototype.play = function (index, loop) {
 
 	this.source.onended = loop ? function () {					/** set ended event listner for loop playing							*/
 		this.status = 'stop';									/** update current status to 'stop'										*/
-		this.currentTime = 0;									/** ensure to clear getCurrentTime										*/
+		this.startTime = new Date();
 		this.play((this.currentIndex + 1) % this.bufferList.length, true);
 	}.bind(this) : null;
 
@@ -143,6 +130,7 @@ Sound.prototype.play = function (index, loop) {
 	this.source.connect(this.context.destination);       		/** connect the source to the context's destination (the speakers) 		*/
 	this.source.start(0);                           			/** play the source now 												*/
 																/** note: on older systems, may have to use deprecated noteOn(time); 	*/
+	this.startTime = new Date();
 
 	this.currentIndex = index;									/** update curent index 												*/
 	this.status = 'play';										/** update current status to 'play'										*/
@@ -195,7 +183,7 @@ Sound.prototype.summarize = function (data, pixels) {
  */
 
 Sound.prototype.getCurrentTime = function () {
-	return this.currentTime;
+	return (this.startTime === 0.0) ? 0 : (this.context.currentTime - (this.startTime - this.startContextTime) / 1000);
 };
 
 Sound.prototype.getSampleRate = function () {

@@ -67,7 +67,7 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var sound = new _sound2.default(['./assets/test3.mp3', './assets/test1.mp3', './assets/test2.mp3']); /***********************************************************************
+	var sound = new _sound2.default(['./assets/test3.mp3', './assets/test2.mp3', './assets/test1.mp3']); /***********************************************************************
 	                                                                                                      *                                                                   _
 	                                                                                                      *       _____  _                           ____  _                 |_|
 	                                                                                                      *      |  _  |/ \   ____  ____ __ ___     / ___\/ \   __   _  ____  _
@@ -90,7 +90,7 @@
 	                                                                                                      **********************************************************************/
 	
 	sound.onload(function () {
-	  _reactDom2.default.render(_react2.default.createElement(_wave.Wave, { sound: sound, width: '100%', px: 200 }), document.querySelectorAll('.container')[0]);
+	  _reactDom2.default.render(_react2.default.createElement(_wave.Wave, { sound: sound, width: '100%', height: 200, px: 400 }), document.querySelectorAll('.container')[0]);
 	}).init();
 
 /***/ },
@@ -30822,24 +30822,18 @@
 		function Wave(props) {
 			_classCallCheck(this, Wave);
 	
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Wave).call(this, props));
-	
-			_this.state = {
-				data: _this.props.sound.getBufferData(function (i) {
-					return false;
-				}, _this.props.px),
-				playStatus: false,
-				left: -3,
-				currentTime: 0.0
-			};
-			return _this;
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(Wave).call(this, props));
 		}
 	
 		_createClass(Wave, [{
 			key: 'getWave',
 			value: function getWave() {
-				return this.state.data.map(function (elem, index) {
-					return _react2.default.createElement('rect', { key: index + 1, x: index / this.state.data.length * 100 + '%', y: 0, width: 1, height: elem.pcmData * 500 + 'px', fill: elem.fill });
+				var data = this.props.sound.getBufferData(function (i) {
+					return false;
+				}, this.props.px);
+	
+				return data.map(function (elem, index) {
+					return _react2.default.createElement('rect', { key: index, ref: 'wave__tag' + index, x: index / data.length * 100 + '%', y: (this.props.height - elem.pcmData * 1000) / 2 + 'px', width: 1, height: elem.pcmData * 1000 + 'px', fill: elem.fill });
 				}.bind(this));
 			}
 		}, {
@@ -30852,30 +30846,24 @@
 		}, {
 			key: 'componentDidMount',
 			value: function componentDidMount() {
+				/** give it 1 sec to render */
+				setTimeout(function () {
+					/** play when component mount */
+					this.refs.wave__container.style.opacity = 1;
+	
+					this.props.sound.loop(0);
+				}.bind(this), 1000);
+	
 				setInterval(function () {
-					this.setState({
-						data: this.props.sound.getBufferData(function (i) {
-							if (i + 1 <= this.props.sound.getCurrentTime() * this.props.sound.getSampleRate() * this.props.px / this.props.sound.getDataLength()) {
-								return true;
-							}
-						}.bind(this), this.props.px),
-						playStatus: this.state.playStatus,
-						left: this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3,
-						currentTime: this.props.sound.getCurrentTime()
-					});
-				}.bind(this), 20);
+					/** Wave Update */
+					this.refs['wave__tag' + Math.floor(this.props.sound.getCurrentTime() * (this.props.sound.getSampleRate() / (this.props.sound.getDataLength() / this.props.px)))].style.fill = 'rgba(0, 0, 0, 1)';
 	
-				if (!this.state.playStatus) {
-					this.setState({ data: this.state.data, playStatus: true });
+					/** Time Update */
+					this.refs.wave__time.innerText = this.formatTime(Math.floor(this.props.sound.getCurrentTime())) + '/' + this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate()));
 	
-					/** give it 1 sec to render */
-					setTimeout(function () {
-						/** play when component mount */
-						this.refs.wave__container.style.opacity = 1;
-	
-						this.props.sound.loop(0);
-					}.bind(this), 1000);
-				}
+					/** Triangle Progress Update */
+					this.refs.wave__progress.style.left = this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3 + 'px';
+				}.bind(this), 100);
 			}
 		}, {
 			key: 'render',
@@ -30883,19 +30871,13 @@
 				return _react2.default.createElement(
 					'div',
 					{ className: 'wave__container', ref: 'wave__container' },
-					_react2.default.createElement(
-						'div',
-						{ className: 'wave__time' },
-						this.formatTime(this.state.currentTime),
-						' / ',
-						this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate()))
-					),
+					_react2.default.createElement('div', { className: 'wave__time', ref: 'wave__time' }),
 					_react2.default.createElement(
 						'svg',
-						{ className: 'svg__wave', xmlns: 'http://www.w3.org/2000/svg', width: this.props.width },
+						{ className: 'svg__wave', xmlns: 'http://www.w3.org/2000/svg', width: this.props.width, height: this.props.height },
 						this.getWave()
 					),
-					_react2.default.createElement('div', { className: 'wave__progress wave__position-absolute', style: { left: this.state.left } })
+					_react2.default.createElement('div', { className: 'wave__progress wave__position-absolute', ref: 'wave__progress' })
 				);
 			}
 		}]);
@@ -30945,8 +30927,9 @@
 		/** @type {Number} [current playing which song] */
 		this.currentIndex = 0;
 	
-		/** @type {Number} [current time of song] */
-		this.currentTime = 0.0;
+		/** @type {Number} [start time of song] */
+		this.startTime = 0.0;
+		this.startContextTime = 0.0;
 	
 		/** @type {String} [3 types of status: play, paused, stop] */
 		this.status = 'stop';
@@ -30957,6 +30940,7 @@
 			window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	
 			this.context = new AudioContext();
+			this.startContextTime = new Date();
 		} catch (e) {
 			/** catch error */
 			_common2.default.errorPrint('Failed to create AudioContext');
@@ -31017,21 +31001,6 @@
 			}.bind(this)).load();
 		}
 	
-		/** create a process to calculate current time */
-		setInterval(function () {
-			/** update per second */
-			switch (this.status) {
-				case 'play':
-					this.currentTime += 100 / 1000;
-					return;
-				case 'paused':
-					return;
-				case 'stop':
-					this.currentTime = 0.0;
-					return;
-			}
-		}.bind(this), 100);
-	
 		return this;
 	};
 	
@@ -31057,7 +31026,7 @@
 		this.source.onended = loop ? function () {
 			/** set ended event listner for loop playing							*/
 			this.status = 'stop'; /** update current status to 'stop'										*/
-			this.currentTime = 0; /** ensure to clear getCurrentTime										*/
+			this.startTime = new Date();
 			this.play((this.currentIndex + 1) % this.bufferList.length, true);
 		}.bind(this) : null;
 	
@@ -31065,6 +31034,7 @@
 		this.source.connect(this.context.destination); /** connect the source to the context's destination (the speakers) 		*/
 		this.source.start(0); /** play the source now 												*/
 		/** note: on older systems, may have to use deprecated noteOn(time); 	*/
+		this.startTime = new Date();
 	
 		this.currentIndex = index; /** update curent index 												*/
 		this.status = 'play'; /** update current status to 'play'										*/
@@ -31117,7 +31087,7 @@
 	 */
 	
 	Sound.prototype.getCurrentTime = function () {
-		return this.currentTime;
+		return this.startTime === 0.0 ? 0 : this.context.currentTime - (this.startTime - this.startContextTime) / 1000;
 	};
 	
 	Sound.prototype.getSampleRate = function () {

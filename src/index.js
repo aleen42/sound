@@ -28,13 +28,13 @@ import Sound from './modules/sound';
 
 const sound = new Sound([
 	'./assets/test3.mp3',
-	'./assets/test1.mp3',
-	'./assets/test2.mp3'
+	'./assets/test2.mp3',
+	'./assets/test1.mp3'
 ]);
 
 sound.onload(function () {
 	ReactDOM.render(
-		<Wave sound={sound} width="100%" px={200} />,
+		<Wave sound={sound} width="100%" height={200} px={400} />,
 		document.querySelectorAll('.container')[0]
 	);
 }).init();
