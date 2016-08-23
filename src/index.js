@@ -23,7 +23,7 @@
 import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Wave } from './components/wave';
+import { Player } from './components/player';
 import Sound from './modules/sound';
 
 const sound = new Sound([
@@ -34,7 +34,7 @@ const sound = new Sound([
 
 sound.onload(function () {
 	ReactDOM.render(
-		<Wave sound={sound} width="100%" height={200} px={400} />,
+		<Player soundObject={sound}/>,
 		document.querySelectorAll('.container')[0]
 	);
 }).init();

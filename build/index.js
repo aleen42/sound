@@ -59,9 +59,9 @@
 	
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 	
-	var _wave = __webpack_require__(/*! ./components/wave */ 468);
+	var _player = __webpack_require__(/*! ./components/player */ 468);
 	
-	var _sound = __webpack_require__(/*! ./modules/sound */ 469);
+	var _sound = __webpack_require__(/*! ./modules/sound */ 470);
 	
 	var _sound2 = _interopRequireDefault(_sound);
 	
@@ -90,7 +90,7 @@
 	                                                                                                      **********************************************************************/
 	
 	sound.onload(function () {
-	  _reactDom2.default.render(_react2.default.createElement(_wave.Wave, { sound: sound, width: '100%', height: 200, px: 400 }), document.querySelectorAll('.container')[0]);
+	  _reactDom2.default.render(_react2.default.createElement(_player.Player, { soundObject: sound }), document.querySelectorAll('.container')[0]);
 	}).init();
 
 /***/ },
@@ -30790,6 +30790,69 @@
 
 /***/ },
 /* 468 */
+/*!***********************************!*\
+  !*** ./src/components/player.jsx ***!
+  \***********************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.Player = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 298);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _wave = __webpack_require__(/*! ./wave */ 469);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Player = exports.Player = function (_React$Component) {
+		_inherits(Player, _React$Component);
+	
+		function Player(props) {
+			_classCallCheck(this, Player);
+	
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Player).call(this, props));
+	
+			_this.updateTime = _this.updateTime.bind(_this);
+			return _this;
+		}
+	
+		_createClass(Player, [{
+			key: 'updateTime',
+			value: function updateTime(time) {
+				this.refs.wave__time.innerText = time;
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(
+					'div',
+					{ className: 'player__container' },
+					_react2.default.createElement('div', { className: 'wave__time', ref: 'wave__time' }),
+					_react2.default.createElement(_wave.Wave, { sound: this.props.soundObject, updateTime: this.updateTime, width: '100%', height: 200, px: 400 }),
+					','
+				);
+			}
+		}]);
+	
+		return Player;
+	}(_react2.default.Component);
+
+/***/ },
+/* 469 */
 /*!*********************************!*\
   !*** ./src/components/wave.jsx ***!
   \*********************************/
@@ -30824,8 +30887,6 @@
 	
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Wave).call(this, props));
 	
-			_this._isRefresh = false;
-	
 			_this.state = {
 				waveBufferData: _this.props.sound.getBufferData(_this.props.px)
 			};
@@ -30848,6 +30909,16 @@
 				return (min < 10 ? '0' + min : min) + ':' + (sec < 10 ? '0' + sec : sec);
 			}
 		}, {
+			key: 'prev',
+			value: function prev() {
+				this.props.sound.prev();
+			}
+		}, {
+			key: 'next',
+			value: function next() {
+				this.props.sound.next();
+			}
+		}, {
 			key: 'componentDidUpdate',
 			value: function componentDidUpdate() {
 				/** [for: clear all wave tag] */
@@ -30863,11 +30934,11 @@
 					/** play when component mount */
 					this.refs.wave__container.style.opacity = 1;
 	
-					this.props.sound.loop(0, function () {
+					this.props.sound.onended(function () {
 						this.setState({
 							waveBufferData: this.props.sound.getBufferData(this.props.px)
 						});
-					}.bind(this), function () {
+					}.bind(this)).onplaying(function () {
 						/** Wave Update */
 						var item = Math.floor(this.props.sound.getCurrentTime() * (this.props.sound.getSampleRate() / (this.props.sound.getDataLength() / this.props.px)));
 						if (typeof this.refs['wave__tag' + item] != 'undefined') {
@@ -30875,11 +30946,11 @@
 						}
 	
 						/** Time Update */
-						this.refs.wave__time.innerText = this.formatTime(Math.floor(this.props.sound.getCurrentTime())) + ' / ' + this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate()));
+						this.props.updateTime(this.formatTime(Math.floor(this.props.sound.getCurrentTime())) + ' / ' + this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate())));
 	
 						/** Triangle Progress Update */
 						this.refs.wave__progress.style.left = this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3 + 'px';
-					}.bind(this));
+					}.bind(this)).loop(0);
 				}.bind(this), 1000);
 			}
 		}, {
@@ -30888,7 +30959,6 @@
 				return _react2.default.createElement(
 					'div',
 					{ className: 'wave__container', ref: 'wave__container' },
-					_react2.default.createElement('div', { className: 'wave__time', ref: 'wave__time' }),
 					_react2.default.createElement(
 						'svg',
 						{ className: 'svg__wave', xmlns: 'http://www.w3.org/2000/svg', width: this.props.width, height: this.props.height },
@@ -30903,7 +30973,7 @@
 	}(_react2.default.Component);
 
 /***/ },
-/* 469 */
+/* 470 */
 /*!******************************!*\
   !*** ./src/modules/sound.js ***!
   \******************************/
@@ -30911,15 +30981,15 @@
 
 	'use strict';
 	
-	var _common = __webpack_require__(/*! ./common */ 470);
+	var _common = __webpack_require__(/*! ./common */ 471);
 	
 	var _common2 = _interopRequireDefault(_common);
 	
-	var _bufferLoader = __webpack_require__(/*! ./bufferLoader */ 471);
+	var _bufferLoader = __webpack_require__(/*! ./bufferLoader */ 472);
 	
 	var _bufferLoader2 = _interopRequireDefault(_bufferLoader);
 	
-	var _underscore = __webpack_require__(/*! underscore */ 472);
+	var _underscore = __webpack_require__(/*! underscore */ 473);
 	
 	var _underscore2 = _interopRequireDefault(_underscore);
 	
@@ -30935,6 +31005,12 @@
 		/** @type {[type]} [onload function called when loading successfully] */
 		this.loadEvent = null;
 	
+		/** @type {[type]} [onended function called when a song has been ended] */
+		this.endedEvent = null;
+	
+		/** @type {[type]} [onplaying function called when a song is playing] */
+		this.playingEvent = null;
+	
 		/** @type {Array} [a list of buffer] */
 		this.bufferList = [];
 	
@@ -30948,6 +31024,9 @@
 		this.startTime = 0.0;
 		this.startContextTime = 0.0;
 		this.startTracking = null;
+	
+		/** @type {Boolean} [whether loop] */
+		this.isLoop = false;
 	
 		/** @type {String} [3 types of status: play, paused, stop] */
 		this.status = 'stop';
@@ -30987,6 +31066,16 @@
 	
 	Sound.prototype.onload = function (callback) {
 		this.loadEvent = callback;
+		return this;
+	};
+	
+	Sound.prototype.onended = function (callback) {
+		this.endedEvent = callback;
+		return this;
+	};
+	
+	Sound.prototype.onplaying = function (callback) {
+		this.playingEvent = callback;
 		return this;
 	};
 	
@@ -31030,11 +31119,8 @@
 	 * 
 	 */
 	
-	Sound.prototype.play = function (index, loop, ended, playing) {
+	Sound.prototype.play = function (index) {
 		index = index || 0;
-		loop = loop || false;
-		ended = ended || function () {};
-		playing = playing || function () {};
 	
 		if (index < 0 || index > this.bufferList.length - 1) {
 			_common2.default.errorPrint('Failed to play this song lists');
@@ -31043,14 +31129,13 @@
 	
 		this.source = this.context.createBufferSource(); /** create a sound source 												*/
 	
-		this.source.onended = loop ? function () {
-			/** set ended event listner for loop playing							*/
-			this.status = 'stop'; /** update current status to 'stop'										*/
-			ended();
-			clearInterval(this.startTracking);
-			this.startTime = new Date();
-			this.play((this.currentIndex + 1) % this.bufferList.length, true, ended, playing);
-		}.bind(this) : null;
+		this.source.onended = this.isLoop ? function () {
+			this.status = 'stop'; /** update current status to 'stop'									*/
+			clearInterval(this.startTracking); /** clear tracking time interval object for playingEvent	*/
+			this.startTime = new Date(); /** refresh startTime 												*/
+			this.play((this.currentIndex + 1) % this.bufferList.length);
+			this.endedEvent(); /** triger endedEvent 												*/
+		}.bind(this) : null; /** set ended event listner for loop playing							*/
 	
 		this.source.buffer = this.bufferList[index]; /** tell the source which sound to play 								*/
 		this.source.connect(this.context.destination); /** connect the source to the context's destination (the speakers) 		*/
@@ -31061,13 +31146,19 @@
 		this.currentIndex = index; /** update curent index 												*/
 		this.status = 'play'; /** update current status to 'play'										*/
 	
-		this.startTracking = setInterval(playing, 20);
+		this.startTracking = setInterval(this.playingEvent, 20);
 	};
 	
-	Sound.prototype.loop = function (index, ended, playing) {
-		ended = ended || function () {};
-		playing = playing || function () {};
-		this.play(index, true, ended, playing);
+	Sound.prototype.loop = function (index) {
+		/** set loop property */
+		this.isLoop = true;
+		this.play(index);
+	};
+	
+	Sound.prototype.prev = function () {};
+	
+	Sound.prototype.next = function () {
+		this.play((this.currentIndex + 1) % this.bufferList.length);
 	};
 	
 	/**
@@ -31140,7 +31231,7 @@
 	};
 
 /***/ },
-/* 470 */
+/* 471 */
 /*!*******************************!*\
   !*** ./src/modules/common.js ***!
   \*******************************/
@@ -31177,7 +31268,7 @@
 	};
 
 /***/ },
-/* 471 */
+/* 472 */
 /*!*************************************!*\
   !*** ./src/modules/bufferLoader.js ***!
   \*************************************/
@@ -31229,7 +31320,7 @@
 	};
 
 /***/ },
-/* 472 */
+/* 473 */
 /*!************************************!*\
   !*** ./~/underscore/underscore.js ***!
   \************************************/

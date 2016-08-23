@@ -34,6 +34,12 @@ const Sound = module.exports = function (url) {
 	/** @type {[type]} [onload function called when loading successfully] */
 	this.loadEvent = null;
 
+	/** @type {[type]} [onended function called when a song has been ended] */
+	this.endedEvent = null;
+
+	/** @type {[type]} [onplaying function called when a song is playing] */
+	this.playingEvent = null;	
+
 	/** @type {Array} [a list of buffer] */
 	this.bufferList = [];
 
@@ -47,6 +53,9 @@ const Sound = module.exports = function (url) {
 	this.startTime = 0.0;
 	this.startContextTime = 0.0;
 	this.startTracking = null;
+
+	/** @type {Boolean} [whether loop] */
+	this.isLoop = false;
 
 	/** @type {String} [3 types of status: play, paused, stop] */
 	this.status = 'stop';
@@ -66,6 +75,16 @@ const Sound = module.exports = function (url) {
 
 Sound.prototype.onload = function (callback) {
 	this.loadEvent = callback;
+	return this;
+};
+
+Sound.prototype.onended = function (callback) {
+	this.endedEvent = callback;
+	return this;
+};
+
+Sound.prototype.onplaying = function (callback) {
+	this.playingEvent = callback;
 	return this;
 };
 
@@ -110,11 +129,8 @@ Sound.prototype.init = function () {
  * 
  */
 
-Sound.prototype.play = function (index, loop, ended, playing) {
+Sound.prototype.play = function (index) {
 	index = index || 0;
-	loop = loop || false;
-	ended = ended || function () {};
-	playing = playing || function () {};
 
 	if (index < 0 || index > this.bufferList.length - 1) {
 		Common.errorPrint('Failed to play this song lists');
@@ -123,13 +139,13 @@ Sound.prototype.play = function (index, loop, ended, playing) {
 
 	this.source = this.context.createBufferSource();			/** create a sound source 												*/
 
-	this.source.onended = loop ? function () {					/** set ended event listner for loop playing							*/
-		this.status = 'stop';									/** update current status to 'stop'										*/
-		ended();
-		clearInterval(this.startTracking);
-		this.startTime = new Date();
-		this.play((this.currentIndex + 1) % this.bufferList.length, true, ended, playing);
-	}.bind(this) : null;
+	this.source.onended = this.isLoop ? function () {					
+		this.status = 'stop';									/** update current status to 'stop'									*/
+		clearInterval(this.startTracking);						/** clear tracking time interval object for playingEvent	*/
+		this.startTime = new Date();							/** refresh startTime 												*/
+		this.play((this.currentIndex + 1) % this.bufferList.length);
+		this.endedEvent();										/** triger endedEvent 												*/
+	}.bind(this) : null;										/** set ended event listner for loop playing							*/
 
 	this.source.buffer = this.bufferList[index];             	/** tell the source which sound to play 								*/
 	this.source.connect(this.context.destination);       		/** connect the source to the context's destination (the speakers) 		*/
@@ -140,13 +156,21 @@ Sound.prototype.play = function (index, loop, ended, playing) {
 	this.currentIndex = index;									/** update curent index 												*/
 	this.status = 'play';										/** update current status to 'play'										*/
 
-	this.startTracking = setInterval(playing, 20);
+	this.startTracking = setInterval(this.playingEvent, 20);
 };
 
-Sound.prototype.loop = function (index, ended, playing) {
-	ended = ended || function () {};
-	playing = playing || function () {};
-	this.play(index, true, ended, playing);
+Sound.prototype.loop = function (index) {
+	/** set loop property */
+	this.isLoop = true;
+	this.play(index);
+};
+
+Sound.prototype.prev = function () {
+
+};
+
+Sound.prototype.next = function () {
+	this.play((this.currentIndex + 1) % this.bufferList.length);
 };
 
 /**
