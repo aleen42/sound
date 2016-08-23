@@ -114,6 +114,14 @@ Sound.prototype.init = function () {
 	return this;
 };
 
+/**
+ *
+ *
+ * player operations
+ * 
+ * 
+ */
+
 Sound.prototype.play = function (index, loop) {
 	index = index || 0;
 	loop = loop || false;
@@ -144,6 +152,48 @@ Sound.prototype.loop = function (index) {
 	this.play(index, true);
 };
 
+/**
+ *
+ *
+ * beat operations
+ * 
+ */
+
+Sound.prototype.summarize = function (data, pixels) {
+	var pixelLength = Math.round(data.length/pixels);
+	var vals = [];
+
+	/** For each pixel we display */
+	for (var i = 0; i < pixels; i++) {
+		var posSum = 0,
+		negSum = 0;
+
+		/** Cycle through the data-points relevant to the pixel */
+		for (var j = 0; j < pixelLength; j++) {
+			var val = data[ i * pixelLength + j ];
+
+			/** Keep track of positive and negative values separately */
+			if (val > 0) {
+				posSum += val;
+			} else {
+				negSum += val;
+			}
+		}
+
+		vals.push( [ negSum / pixelLength, posSum / pixelLength ] );
+	}
+	
+	return vals;
+}
+
+/**
+ *
+ * 
+ * get operations
+ *
+ * 
+ */
+
 Sound.prototype.getCurrentTime = function () {
 	return this.currentTime;
 };
@@ -156,12 +206,16 @@ Sound.prototype.getDataLength = function () {
 	return this.bufferList[this.currentIndex].length;
 };
 
-Sound.prototype.getBufferData = function (constraint, sample) {
-	const originalData = this.bufferList[this.currentIndex].getChannelData(0);
+Sound.prototype.getChannelData = function (index) {
+	return this.bufferList[this.currentIndex].getChannelData(index);
+};
+
+Sound.prototype.getBufferData = function (constraint, pixels) {
+	const waveData = this.summarize(this.bufferList[this.currentIndex].getChannelData(0), pixels);
 	const returnData = [];
 
-	for (let i = 0; i < originalData.length; i += sample) {
-		returnData.push({ pcmData: originalData[i], fill: !constraint(i) ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 1)'});
+	for (let i = 0; i < waveData.length; i += 1) {
+		returnData.push({ pcmData: waveData[i][1], fill: !constraint(i) ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 1)'});
 	}
 
 	return returnData;	

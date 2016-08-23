@@ -34,7 +34,7 @@ const sound = new Sound([
 
 sound.onload(function () {
 	ReactDOM.render(
-		<Wave sound={sound} width="70%" height="50" px={200} />,
+		<Wave sound={sound} width="100%" px={200} />,
 		document.querySelectorAll('.container')[0]
 	);
 }).init();

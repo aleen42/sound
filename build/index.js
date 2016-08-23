@@ -90,7 +90,7 @@
 	                                                                                                      **********************************************************************/
 	
 	sound.onload(function () {
-	  _reactDom2.default.render(_react2.default.createElement(_wave.Wave, { sound: sound, width: '70%', height: '50', px: 200 }), document.querySelectorAll('.container')[0]);
+	  _reactDom2.default.render(_react2.default.createElement(_wave.Wave, { sound: sound, width: '100%', px: 200 }), document.querySelectorAll('.container')[0]);
 	}).init();
 
 /***/ },
@@ -30827,8 +30827,10 @@
 			_this.state = {
 				data: _this.props.sound.getBufferData(function (i) {
 					return false;
-				}, Math.floor(_this.props.sound.getDataLength() / _this.props.px)),
-				playStatus: false
+				}, _this.props.px),
+				playStatus: false,
+				left: -3,
+				currentTime: 0.0
 			};
 			return _this;
 		}
@@ -30837,42 +30839,63 @@
 			key: 'getWave',
 			value: function getWave() {
 				return this.state.data.map(function (elem, index) {
-					return _react2.default.createElement('rect', { key: index + 1, x: index / this.state.data.length * 100 + '%', y: '0', width: '1', height: '100%', fill: elem.fill });
+					return _react2.default.createElement('rect', { key: index + 1, x: index / this.state.data.length * 100 + '%', y: 0, width: 1, height: elem.pcmData * 500 + 'px', fill: elem.fill });
 				}.bind(this));
+			}
+		}, {
+			key: 'formatTime',
+			value: function formatTime(time) {
+				var min = Math.floor(time / 60);
+				var sec = Math.floor(time - min * 60);
+				return (min < 10 ? '0' + min : min) + ':' + (sec < 10 ? '0' + sec : sec);
 			}
 		}, {
 			key: 'componentDidMount',
 			value: function componentDidMount() {
-				if (!this.state.playStatus) {
-					/** play when component mount */
-					this.props.sound.loop(0);
-	
-					this.setState({ data: this.state.data, playStatus: true });
-				}
-	
 				setInterval(function () {
-					// console.log(this.props.sound.getCurrentTime());
 					this.setState({
 						data: this.props.sound.getBufferData(function (i) {
-							if (i <= this.props.sound.getCurrentTime() * this.props.sound.getSampleRate()) {
+							if (i + 1 <= this.props.sound.getCurrentTime() * this.props.sound.getSampleRate() * this.props.px / this.props.sound.getDataLength()) {
 								return true;
 							}
-						}.bind(this), Math.floor(this.props.sound.getDataLength() / this.props.px)),
-						playStatus: this.state.playStatus
+						}.bind(this), this.props.px),
+						playStatus: this.state.playStatus,
+						left: this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3,
+						currentTime: this.props.sound.getCurrentTime()
 					});
 				}.bind(this), 20);
+	
+				if (!this.state.playStatus) {
+					this.setState({ data: this.state.data, playStatus: true });
+	
+					/** give it 1 sec to render */
+					setTimeout(function () {
+						/** play when component mount */
+						this.refs.wave__container.style.opacity = 1;
+	
+						this.props.sound.loop(0);
+					}.bind(this), 1000);
+				}
 			}
 		}, {
 			key: 'render',
 			value: function render() {
 				return _react2.default.createElement(
 					'div',
-					null,
+					{ className: 'wave__container', ref: 'wave__container' },
+					_react2.default.createElement(
+						'div',
+						{ className: 'wave__time' },
+						this.formatTime(this.state.currentTime),
+						' / ',
+						this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate()))
+					),
 					_react2.default.createElement(
 						'svg',
-						{ className: 'svg__wave', xmlns: 'http://www.w3.org/2000/svg', width: this.props.width, height: this.props.height },
+						{ className: 'svg__wave', xmlns: 'http://www.w3.org/2000/svg', width: this.props.width },
 						this.getWave()
-					)
+					),
+					_react2.default.createElement('div', { className: 'wave__progress wave__position-absolute', style: { left: this.state.left } })
 				);
 			}
 		}]);
@@ -31012,6 +31035,14 @@
 		return this;
 	};
 	
+	/**
+	 *
+	 *
+	 * player operations
+	 * 
+	 * 
+	 */
+	
 	Sound.prototype.play = function (index, loop) {
 		index = index || 0;
 		loop = loop || false;
@@ -31043,6 +31074,48 @@
 		this.play(index, true);
 	};
 	
+	/**
+	 *
+	 *
+	 * beat operations
+	 * 
+	 */
+	
+	Sound.prototype.summarize = function (data, pixels) {
+		var pixelLength = Math.round(data.length / pixels);
+		var vals = [];
+	
+		/** For each pixel we display */
+		for (var i = 0; i < pixels; i++) {
+			var posSum = 0,
+			    negSum = 0;
+	
+			/** Cycle through the data-points relevant to the pixel */
+			for (var j = 0; j < pixelLength; j++) {
+				var val = data[i * pixelLength + j];
+	
+				/** Keep track of positive and negative values separately */
+				if (val > 0) {
+					posSum += val;
+				} else {
+					negSum += val;
+				}
+			}
+	
+			vals.push([negSum / pixelLength, posSum / pixelLength]);
+		}
+	
+		return vals;
+	};
+	
+	/**
+	 *
+	 * 
+	 * get operations
+	 *
+	 * 
+	 */
+	
 	Sound.prototype.getCurrentTime = function () {
 		return this.currentTime;
 	};
@@ -31055,12 +31128,16 @@
 		return this.bufferList[this.currentIndex].length;
 	};
 	
-	Sound.prototype.getBufferData = function (constraint, sample) {
-		var originalData = this.bufferList[this.currentIndex].getChannelData(0);
+	Sound.prototype.getChannelData = function (index) {
+		return this.bufferList[this.currentIndex].getChannelData(index);
+	};
+	
+	Sound.prototype.getBufferData = function (constraint, pixels) {
+		var waveData = this.summarize(this.bufferList[this.currentIndex].getChannelData(0), pixels);
 		var returnData = [];
 	
-		for (var i = 0; i < originalData.length; i += sample) {
-			returnData.push({ pcmData: originalData[i], fill: !constraint(i) ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 1)' });
+		for (var i = 0; i < waveData.length; i += 1) {
+			returnData.push({ pcmData: waveData[i][1], fill: !constraint(i) ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 1)' });
 		}
 	
 		return returnData;
