@@ -21,12 +21,20 @@
  **********************************************************************/
 
 import 'babel-polyfill';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Wave } from './components/wave';
 import Sound from './modules/sound';
 
-const sound = new Sound('./assets/test1.mp3');
+const sound = new Sound([
+	'./assets/test3.mp3',
+	'./assets/test1.mp3',
+	'./assets/test2.mp3'
+]);
 
 sound.onload(function () {
-	console.log(sound.dogBarkingBuffer);
-	this.play();
-})
-	.init();
+	ReactDOM.render(
+		<Wave sound={sound} width="70%" height="50" px={200} />,
+		document.querySelectorAll('.container')[0]
+	);
+}).init();
