@@ -46,6 +46,7 @@ const Sound = module.exports = function (url) {
 	/** @type {Number} [start time of song] */
 	this.startTime = 0.0;
 	this.startContextTime = 0.0;
+	this.startTracking = null;
 
 	/** @type {String} [3 types of status: play, paused, stop] */
 	this.status = 'stop';
@@ -109,9 +110,11 @@ Sound.prototype.init = function () {
  * 
  */
 
-Sound.prototype.play = function (index, loop) {
+Sound.prototype.play = function (index, loop, ended, playing) {
 	index = index || 0;
 	loop = loop || false;
+	ended = ended || function () {};
+	playing = playing || function () {};
 
 	if (index < 0 || index > this.bufferList.length - 1) {
 		Common.errorPrint('Failed to play this song lists');
@@ -122,8 +125,10 @@ Sound.prototype.play = function (index, loop) {
 
 	this.source.onended = loop ? function () {					/** set ended event listner for loop playing							*/
 		this.status = 'stop';									/** update current status to 'stop'										*/
+		ended();
+		clearInterval(this.startTracking);
 		this.startTime = new Date();
-		this.play((this.currentIndex + 1) % this.bufferList.length, true);
+		this.play((this.currentIndex + 1) % this.bufferList.length, true, ended, playing);
 	}.bind(this) : null;
 
 	this.source.buffer = this.bufferList[index];             	/** tell the source which sound to play 								*/
@@ -134,10 +139,14 @@ Sound.prototype.play = function (index, loop) {
 
 	this.currentIndex = index;									/** update curent index 												*/
 	this.status = 'play';										/** update current status to 'play'										*/
+
+	this.startTracking = setInterval(playing, 20);
 };
 
-Sound.prototype.loop = function (index) {
-	this.play(index, true);
+Sound.prototype.loop = function (index, ended, playing) {
+	ended = ended || function () {};
+	playing = playing || function () {};
+	this.play(index, true, ended, playing);
 };
 
 /**
@@ -198,12 +207,12 @@ Sound.prototype.getChannelData = function (index) {
 	return this.bufferList[this.currentIndex].getChannelData(index);
 };
 
-Sound.prototype.getBufferData = function (constraint, pixels) {
+Sound.prototype.getBufferData = function (pixels) {
 	const waveData = this.summarize(this.bufferList[this.currentIndex].getChannelData(0), pixels);
 	const returnData = [];
 
 	for (let i = 0; i < waveData.length; i += 1) {
-		returnData.push({ pcmData: waveData[i][1], fill: !constraint(i) ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 1)'});
+		returnData.push({ pcmData: waveData[i][1], fill: 'rgba(0, 0, 0, 0.1)'});
 	}
 
 	return returnData;	

@@ -3,13 +3,16 @@ import React from 'react';
 export class Wave extends React.Component {
 	constructor(props) {
 		super(props);
+
+		this._isRefresh = false;
+
+		this.state = {
+			waveBufferData: this.props.sound.getBufferData(this.props.px)
+		};
 	}
 
 	getWave() {
-		const data = this.props.sound.getBufferData(function (i) {
-			return false;
-		}, this.props.px);
-
+		const data = this.state.waveBufferData;
 		return data.map(function(elem, index) {
 			return <rect key={index} ref={'wave__tag' + index} x={index / data.length * 100 + '%'} y={(this.props.height - elem.pcmData * 1000) / 2 + 'px'} width={1} height={elem.pcmData * 1000 + 'px'} fill={elem.fill}></rect>;
 		}.bind(this));
@@ -21,25 +24,37 @@ export class Wave extends React.Component {
 		return (min < 10 ? '0' + min : min) + ':' + (sec < 10 ? '0' + sec : sec);
 	}
 
+	componentDidUpdate() {
+		/** [for: clear all wave tag] */
+		for (let i = 0; i < this.props.px; i++) {
+			this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 0.1)');	
+		}
+	}
+
 	componentDidMount() {
 		/** give it 1 sec to render */
 		setTimeout(function () {
 			/** play when component mount */
 			this.refs.wave__container.style.opacity = 1;
 
-			this.props.sound.loop(0);
+			this.props.sound.loop(0, function () {
+				this.setState({
+					waveBufferData: this.props.sound.getBufferData(this.props.px)
+				});
+			}.bind(this), function () {
+				/** Wave Update */
+				const item = Math.floor(this.props.sound.getCurrentTime() * (this.props.sound.getSampleRate() / (this.props.sound.getDataLength() / this.props.px)));
+				if (typeof this.refs['wave__tag' + item] != 'undefined') {
+					this.refs['wave__tag' + item].setAttribute('fill', 'rgba(0, 0, 0, 1)');	
+				}
+
+				/** Time Update */
+				this.refs.wave__time.innerText = this.formatTime(Math.floor(this.props.sound.getCurrentTime())) + ' / ' + this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate()));
+
+				/** Triangle Progress Update */
+				this.refs.wave__progress.style.left = this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3 + 'px';
+			}.bind(this));
 		}.bind(this), 1000);
-
-		setInterval(function () {
-			/** Wave Update */
-			this.refs['wave__tag' + Math.floor(this.props.sound.getCurrentTime() * (this.props.sound.getSampleRate() / (this.props.sound.getDataLength() / this.props.px)))].style.fill = 'rgba(0, 0, 0, 1)';
-
-			/** Time Update */
-			this.refs.wave__time.innerText = this.formatTime(Math.floor(this.props.sound.getCurrentTime())) + '/' + this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate()));
-
-			/** Triangle Progress Update */
-			this.refs.wave__progress.style.left = this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3 + 'px';
-		}.bind(this), 100);
 	}
 
 	render() {

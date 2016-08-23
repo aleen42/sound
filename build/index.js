@@ -30822,16 +30822,20 @@
 		function Wave(props) {
 			_classCallCheck(this, Wave);
 	
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(Wave).call(this, props));
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Wave).call(this, props));
+	
+			_this._isRefresh = false;
+	
+			_this.state = {
+				waveBufferData: _this.props.sound.getBufferData(_this.props.px)
+			};
+			return _this;
 		}
 	
 		_createClass(Wave, [{
 			key: 'getWave',
 			value: function getWave() {
-				var data = this.props.sound.getBufferData(function (i) {
-					return false;
-				}, this.props.px);
-	
+				var data = this.state.waveBufferData;
 				return data.map(function (elem, index) {
 					return _react2.default.createElement('rect', { key: index, ref: 'wave__tag' + index, x: index / data.length * 100 + '%', y: (this.props.height - elem.pcmData * 1000) / 2 + 'px', width: 1, height: elem.pcmData * 1000 + 'px', fill: elem.fill });
 				}.bind(this));
@@ -30844,6 +30848,14 @@
 				return (min < 10 ? '0' + min : min) + ':' + (sec < 10 ? '0' + sec : sec);
 			}
 		}, {
+			key: 'componentDidUpdate',
+			value: function componentDidUpdate() {
+				/** [for: clear all wave tag] */
+				for (var i = 0; i < this.props.px; i++) {
+					this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 0.1)');
+				}
+			}
+		}, {
 			key: 'componentDidMount',
 			value: function componentDidMount() {
 				/** give it 1 sec to render */
@@ -30851,19 +30863,24 @@
 					/** play when component mount */
 					this.refs.wave__container.style.opacity = 1;
 	
-					this.props.sound.loop(0);
+					this.props.sound.loop(0, function () {
+						this.setState({
+							waveBufferData: this.props.sound.getBufferData(this.props.px)
+						});
+					}.bind(this), function () {
+						/** Wave Update */
+						var item = Math.floor(this.props.sound.getCurrentTime() * (this.props.sound.getSampleRate() / (this.props.sound.getDataLength() / this.props.px)));
+						if (typeof this.refs['wave__tag' + item] != 'undefined') {
+							this.refs['wave__tag' + item].setAttribute('fill', 'rgba(0, 0, 0, 1)');
+						}
+	
+						/** Time Update */
+						this.refs.wave__time.innerText = this.formatTime(Math.floor(this.props.sound.getCurrentTime())) + ' / ' + this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate()));
+	
+						/** Triangle Progress Update */
+						this.refs.wave__progress.style.left = this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3 + 'px';
+					}.bind(this));
 				}.bind(this), 1000);
-	
-				setInterval(function () {
-					/** Wave Update */
-					this.refs['wave__tag' + Math.floor(this.props.sound.getCurrentTime() * (this.props.sound.getSampleRate() / (this.props.sound.getDataLength() / this.props.px)))].style.fill = 'rgba(0, 0, 0, 1)';
-	
-					/** Time Update */
-					this.refs.wave__time.innerText = this.formatTime(Math.floor(this.props.sound.getCurrentTime())) + '/' + this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate()));
-	
-					/** Triangle Progress Update */
-					this.refs.wave__progress.style.left = this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3 + 'px';
-				}.bind(this), 100);
 			}
 		}, {
 			key: 'render',
@@ -30930,6 +30947,7 @@
 		/** @type {Number} [start time of song] */
 		this.startTime = 0.0;
 		this.startContextTime = 0.0;
+		this.startTracking = null;
 	
 		/** @type {String} [3 types of status: play, paused, stop] */
 		this.status = 'stop';
@@ -31012,9 +31030,11 @@
 	 * 
 	 */
 	
-	Sound.prototype.play = function (index, loop) {
+	Sound.prototype.play = function (index, loop, ended, playing) {
 		index = index || 0;
 		loop = loop || false;
+		ended = ended || function () {};
+		playing = playing || function () {};
 	
 		if (index < 0 || index > this.bufferList.length - 1) {
 			_common2.default.errorPrint('Failed to play this song lists');
@@ -31026,8 +31046,10 @@
 		this.source.onended = loop ? function () {
 			/** set ended event listner for loop playing							*/
 			this.status = 'stop'; /** update current status to 'stop'										*/
+			ended();
+			clearInterval(this.startTracking);
 			this.startTime = new Date();
-			this.play((this.currentIndex + 1) % this.bufferList.length, true);
+			this.play((this.currentIndex + 1) % this.bufferList.length, true, ended, playing);
 		}.bind(this) : null;
 	
 		this.source.buffer = this.bufferList[index]; /** tell the source which sound to play 								*/
@@ -31038,10 +31060,14 @@
 	
 		this.currentIndex = index; /** update curent index 												*/
 		this.status = 'play'; /** update current status to 'play'										*/
+	
+		this.startTracking = setInterval(playing, 20);
 	};
 	
-	Sound.prototype.loop = function (index) {
-		this.play(index, true);
+	Sound.prototype.loop = function (index, ended, playing) {
+		ended = ended || function () {};
+		playing = playing || function () {};
+		this.play(index, true, ended, playing);
 	};
 	
 	/**
@@ -31102,12 +31128,12 @@
 		return this.bufferList[this.currentIndex].getChannelData(index);
 	};
 	
-	Sound.prototype.getBufferData = function (constraint, pixels) {
+	Sound.prototype.getBufferData = function (pixels) {
 		var waveData = this.summarize(this.bufferList[this.currentIndex].getChannelData(0), pixels);
 		var returnData = [];
 	
 		for (var i = 0; i < waveData.length; i += 1) {
-			returnData.push({ pcmData: waveData[i][1], fill: !constraint(i) ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 1)' });
+			returnData.push({ pcmData: waveData[i][1], fill: 'rgba(0, 0, 0, 0.1)' });
 		}
 	
 		return returnData;
