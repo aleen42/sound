@@ -1,9 +1,11 @@
 import Common from './common';
 
-const BufferLoader = module.exports = function (context, urlList, callback) {
+const BufferLoader = module.exports = function (context, urlList, callback, firstLoadCallback, waitIndex) {
     this.context = context;
     this.urlList = urlList;
     this.onload = callback;
+    this.onfirstload = firstLoadCallback;
+    this.waitIndex = waitIndex;
     this.bufferList = new Array();
     this.loadCount = 0;
 }
@@ -31,8 +33,13 @@ BufferLoader.prototype.loadBuffer = function(url, index) {
                     buffer: buffer
                 };
 
-                if (++loader.loadCount == loader.urlList.length)
+                if (index === loader.waitIndex) {
+                    loader.onfirstload(loader.bufferList);
+                }
+
+                if (++loader.loadCount === loader.urlList.length) {
                     loader.onload(loader.bufferList);
+                }
             },
             function(error) {
                 console.error('decodeAudioData error', error);
@@ -48,6 +55,7 @@ BufferLoader.prototype.loadBuffer = function(url, index) {
 }
 
 BufferLoader.prototype.load = function() {
-    for (var i = 0; i < this.urlList.length; ++i)
+    for (var i = 0; i < this.urlList.length; ++i) {
         this.loadBuffer(this.urlList[i], i);
+    }
 }

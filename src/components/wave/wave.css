@@ -31,3 +31,12 @@
     height: 0;
     width: 0;
 }
+
+.wave__central_line {
+	width: 100%;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.05);
+    position: absolute;
+    top: 50%;
+    margin-top: -0.5px;
+}
