@@ -10,7 +10,7 @@
 	margin: 0 10%;
 }
 
-/*.player__prev,
+.player__prev,
 .player__next {
 	position: absolute;
     top: 50%;
@@ -26,4 +26,4 @@
 
 .player__next {
 	right: -25px;
-}*/
+}

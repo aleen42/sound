@@ -1,7 +1,6 @@
 import React from 'react';
 
 /** Style */
-// import 'font-awesome/css/font-awesome.css';
 import styles from './player.css';
 
 /** Components */
