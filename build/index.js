@@ -31397,7 +31397,7 @@
 	
 						/** Triangle Progress Update */
 						this.refs.wave__progress.style.left = this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3 + 'px';
-					}.bind(this)).loop(0);
+					}.bind(this)).loop();
 				}.bind(this), 1000);
 			}
 		}, {
