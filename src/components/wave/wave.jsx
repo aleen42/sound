@@ -83,9 +83,6 @@ export class Wave extends React.Component {
 	render() {
 		return (
 			<div className="wave__container" ref="wave__container">
-				<div className="player__prev button">
-					<i className="fa fa-angle-left"></i>
-				</div>
 				<div className="wave__central_line"></div>
 				<svg className="svg__wave" xmlns="http://www.w3.org/2000/svg" width={this.props.width} height={this.props.height}>
 						{this.getWave()}

@@ -46,7 +46,7 @@ export class TypeInfo extends React.Component {
 
 	render() {
 		return (
-			<div className="cursor__container absolute__horizenal-center">
+			<div className="cursor__container">
 				<div className="cursor__text" ref="cursor__text"></div>
 				<div className="cursor">|</div>
 			</div>

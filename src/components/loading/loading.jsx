@@ -23,13 +23,16 @@ export class Loading extends React.Component {
 	componentDidMount() {
 		/** give it 1 sec to render */
 		setTimeout(function () {
-			this.refs.loading.style.opacity = 1;
+			this.refs.loading.style.display = 'block';
+			setTimeout(function () {
+				this.refs.loading.style.opacity = 1;
+			}.bind(this), 500);
 		}.bind(this), 1000);
 	}
 
 	render() {
 		return (
-			<div className="loading absolute__horizenal-center" ref="loading">
+			<div className="loading" ref="loading">
 				{this.getRect()}
 			</div>
 		);

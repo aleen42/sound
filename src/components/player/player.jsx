@@ -1,8 +1,8 @@
 import React from 'react';
 
 /** Style */
-import styles from './player.css'
-import fa from 'font-awesome/css/font-awesome.css';
+// import 'font-awesome/css/font-awesome.css';
+import styles from './player.css';
 
 /** Components */
 import { Wave } from './../wave/wave.jsx';

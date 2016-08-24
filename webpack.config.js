@@ -6,9 +6,6 @@ module.exports = {
         path: path.join(__dirname, 'build'),
         filename: 'index.js'
     },
-    resolve: {
-        extensions: ['', '.js', '.jsx', '.css']
-    },
     module: {
         loaders: [
             /** style */

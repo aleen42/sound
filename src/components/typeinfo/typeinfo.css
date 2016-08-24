@@ -7,11 +7,15 @@
  */
 
 .cursor__container {
+	display: none;
+	opacity: 0;
 	width: 50%;
 	margin-left: -25%;
-	opacity: 0;
 	top: 18%;
-
+	text-align: center;
+	position: absolute;
+    left: 50%;
+    
 	-webkit-transition: all 0.5s;
 	-o-transition: all 0.5s;
 	transition: all 0.5s;
