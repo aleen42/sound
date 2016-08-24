@@ -7,10 +7,15 @@ module.exports = {
         filename: 'index.js'
     },
     resolve: {
-        extensions: ['', '.js', '.jsx']
+        extensions: ['', '.js', '.jsx', '.css']
     },
     module: {
         loaders: [
+            {
+                test: /\.css/,
+                loader: 'style-loader!css-loader',
+                exclude: /node_modules/
+            },
             {
                 test: /\.jsx?$/,
                 loader: 'babel-loader',

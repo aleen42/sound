@@ -1,3 +1,5 @@
+import Common from './common';
+
 const BufferLoader = module.exports = function (context, urlList, callback) {
     this.context = context;
     this.urlList = urlList;
@@ -23,7 +25,12 @@ BufferLoader.prototype.loadBuffer = function(url, index) {
                     alert('error decoding file data: ' + url);
                     return;
                 }
-                loader.bufferList[index] = buffer;
+                
+                loader.bufferList[index] = {
+                    title: Common.extractTitle(url),
+                    buffer: buffer
+                };
+
                 if (++loader.loadCount == loader.urlList.length)
                     loader.onload(loader.bufferList);
             },

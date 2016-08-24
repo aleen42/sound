@@ -99,7 +99,10 @@ Sound.prototype.init = function () {
 		/** Decode asynchronously */
 		request.onload = function() {
 			this.context.decodeAudioData(request.response, function (buffer) {
-				this.bufferList.push(buffer);
+				this.bufferList.push({
+					title: Common.extractTitle(this.url),
+					buffer: buffer
+				});
 
 				this.loadEvent();
 			}.bind(this), function () {
@@ -140,14 +143,14 @@ Sound.prototype.play = function (index) {
 	this.source = this.context.createBufferSource();			/** create a sound source 												*/
 
 	this.source.onended = this.isLoop ? function () {					
-		this.status = 'stop';									/** update current status to 'stop'									*/
-		clearInterval(this.startTracking);						/** clear tracking time interval object for playingEvent	*/
-		this.startTime = new Date();							/** refresh startTime 												*/
+		this.status = 'stop';									/** update current status to 'stop'										*/
+		clearInterval(this.startTracking);						/** clear tracking time interval object for playingEvent				*/
+		this.startTime = new Date();							/** refresh startTime 													*/
 		this.play((this.currentIndex + 1) % this.bufferList.length);
-		this.endedEvent();										/** triger endedEvent 												*/
+		this.endedEvent();										/** triger endedEvent 													*/
 	}.bind(this) : null;										/** set ended event listner for loop playing							*/
 
-	this.source.buffer = this.bufferList[index];             	/** tell the source which sound to play 								*/
+	this.source.buffer = this.bufferList[index].buffer;     	/** tell the source which sound to play 								*/
 	this.source.connect(this.context.destination);       		/** connect the source to the context's destination (the speakers) 		*/
 	this.source.start(0);                           			/** play the source now 												*/
 																/** note: on older systems, may have to use deprecated noteOn(time); 	*/
@@ -215,24 +218,28 @@ Sound.prototype.summarize = function (data, pixels) {
  * 
  */
 
+Sound.prototype.getTitle = function () {
+	return this.bufferList[this.currentIndex].title;
+};
+
 Sound.prototype.getCurrentTime = function () {
 	return (this.startTime === 0.0) ? 0 : (this.context.currentTime - (this.startTime - this.startContextTime) / 1000);
 };
 
 Sound.prototype.getSampleRate = function () {
-	return this.bufferList[this.currentIndex].sampleRate;
+	return this.bufferList[this.currentIndex].buffer.sampleRate;
 };
 
 Sound.prototype.getDataLength = function () {
-	return this.bufferList[this.currentIndex].length;
+	return this.bufferList[this.currentIndex].buffer.length;
 };
 
 Sound.prototype.getChannelData = function (index) {
-	return this.bufferList[this.currentIndex].getChannelData(index);
+	return this.bufferList[this.currentIndex].buffer.getChannelData(index);
 };
 
 Sound.prototype.getBufferData = function (pixels) {
-	const waveData = this.summarize(this.bufferList[this.currentIndex].getChannelData(0), pixels);
+	const waveData = this.summarize(this.bufferList[this.currentIndex].buffer.getChannelData(0), pixels);
 	const returnData = [];
 
 	for (let i = 0; i < waveData.length; i += 1) {

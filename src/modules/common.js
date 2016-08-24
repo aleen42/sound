@@ -21,7 +21,17 @@
  **********************************************************************/
 
 const Common = module.exports = {
-	errorPrint: function(msg) {
+	errorPrint: function (msg) {
 		console.log('[Error: ' + msg + ']');
+	},
+
+	extractTitle: function (title) {
+		let reserved = title;
+
+		while (reserved.indexOf('/') >= 0) {
+			reserved = reserved.substr(reserved.indexOf('/') + 1, reserved.length - reserved.indexOf('/') - 1);
+		}
+
+		return reserved.match(/(.*)\.[a-zA-Z0-9]+/)[1];
 	}
 };
