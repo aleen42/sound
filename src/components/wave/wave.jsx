@@ -8,6 +8,9 @@ export class Wave extends React.Component {
 		this.state = {
 			waveBufferData: this.props.sound.getBufferData(this.props.px)
 		};
+
+		this.prev = this.prev.bind(this);
+		this.next = this.next.bind(this);
 	}
 
 	getWave() {
@@ -83,7 +86,7 @@ export class Wave extends React.Component {
 	render() {
 		return (
 			<div className="wave__container" ref="wave__container">
-				<div className="player__prev">
+				<div className="player__prev" onClick={this.prev}>
 					<i className="fa fa-angle-left"></i>
 				</div>
 
@@ -93,7 +96,7 @@ export class Wave extends React.Component {
 				</svg>
 				<div className="wave__progress wave__position-absolute" ref="wave__progress"></div>
 
-				<div className="player__next">
+				<div className="player__next" onClick={this.next}>
 					<i className="fa fa-angle-right"></i>
 				</div>
 			</div>

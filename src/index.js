@@ -76,7 +76,7 @@ sound.set(Math.floor(Math.random() * (songsList.length - 1)))
 			document.querySelectorAll('.cursor__container')[0].style.display = 'block';
 			setTimeout(function () {
 				document.querySelectorAll('.cursor__container')[0].style.opacity = 1;
-			}, 500)
+			}, 500);
 		}, 500);
 	})
 	.init();

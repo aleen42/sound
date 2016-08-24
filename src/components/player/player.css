@@ -12,12 +12,23 @@
 
 .player__prev,
 .player__next {
+	font-size: 30px;
 	position: absolute;
     top: 50%;
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
-    margin-top: -10px;
+    line-height: 60px;
+    color: rgba(0, 0, 0, 0.1);
+    height: 60px;
+    margin-top: -30px;
+    cursor: pointer;
+
+    -webkit-transition: all 0.5s;
+    -o-transition: all 0.5s;
+    transition: all 0.5s;
+}
+
+.player__prev:hover,
+.player__next:hover {
+	color: rgba(0, 0, 0, 1);
 }
 
 .player__prev {

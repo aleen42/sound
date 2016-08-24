@@ -150,8 +150,8 @@ Sound.prototype.play = function () {
 		clearInterval(this.startTracking);									/** clear tracking time interval object for playingEvent				*/
 		this.startTime = new Date();										/** refresh startTime 													*/
 		this.set((this.currentIndex + 1) % this.bufferList.length)			/** jump to next song 													*/
-			.play();
-		this.endedEvent();													/** triger endedEvent 													*/
+			.endedEvent();													/** triger endedEvent 													*/
+		this.play();
 	}.bind(this) : null;													/** set ended event listner for loop playing							*/
 
 	this.source.buffer = this.bufferList[this.currentIndex].buffer;     	/** tell the source which sound to play 								*/
@@ -171,12 +171,33 @@ Sound.prototype.loop = function () {
 };
 
 Sound.prototype.prev = function () {
+	this.source.onended = null;
+	this.source.stop();														/** clear source node 													*/
+	this.status = 'stop';													/** update current status to 'stop'										*/
+	clearInterval(this.startTracking);										/** clear tracking time interval object for playingEvent				*/
+	this.startTime = new Date();											/** refresh startTime 													*/
 
+	if (this.currentIndex === 0) {
+		this.set((this.currentIndex + this.bufferList.length - 1) % this.bufferList.length)
+			.endedEvent();
+		this.play();
+	} else {
+		this.set((this.currentIndex - 1) % this.bufferList.length)
+			.endedEvent();
+		this.play();
+	}
 };
 
 Sound.prototype.next = function () {
+	this.source.onended = null;
+	this.source.stop();														/** clear source node 													*/
+	this.status = 'stop';													/** update current status to 'stop'										*/
+	clearInterval(this.startTracking);										/** clear tracking time interval object for playingEvent				*/
+	this.startTime = new Date();											/** refresh startTime 													*/
+
 	this.set((this.currentIndex + 1) % this.bufferList.length)
-		.play();
+		.endedEvent();
+	this.play();
 };
 
 /**

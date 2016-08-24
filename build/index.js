@@ -30959,7 +30959,7 @@
 	
 	
 	// module
-	exports.push([module.id, "/*******************************************************\n *\n *\n * Component Player\n *\n * \n */\n\n.player__container {\n\tmargin: 0 10%;\n}\n\n.player__prev,\n.player__next {\n\tposition: absolute;\n    top: 50%;\n    width: 20px;\n    height: 20px;\n    line-height: 20px;\n    margin-top: -10px;\n}\n\n.player__prev {\n\tleft: -25px;\n}\n\n.player__next {\n\tright: -25px;\n}\n", "", {"version":3,"sources":["/./src/components/player/player.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;CACC,cAAc;CACd;;AAED;;CAEC,mBAAmB;IAChB,SAAS;IACT,YAAY;IACZ,aAAa;IACb,kBAAkB;IAClB,kBAAkB;CACrB;;AAED;CACC,YAAY;CACZ;;AAED;CACC,aAAa;CACb","file":"player.css","sourcesContent":["/*******************************************************\n *\n *\n * Component Player\n *\n * \n */\n\n.player__container {\n\tmargin: 0 10%;\n}\n\n.player__prev,\n.player__next {\n\tposition: absolute;\n    top: 50%;\n    width: 20px;\n    height: 20px;\n    line-height: 20px;\n    margin-top: -10px;\n}\n\n.player__prev {\n\tleft: -25px;\n}\n\n.player__next {\n\tright: -25px;\n}\n"],"sourceRoot":"webpack://"}]);
+	exports.push([module.id, "/*******************************************************\n *\n *\n * Component Player\n *\n * \n */\n\n.player__container {\n\tmargin: 0 10%;\n}\n\n.player__prev,\n.player__next {\n\tfont-size: 30px;\n\tposition: absolute;\n    top: 50%;\n    line-height: 60px;\n    color: rgba(0, 0, 0, 0.1);\n    height: 60px;\n    margin-top: -30px;\n    cursor: pointer;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.player__prev:hover,\n.player__next:hover {\n\tcolor: rgba(0, 0, 0, 1);\n}\n\n.player__prev {\n\tleft: -25px;\n}\n\n.player__next {\n\tright: -25px;\n}\n", "", {"version":3,"sources":["/./src/components/player/player.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;CACC,cAAc;CACd;;AAED;;CAEC,gBAAgB;CAChB,mBAAmB;IAChB,SAAS;IACT,kBAAkB;IAClB,0BAA0B;IAC1B,aAAa;IACb,kBAAkB;IAClB,gBAAgB;;IAEhB,6BAA6B;IAC7B,wBAAwB;IACxB,qBAAqB;CACxB;;AAED;;CAEC,wBAAwB;CACxB;;AAED;CACC,YAAY;CACZ;;AAED;CACC,aAAa;CACb","file":"player.css","sourcesContent":["/*******************************************************\n *\n *\n * Component Player\n *\n * \n */\n\n.player__container {\n\tmargin: 0 10%;\n}\n\n.player__prev,\n.player__next {\n\tfont-size: 30px;\n\tposition: absolute;\n    top: 50%;\n    line-height: 60px;\n    color: rgba(0, 0, 0, 0.1);\n    height: 60px;\n    margin-top: -30px;\n    cursor: pointer;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.player__prev:hover,\n.player__next:hover {\n\tcolor: rgba(0, 0, 0, 1);\n}\n\n.player__prev {\n\tleft: -25px;\n}\n\n.player__next {\n\tright: -25px;\n}\n"],"sourceRoot":"webpack://"}]);
 	
 	// exports
 
@@ -31321,6 +31321,9 @@
 			_this.state = {
 				waveBufferData: _this.props.sound.getBufferData(_this.props.px)
 			};
+	
+			_this.prev = _this.prev.bind(_this);
+			_this.next = _this.next.bind(_this);
 			return _this;
 		}
 	
@@ -31405,7 +31408,7 @@
 					{ className: 'wave__container', ref: 'wave__container' },
 					_react2.default.createElement(
 						'div',
-						{ className: 'player__prev' },
+						{ className: 'player__prev', onClick: this.prev },
 						_react2.default.createElement('i', { className: 'fa fa-angle-left' })
 					),
 					_react2.default.createElement('div', { className: 'wave__central_line' }),
@@ -31417,7 +31420,7 @@
 					_react2.default.createElement('div', { className: 'wave__progress wave__position-absolute', ref: 'wave__progress' }),
 					_react2.default.createElement(
 						'div',
-						{ className: 'player__next' },
+						{ className: 'player__next', onClick: this.next },
 						_react2.default.createElement('i', { className: 'fa fa-angle-right' })
 					)
 				);
@@ -31925,8 +31928,8 @@
 			clearInterval(this.startTracking); /** clear tracking time interval object for playingEvent				*/
 			this.startTime = new Date(); /** refresh startTime 													*/
 			this.set((this.currentIndex + 1) % this.bufferList.length) /** jump to next song 													*/
-			.play();
-			this.endedEvent(); /** triger endedEvent 													*/
+			.endedEvent(); /** triger endedEvent 													*/
+			this.play();
 		}.bind(this) : null; /** set ended event listner for loop playing							*/
 	
 		this.source.buffer = this.bufferList[this.currentIndex].buffer; /** tell the source which sound to play 								*/
@@ -31945,10 +31948,31 @@
 		this.play();
 	};
 	
-	Sound.prototype.prev = function () {};
+	Sound.prototype.prev = function () {
+		this.source.onended = null;
+		this.source.stop(); /** clear source node 													*/
+		this.status = 'stop'; /** update current status to 'stop'										*/
+		clearInterval(this.startTracking); /** clear tracking time interval object for playingEvent				*/
+		this.startTime = new Date(); /** refresh startTime 													*/
+	
+		if (this.currentIndex === 0) {
+			this.set((this.currentIndex + this.bufferList.length - 1) % this.bufferList.length).endedEvent();
+			this.play();
+		} else {
+			this.set((this.currentIndex - 1) % this.bufferList.length).endedEvent();
+			this.play();
+		}
+	};
 	
 	Sound.prototype.next = function () {
-		this.set((this.currentIndex + 1) % this.bufferList.length).play();
+		this.source.onended = null;
+		this.source.stop(); /** clear source node 													*/
+		this.status = 'stop'; /** update current status to 'stop'										*/
+		clearInterval(this.startTracking); /** clear tracking time interval object for playingEvent				*/
+		this.startTime = new Date(); /** refresh startTime 													*/
+	
+		this.set((this.currentIndex + 1) % this.bufferList.length).endedEvent();
+		this.play();
 	};
 	
 	/**
