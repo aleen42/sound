@@ -13,7 +13,7 @@ export class PlayingIcon extends React.Component {
 			items.push(<div key={i} className={'react' + i} style={{
 				'backgroundColor': this.props.reactColor,
 				'WebkitAnimationDelay': (-1.2 + this.props.reactDelay * i) + 's',
-    			'animationDelay': (-1.2 + this.props.reactDelay * i) + 's'
+    			'animation': 'stretchdelay ' + this.props.animateDelay + 's infinite ease-in-out'
 			}} ></div>);
 		}
 
@@ -22,7 +22,9 @@ export class PlayingIcon extends React.Component {
 
 	render() {
 		return (
-			<div className="playingicon" ref="playingicon" style={{ height: this.props.height }}>
+			<div className="playingicon" ref="playingicon" style={{
+					height: this.props.height
+				}}>
 				{this.getRect()}
 			</div>
 		);
@@ -31,7 +33,7 @@ export class PlayingIcon extends React.Component {
 
 PlayingIcon.defaultProps = {
 	height: 18,
-	reactNumber: 3,
+	reactNumber: 4,
 	reactDelay: 0.12,
 	reactColor: '#000'
 };
