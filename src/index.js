@@ -32,23 +32,12 @@ import { TypeInfo } from './components/typeinfo/typeinfo.jsx';
 /** Modules */
 import Sound from './modules/sound';
 
-const songsList = [
-	'./assets/Alan Walker - Sing Me to Sleep.mp3',
-	'./assets/Martin Garrix - Oops.mp3',
-	'./assets/Pegato,Twilight Meadow - The Worlds We Discovered (Pegato Remix).mp3',
-	'./assets/Above & Beyond - Counting Down The Days.mp3',
-	'./assets/Above & Beyond - Eternal - Original Mix.mp3',
-	'./assets/Above & Beyond - Filmic - Original Mix.mp3',
-	'./assets/Above & Beyond - Hello.mp3',
-	'./assets/Above & Beyond,Justine Suissa - Little Something.mp3',
-	'./assets/Above & Beyond - Out Of Time.mp3',
-	'./assets/Above & Beyond - Prelude - Original Mix.mp3',
-	'./assets/Above & Beyond,Richard Bedford - Every Little Beat - Original Mix.mp3',
-	'./assets/Above & Beyond,Richard Bedford - Thing Called Love - Original Mix.mp3',
-	'./assets/Above & Beyond,Zoe Johnston - Alchemy - Original Mix.mp3',
-	'./assets/Above & Beyond,Zoe Johnston - Fly To New York.mp3',
-	'./assets/Above & Beyond,Zoe Johnston - Sweetest Heart - Original Mix.mp3',
-];
+/** SongsList */
+import list from './../assets/songlist.json';
+
+const songsList = list.data.map((item) => {
+	return './assets/songs/' + item;
+});
 
 const sound = new Sound(songsList);
 

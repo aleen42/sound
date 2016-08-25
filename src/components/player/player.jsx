@@ -34,7 +34,7 @@ export class Player extends React.Component {
 					<p className="name">Name</p>
 					<p className="value">/</p>
 				</div>
-				<Wave sound={this.props.soundObject} updateTime={this.updateTime} updateTitle={this.updateTitle} width="100%" height={200} px={400} />
+				<Wave sound={this.props.soundObject} updateTime={this.updateTime} updateTitle={this.updateTitle} width="100%" height={280} px={400} />
 			</div>
 		);
 	}

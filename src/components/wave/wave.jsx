@@ -26,11 +26,21 @@ export class Wave extends React.Component {
 		return (min < 10 ? '0' + min : min) + ':' + (sec < 10 ? '0' + sec : sec);
 	}
 
+	loadingUp() {
+		document.querySelectorAll('.loading')[0].style.top = '50%';
+	}
+
+	loadingDown() {
+		document.querySelectorAll('.loading')[0].style.top = '10%';
+	}
+
 	prev() {
+		this.loadingUp();
 		this.props.sound.prev();
 	}
 
 	next() {
+		this.loadingUp();
 		this.props.sound.next();
 	}
 
@@ -53,6 +63,7 @@ export class Wave extends React.Component {
 
 			this.props.sound
 				.onended(function () {
+					this.loadingDown();
 					this.setState({
 						waveBufferData: this.props.sound.getBufferData(this.props.px)
 					});

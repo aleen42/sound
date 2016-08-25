@@ -52,13 +52,34 @@ const Sound = module.exports = function (url) {
 	/** @type {Number} [start time of song] */
 	this.startTime = 0.0;
 	this.startContextTime = 0.0;
-	this.startTracking = null;
+
+	/** @type {Array} [thread of tracking] */
+	this.startTrackings = [null, null];
 
 	/** @type {Boolean} [whether loop] */
 	this.isLoop = false;
 
 	/** @type {String} [3 types of status: play, paused, stop] */
 	this.status = 'stop';
+
+	/** @type {[type]} [a buffer loader object] */
+	this.bufferLoader = null;
+
+	this.stopSource = function () {
+		if (this.source !== null) {
+			this.source.stop();												/** clear source node 													*/
+		}
+
+		this.status = 'stop';												/** update current status to 'stop'										*/
+
+		const curretTrackingThreadIndex = (this.startTrackings.indexOf(null) + 1) % this.startTrackings.length;
+		setTimeout(function () {											/** try to use another thread to kill startTracking thread				*/
+			clearInterval(this.startTrackings[curretTrackingThreadIndex]);	/** clear tracking time interval object for playingEvent				*/
+			this.startTrackings[curretTrackingThreadIndex] = null;											
+		}.bind(this), 20);
+
+		this.startTime = new Date();										/** refresh startTime 													*/
+	}.bind(this);
 
 	/** initialize context object */
 	try {
@@ -113,13 +134,14 @@ Sound.prototype.init = function () {
 
 		request.send();	
 	} else {
-		const bufferLoader = new BufferLoader(this.context, this.url, function (bufferList) {
+		this.bufferLoader = new BufferLoader(this.context, this.url, function (bufferList) {
 			this.bufferList = bufferList;
-		}.bind(this), function (reservedBufferList) {
-			this.bufferList = reservedBufferList;
 			this.loadEvent();
-		}.bind(this), this.currentIndex)
-			.load();
+
+			/** clear loadEvent once it's called */
+			this.loadEvent = null;
+		}.bind(this), this.bufferList)
+			.load(this.currentIndex);
 	}
 
 	return this;
@@ -143,15 +165,20 @@ Sound.prototype.play = function () {
 		return;
 	}
 
+	this.stopSource();														/** stop and clear source firstly										*/
+
 	this.source = this.context.createBufferSource();						/** create a sound source 												*/
 
 	this.source.onended = this.isLoop ? function () {					
-		this.status = 'stop';												/** update current status to 'stop'										*/
-		clearInterval(this.startTracking);									/** clear tracking time interval object for playingEvent				*/
-		this.startTime = new Date();										/** refresh startTime 													*/
-		this.set((this.currentIndex + 1) % this.bufferList.length)			/** jump to next song 													*/
-			.endedEvent();													/** triger endedEvent 													*/
-		this.play();
+		const nextIndex = (this.currentIndex + 1) % this.bufferList.length;
+
+		this.loadEvent = function () {
+			this.set(nextIndex)												/** jump to next song 													*/
+				.endedEvent();												/** triger endedEvent 													*/
+			this.play();
+		}.bind(this);
+
+		this.bufferLoader.load(nextIndex);
 	}.bind(this) : null;													/** set ended event listner for loop playing							*/
 
 	this.source.buffer = this.bufferList[this.currentIndex].buffer;     	/** tell the source which sound to play 								*/
@@ -161,7 +188,7 @@ Sound.prototype.play = function () {
 	this.startTime = new Date();
 	this.status = 'play';													/** update current status to 'play'										*/
 
-	this.startTracking = setInterval(this.playingEvent, 20);
+	this.startTrackings[this.startTrackings.indexOf(null)] = setInterval(this.playingEvent, 20);
 };
 
 Sound.prototype.loop = function () {
@@ -172,32 +199,30 @@ Sound.prototype.loop = function () {
 
 Sound.prototype.prev = function () {
 	this.source.onended = null;
-	this.source.stop();														/** clear source node 													*/
-	this.status = 'stop';													/** update current status to 'stop'										*/
-	clearInterval(this.startTracking);										/** clear tracking time interval object for playingEvent				*/
-	this.startTime = new Date();											/** refresh startTime 													*/
 
-	if (this.currentIndex === 0) {
-		this.set((this.currentIndex + this.bufferList.length - 1) % this.bufferList.length)
+	const nextIndex = this.currentIndex === 0 ? this.currentIndex + this.bufferList.length - 1 : this.currentIndex - 1;
+	
+	this.loadEvent = function () {
+		this.set(nextIndex)
 			.endedEvent();
 		this.play();
-	} else {
-		this.set((this.currentIndex - 1) % this.bufferList.length)
-			.endedEvent();
-		this.play();
-	}
+	}.bind(this);
+
+	this.bufferLoader.load(nextIndex);
 };
 
 Sound.prototype.next = function () {
 	this.source.onended = null;
-	this.source.stop();														/** clear source node 													*/
-	this.status = 'stop';													/** update current status to 'stop'										*/
-	clearInterval(this.startTracking);										/** clear tracking time interval object for playingEvent				*/
-	this.startTime = new Date();											/** refresh startTime 													*/
 
-	this.set((this.currentIndex + 1) % this.bufferList.length)
-		.endedEvent();
-	this.play();
+	const nextIndex = (this.currentIndex + 1) % this.bufferList.length;
+	
+	this.loadEvent = function () {
+		this.set(nextIndex)
+			.endedEvent();
+		this.play();
+	}.bind(this);
+
+	this.bufferLoader.load(nextIndex);
 };
 
 /**

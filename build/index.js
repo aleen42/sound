@@ -69,10 +69,11 @@
 	
 	var _sound2 = _interopRequireDefault(_sound);
 	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	var _songlist = __webpack_require__(/*! ./../assets/songlist.json */ 486);
 	
-	/** Components */
-	var songsList = ['./assets/Alan Walker - Sing Me to Sleep.mp3', './assets/Martin Garrix - Oops.mp3', './assets/Pegato,Twilight Meadow - The Worlds We Discovered (Pegato Remix).mp3', './assets/Above & Beyond - Counting Down The Days.mp3', './assets/Above & Beyond - Eternal - Original Mix.mp3', './assets/Above & Beyond - Filmic - Original Mix.mp3', './assets/Above & Beyond - Hello.mp3', './assets/Above & Beyond,Justine Suissa - Little Something.mp3', './assets/Above & Beyond - Out Of Time.mp3', './assets/Above & Beyond - Prelude - Original Mix.mp3', './assets/Above & Beyond,Richard Bedford - Every Little Beat - Original Mix.mp3', './assets/Above & Beyond,Richard Bedford - Thing Called Love - Original Mix.mp3', './assets/Above & Beyond,Zoe Johnston - Alchemy - Original Mix.mp3', './assets/Above & Beyond,Zoe Johnston - Fly To New York.mp3', './assets/Above & Beyond,Zoe Johnston - Sweetest Heart - Original Mix.mp3'];
+	var _songlist2 = _interopRequireDefault(_songlist);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	/** Modules */
 	/***********************************************************************
@@ -96,6 +97,16 @@
 	 *
 	 *
 	 **********************************************************************/
+	
+	var songsList = _songlist2.default.data.map(function (item) {
+		return './assets/songs/' + item;
+	});
+	
+	/** SongsList */
+	
+	
+	/** Components */
+	
 	
 	var sound = new _sound2.default(songsList);
 	
@@ -30910,7 +30921,7 @@
 							'/'
 						)
 					),
-					_react2.default.createElement(_wave.Wave, { sound: this.props.soundObject, updateTime: this.updateTime, updateTitle: this.updateTitle, width: '100%', height: 200, px: 400 })
+					_react2.default.createElement(_wave.Wave, { sound: this.props.soundObject, updateTime: this.updateTime, updateTitle: this.updateTitle, width: '100%', height: 280, px: 400 })
 				);
 			}
 		}]);
@@ -31343,13 +31354,25 @@
 				return (min < 10 ? '0' + min : min) + ':' + (sec < 10 ? '0' + sec : sec);
 			}
 		}, {
+			key: 'loadingUp',
+			value: function loadingUp() {
+				document.querySelectorAll('.loading')[0].style.top = '50%';
+			}
+		}, {
+			key: 'loadingDown',
+			value: function loadingDown() {
+				document.querySelectorAll('.loading')[0].style.top = '10%';
+			}
+		}, {
 			key: 'prev',
 			value: function prev() {
+				this.loadingUp();
 				this.props.sound.prev();
 			}
 		}, {
 			key: 'next',
 			value: function next() {
+				this.loadingUp();
 				this.props.sound.next();
 			}
 		}, {
@@ -31373,6 +31396,7 @@
 					this.refs.wave__container.style.opacity = 1;
 	
 					this.props.sound.onended(function () {
+						this.loadingDown();
 						this.setState({
 							waveBufferData: this.props.sound.getBufferData(this.props.px)
 						});
@@ -31811,13 +31835,35 @@
 		/** @type {Number} [start time of song] */
 		this.startTime = 0.0;
 		this.startContextTime = 0.0;
-		this.startTracking = null;
+	
+		/** @type {Array} [thread of tracking] */
+		this.startTrackings = [null, null];
 	
 		/** @type {Boolean} [whether loop] */
 		this.isLoop = false;
 	
 		/** @type {String} [3 types of status: play, paused, stop] */
 		this.status = 'stop';
+	
+		/** @type {[type]} [a buffer loader object] */
+		this.bufferLoader = null;
+	
+		this.stopSource = function () {
+			if (this.source !== null) {
+				this.source.stop(); /** clear source node 													*/
+			}
+	
+			this.status = 'stop'; /** update current status to 'stop'										*/
+	
+			var curretTrackingThreadIndex = (this.startTrackings.indexOf(null) + 1) % this.startTrackings.length;
+			setTimeout(function () {
+				/** try to use another thread to kill startTracking thread				*/
+				clearInterval(this.startTrackings[curretTrackingThreadIndex]); /** clear tracking time interval object for playingEvent				*/
+				this.startTrackings[curretTrackingThreadIndex] = null;
+			}.bind(this), 20);
+	
+			this.startTime = new Date(); /** refresh startTime 													*/
+		}.bind(this);
 	
 		/** initialize context object */
 		try {
@@ -31892,12 +31938,13 @@
 	
 			request.send();
 		} else {
-			var bufferLoader = new _bufferLoader2.default(this.context, this.url, function (bufferList) {
+			this.bufferLoader = new _bufferLoader2.default(this.context, this.url, function (bufferList) {
 				this.bufferList = bufferList;
-			}.bind(this), function (reservedBufferList) {
-				this.bufferList = reservedBufferList;
 				this.loadEvent();
-			}.bind(this), this.currentIndex).load();
+	
+				/** clear loadEvent once it's called */
+				this.loadEvent = null;
+			}.bind(this), this.bufferList).load(this.currentIndex);
 		}
 	
 		return this;
@@ -31921,15 +31968,20 @@
 			return;
 		}
 	
+		this.stopSource(); /** stop and clear source firstly										*/
+	
 		this.source = this.context.createBufferSource(); /** create a sound source 												*/
 	
 		this.source.onended = this.isLoop ? function () {
-			this.status = 'stop'; /** update current status to 'stop'										*/
-			clearInterval(this.startTracking); /** clear tracking time interval object for playingEvent				*/
-			this.startTime = new Date(); /** refresh startTime 													*/
-			this.set((this.currentIndex + 1) % this.bufferList.length) /** jump to next song 													*/
-			.endedEvent(); /** triger endedEvent 													*/
-			this.play();
+			var nextIndex = (this.currentIndex + 1) % this.bufferList.length;
+	
+			this.loadEvent = function () {
+				this.set(nextIndex) /** jump to next song 													*/
+				.endedEvent(); /** triger endedEvent 													*/
+				this.play();
+			}.bind(this);
+	
+			this.bufferLoader.load(nextIndex);
 		}.bind(this) : null; /** set ended event listner for loop playing							*/
 	
 		this.source.buffer = this.bufferList[this.currentIndex].buffer; /** tell the source which sound to play 								*/
@@ -31939,7 +31991,7 @@
 		this.startTime = new Date();
 		this.status = 'play'; /** update current status to 'play'										*/
 	
-		this.startTracking = setInterval(this.playingEvent, 20);
+		this.startTrackings[this.startTrackings.indexOf(null)] = setInterval(this.playingEvent, 20);
 	};
 	
 	Sound.prototype.loop = function () {
@@ -31950,29 +32002,28 @@
 	
 	Sound.prototype.prev = function () {
 		this.source.onended = null;
-		this.source.stop(); /** clear source node 													*/
-		this.status = 'stop'; /** update current status to 'stop'										*/
-		clearInterval(this.startTracking); /** clear tracking time interval object for playingEvent				*/
-		this.startTime = new Date(); /** refresh startTime 													*/
 	
-		if (this.currentIndex === 0) {
-			this.set((this.currentIndex + this.bufferList.length - 1) % this.bufferList.length).endedEvent();
+		var nextIndex = this.currentIndex === 0 ? this.currentIndex + this.bufferList.length - 1 : this.currentIndex - 1;
+	
+		this.loadEvent = function () {
+			this.set(nextIndex).endedEvent();
 			this.play();
-		} else {
-			this.set((this.currentIndex - 1) % this.bufferList.length).endedEvent();
-			this.play();
-		}
+		}.bind(this);
+	
+		this.bufferLoader.load(nextIndex);
 	};
 	
 	Sound.prototype.next = function () {
 		this.source.onended = null;
-		this.source.stop(); /** clear source node 													*/
-		this.status = 'stop'; /** update current status to 'stop'										*/
-		clearInterval(this.startTracking); /** clear tracking time interval object for playingEvent				*/
-		this.startTime = new Date(); /** refresh startTime 													*/
 	
-		this.set((this.currentIndex + 1) % this.bufferList.length).endedEvent();
-		this.play();
+		var nextIndex = (this.currentIndex + 1) % this.bufferList.length;
+	
+		this.loadEvent = function () {
+			this.set(nextIndex).endedEvent();
+			this.play();
+		}.bind(this);
+	
+		this.bufferLoader.load(nextIndex);
 	};
 	
 	/**
@@ -32102,7 +32153,7 @@
   \*************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	var _common = __webpack_require__(/*! ./common */ 483);
 	
@@ -32110,48 +32161,48 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var BufferLoader = module.exports = function (context, urlList, callback, firstLoadCallback, waitIndex) {
+	var BufferLoader = module.exports = function (context, urlList, callback, bufferList) {
 	    this.context = context;
 	    this.urlList = urlList;
 	    this.onload = callback;
-	    this.onfirstload = firstLoadCallback;
-	    this.waitIndex = waitIndex;
-	    this.bufferList = new Array();
-	    this.loadCount = 0;
+	    this.bufferList = bufferList;
+	
+	    this.waitIndex = 0;
+	    this.prevIndex = 0;
+	    this.nextIndex = 0;
 	};
 	
 	BufferLoader.prototype.loadBuffer = function (url, index) {
-	    // Load buffer asynchronously
-	    var request = new XMLHttpRequest();
-	    request.open("GET", url, true);
-	    request.responseType = "arraybuffer";
+	    /** if load already, then return  */
+	    if (typeof this.bufferList[index] != 'undefined') {
+	        return;
+	    }
 	
-	    var loader = this;
+	    /** Load buffer asynchronously */
+	    var request = new XMLHttpRequest();
+	    request.open('GET', url, true);
+	    request.responseType = 'arraybuffer';
 	
 	    request.onload = function () {
-	        // Asynchronously decode the audio file data in request.response
-	        loader.context.decodeAudioData(request.response, function (buffer) {
+	        /** Asynchronously decode the audio file data in request.response */
+	        this.context.decodeAudioData(request.response, function (buffer) {
 	            if (!buffer) {
 	                alert('error decoding file data: ' + url);
 	                return;
 	            }
 	
-	            loader.bufferList[index] = {
+	            this.bufferList[index] = {
 	                title: _common2.default.extractTitle(url),
 	                buffer: buffer
 	            };
 	
-	            if (index === loader.waitIndex) {
-	                loader.onfirstload(loader.bufferList);
+	            if (typeof this.bufferList[this.waitIndex] != 'undefined' && typeof this.bufferList[this.prevIndex] != 'undefined' && typeof this.bufferList[this.nextIndex] != 'undefined') {
+	                this.onload(this.bufferList);
 	            }
-	
-	            if (++loader.loadCount === loader.urlList.length) {
-	                loader.onload(loader.bufferList);
-	            }
-	        }, function (error) {
+	        }.bind(this), function (error) {
 	            console.error('decodeAudioData error', error);
 	        });
-	    };
+	    }.bind(this);
 	
 	    request.onerror = function () {
 	        alert('BufferLoader: XHR error');
@@ -32160,10 +32211,24 @@
 	    request.send();
 	};
 	
-	BufferLoader.prototype.load = function () {
-	    for (var i = 0; i < this.urlList.length; ++i) {
-	        this.loadBuffer(this.urlList[i], i);
+	BufferLoader.prototype.load = function (index) {
+	    /** set waitIndex as index */
+	    this.waitIndex = index;
+	    this.prevIndex = index === 0 ? index + this.urlList.length - 1 : index - 1;
+	    this.nextIndex = (index + 1) % this.urlList.length;
+	
+	    /** if all already then onload, and return the bufferList */
+	    if (typeof this.bufferList[this.waitIndex] != 'undefined' && typeof this.bufferList[this.prevIndex] != 'undefined' && typeof this.bufferList[this.nextIndex] != 'undefined') {
+	        this.onload(this.bufferList);
+	        return this;
 	    }
+	
+	    /** only load current and its prev and next one */
+	    this.loadBuffer(this.urlList[this.prevIndex], this.prevIndex);
+	    this.loadBuffer(this.urlList[this.waitIndex], this.waitIndex);
+	    this.loadBuffer(this.urlList[this.nextIndex], this.nextIndex);
+	
+	    return this;
 	};
 
 /***/ },
@@ -33722,6 +33787,113 @@
 	  }
 	}.call(this));
 
+
+/***/ },
+/* 486 */
+/*!******************************!*\
+  !*** ./assets/songlist.json ***!
+  \******************************/
+/***/ function(module, exports) {
+
+	module.exports = {
+		"data": [
+			"7obu - Colors.mp3",
+			"ATB - Wait For Your Heart.mp3",
+			"Above & Beyond - Black Room Boy (vocals by Tony McGuinness and Richard Bedford) - Original Mix.mp3",
+			"Above & Beyond - Counting Down The Days.mp3",
+			"Above & Beyond - Eternal - Original Mix.mp3",
+			"Above & Beyond - Filmic - Original Mix.mp3",
+			"Above & Beyond - Hello.mp3",
+			"Above & Beyond - Out Of Time.mp3",
+			"Above & Beyond - Prelude - Original Mix.mp3",
+			"Above & Beyond,Justine Suissa - Little Something.mp3",
+			"Above & Beyond,Richard Bedford - Every Little Beat - Original Mix.mp3",
+			"Above & Beyond,Richard Bedford - Thing Called Love - Original Mix.mp3",
+			"Above & Beyond,Zoe Johnston - Alchemy - Original Mix.mp3",
+			"Above & Beyond,Zoe Johnston - Fly To New York.mp3",
+			"Above & Beyond,Zoe Johnston - Sweetest Heart - Original Mix.mp3",
+			"Above & Beyond,Zoë Johnston - Alchemy - Original Mix.mp3",
+			"Above & Beyond,Zoë Johnston - Fly To New York.mp3",
+			"Above & Beyond,Zoë Johnston - Sweetest Heart - Original Mix.mp3",
+			"Alan Walker - Sing Me to Sleep.mp3",
+			"Alesso - Heroes (we could be) ［feat. Tove Lo］.mp3",
+			"Alesso - I Wanna Know.mp3",
+			"Armin van Buuren - Ping Pong.mp3",
+			"Arston Jake Reese - Circle Track (Radio Edit).mp3",
+			"Au5 Danyka Nadeau - Crossroad.mp3",
+			"Axwell Λ Ingrosso - Thinking About You (Festival Mix).mp3",
+			"Basé,Borgeous - Invincible (Basé Remix).mp3",
+			"Bearson,Tristan Prettyman - Song For The Rich (Bearson Remix).mp3",
+			"Beth,Charming Horses - Don't You Worry Child (Charming Horses Remix).mp3",
+			"Borgeous,tyDi - Wanna Lose You (Original Mix).mp3",
+			"Bright Lights Dannic - Dear Life (Bassjackers Remix).mp3",
+			"Calvin Harris - Summer.mp3",
+			"Carly Rae Jepsen - I Really Like You (LYAR Remix).mp3",
+			"Cash Cash - How To Love (Spanish Version).mp3",
+			"Cash Cash,Christina Perri - Hero.mp3",
+			"Codeko,Ashton Palmer - Afterglow (Original Mix).mp3",
+			"DOAN,Wiz Khalifa,Jasmine Thompson - See You Again (DOAN Remix).mp3",
+			"Dash Berlin - Shelter (feat. Roxanne Emery) ［MaRLo Remix］.mp3",
+			"David Guetta - Dangerous (feat. Sam Martin).mp3",
+			"Dimitri Vegas & Like Mike - Stay A While (Extended Mix).mp3",
+			"Dimitri Vegas Martin Garrix Like Mike - Tremor (Original Mix).mp3",
+			"Dreyer,Broiler - Wild Eyes (Dreyer Remix).mp3",
+			"Electus,ILLENIUM - Without You (Electus Remix).mp3",
+			"FlyBoy,Mree - Lift Me Up (FlyBoy Remix).mp3",
+			"Hardwell - Mad World (Radio Edit).mp3",
+			"Hardwell - Nothing Can Hold Us Down.mp3",
+			"Hardwell - Wake Up Call.mp3",
+			"Hardwell Fatman Scoop W&W - Don't Stop The Madness (Original Mix).mp3",
+			"Hook N Sling,Karin Park - Tokyo By Night (Axwell Remix).mp3",
+			"James Carter,Levi,Tula - Wicked Game(James Carter & Levi Remix).mp3",
+			"Janji,Azealia Banks - Chasing Time (Janji Remix).mp3",
+			"July Child - Leave Me Out.mp3",
+			"KLYMVX,Samuraii,Fetty Wap - Trap Queen (KLYMVX & Samuraii Remix).mp3",
+			"Ken Loi,Elle Vee - Believe (Extended Mix).mp3",
+			"Krewella,William Black - Broken Record (William Black Remix).mp3",
+			"Kygo - Fallen (Kygo Rework).mp3",
+			"Kygo - ID (Ultra Music Festival Anthem) (纯音乐).mp3",
+			"Kygo,Coldplay - Midnight (Kygo Remix).mp3",
+			"Kygo,Kiki Rowe - Got Me Thinkin (Kygo Remix).mp3",
+			"Kygo,M83 - Wait (Kygo Remix).mp3",
+			"Kygo,Marvin Gaye - Sexual Healing (Kygo Remix).mp3",
+			"LVNDSCAPE,IIO - Rapture (LVNDSCAPE Remix).mp3",
+			"LYAR,Oh Wonder - All We Do (LYAR Remix).mp3",
+			"LYAR,Patrick Baker - Gone (LYAR Remix).mp3",
+			"LYAR,Redfoo - New Thang (LYAR Remix).mp3",
+			"Lana Del Rey - Ultraviolence (Hook N Sling Remix).mp3",
+			"Martin Garrix  MOTI - Virus (How About Now) (Original Mix).mp3",
+			"Martin Garrix - Dont Crack Under Pressure (Official Music Video HD).mp3",
+			"Martin Garrix - Oops.mp3",
+			"Martin Garrix,Matisse & Sadko - Dragon (Original Mix).mp3",
+			"Matoma,Family Force 5 - This Is My Year (Matoma Remix).mp3",
+			"Matthew Heyer,Novo Amor - Weather (Matthew Heyer Remix).mp3",
+			"Michael Calfan - Mercy (Original Mix).mp3",
+			"Mike Perry - The Ocean (Radio Edit).mp3",
+			"Nicky Romero Vicetone When We Are Wild - Let Me Feel (Original Mix).mp3",
+			"Odesza,Zyra - Say My Name (Jai Wolf Remix).mp3",
+			"Oh Wonder,Matthew Heyer - Heart Hope (Matthew Heyer Remix).mp3",
+			"Oliver Heldens,Shaun Frank,Delaney Jane - Shades Of Grey (Original Mix).mp3",
+			"Omnia Jonny Rose - Two Hands.mp3",
+			"Paris Blohm - Something About You (Conro’s Ultra Miami 2016 Remix).mp3",
+			"Patrick Lite,Tom Bailey,Zedd - Find You[Feat. Tom Bailey](Patrick Lite Remix).mp3",
+			"Pegato,SNBRN,Andrew Watt - Beat The Sunrise feat. Andrew Watt (Pegato Remix).mp3",
+			"Pegato,Twilight Meadow - The Worlds We Discovered (Pegato Remix).mp3",
+			"Rain Man - Bring Back the Summer.mp3",
+			"Rob Thomas - Pieces (Sam Feldt Remix).mp3",
+			"Sam Feldt,Kimberly Anne,EDX's Indian Summer - Show Me Love (EDX's Indian Summer Remix).mp3",
+			"Sander Van Doorn Martin Garrix DVBBS Aleesia - Gold Skies.mp3",
+			"Selena Gomez - Kill Em With Kindness (Felix Cartal Remix).mp3",
+			"THALLIE ANN SEENYEN Felix Jaehn - Dance With Me (Original Mix).mp3",
+			"Taylor Swift - Wildest Dreams (R3hab Remix).mp3",
+			"Tiësto Kaaze - Rocky (Original Mix).mp3",
+			"Tiësto;John Legend - Summer Nights.mp3",
+			"Tove Lo - Talking Body (Gryffin Remix).mp3",
+			"Vicetone - Nevada (Original Mix).mp3",
+			"Vicetone D. Brown - What I've Waited for (feat. D. Brown).mp3",
+			"Vijay & Sofia Zlatko,Sonnengruss - Storyteller (Vijay & Sofia Zlatko Remix).mp3"
+		]
+	};
 
 /***/ }
 /******/ ]);
