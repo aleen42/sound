@@ -61,15 +61,15 @@
 	
 	var _player = __webpack_require__(/*! ./components/player/player.jsx */ 468);
 	
-	var _loading = __webpack_require__(/*! ./components/loading/loading.jsx */ 479);
+	var _loading = __webpack_require__(/*! ./components/loading/loading.jsx */ 469);
 	
-	var _typeinfo = __webpack_require__(/*! ./components/typeinfo/typeinfo.jsx */ 482);
+	var _typeinfo = __webpack_require__(/*! ./components/typeinfo/typeinfo.jsx */ 474);
 	
-	var _sound = __webpack_require__(/*! ./modules/sound */ 485);
+	var _sound = __webpack_require__(/*! ./modules/sound */ 477);
 	
 	var _sound2 = _interopRequireDefault(_sound);
 	
-	var _songlist = __webpack_require__(/*! ./../assets/songlist.json */ 486);
+	var _songlist = __webpack_require__(/*! ./../assets/songlist.json */ 481);
 	
 	var _songlist2 = _interopRequireDefault(_songlist);
 	
@@ -113,8 +113,10 @@
 		_react2.default.createElement(_loading.Loading, null)
 	), document.querySelectorAll('.loading__container')[0]);
 	
-	sound.set(Math.floor(Math.random() * (_songlist2.default.data.length - 1))).onload(function () {
-		_reactDom2.default.render(_react2.default.createElement(_player.Player, { soundObject: sound }), document.querySelectorAll('.container')[0]);
+	var setIndex = Math.floor(Math.random() * (_songlist2.default.data.length - 1));
+	
+	sound.set(setIndex).onload(function () {
+		_reactDom2.default.render(_react2.default.createElement(_player.Player, { soundObject: sound, setIndex: setIndex }), document.querySelectorAll('.container')[0]);
 	
 		document.querySelectorAll('.loading')[0].style.top = '10%';
 		setTimeout(function () {
@@ -30840,13 +30842,13 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _player = __webpack_require__(/*! ./player.css */ 469);
+	var _player = __webpack_require__(/*! ./player.css */ 482);
 	
 	var _player2 = _interopRequireDefault(_player);
 	
-	var _wave = __webpack_require__(/*! ./wave/wave.jsx */ 473);
+	var _wave = __webpack_require__(/*! ./wave/wave.jsx */ 484);
 	
-	var _list = __webpack_require__(/*! ./list/list.jsx */ 476);
+	var _list = __webpack_require__(/*! ./list/list.jsx */ 487);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -30872,6 +30874,12 @@
 	
 			_this.updateTime = _this.updateTime.bind(_this);
 			_this.updateTitle = _this.updateTitle.bind(_this);
+			_this.updateItem = _this.updateItem.bind(_this);
+	
+			_this.state = {
+				activeIndex: _this.props.setIndex,
+				px: parseInt(window.innerWidth / 3.2)
+			};
 			return _this;
 		}
 	
@@ -30884,6 +30892,32 @@
 			key: 'updateTitle',
 			value: function updateTitle(title) {
 				this.refs.wave__title.children[1].innerText = title;
+			}
+		}, {
+			key: 'updateItem',
+			value: function updateItem(index) {
+				this.setState({
+					activeIndex: index,
+					px: this.state.px
+				});
+			}
+		}, {
+			key: 'handleResize',
+			value: function handleResize(e) {
+				this.setState({
+					activeIndex: this.state.index,
+					px: parseInt(window.innerWidth / 3.2)
+				});
+			}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				window.addEventListener('resize', this.handleResize);
+			}
+		}, {
+			key: 'componentWillUnmount',
+			value: function componentWillUnmount() {
+				window.removeEventListener('resize', this.handleResize);
 			}
 		}, {
 			key: 'render',
@@ -30919,8 +30953,8 @@
 							'/'
 						)
 					),
-					_react2.default.createElement(_wave.Wave, { sound: this.props.soundObject, updateTime: this.updateTime, updateTitle: this.updateTitle, width: '100%', height: 280, px: 400 }),
-					_react2.default.createElement(_list.List, { sound: this.props.soundObject })
+					_react2.default.createElement(_wave.Wave, { sound: this.props.soundObject, updateTime: this.updateTime, updateTitle: this.updateTitle, updateItem: this.updateItem, width: '100%', height: 280, px: this.state.px }),
+					_react2.default.createElement(_list.List, { sound: this.props.soundObject, activeIndex: this.state.activeIndex })
 				);
 			}
 		}]);
@@ -30930,25 +30964,112 @@
 
 /***/ },
 /* 469 */
-/*!******************************************!*\
-  !*** ./src/components/player/player.css ***!
-  \******************************************/
+/*!********************************************!*\
+  !*** ./src/components/loading/loading.jsx ***!
+  \********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.Loading = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 298);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _loading = __webpack_require__(/*! ./loading.css */ 470);
+	
+	var _loading2 = _interopRequireDefault(_loading);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Loading = exports.Loading = function (_React$Component) {
+		_inherits(Loading, _React$Component);
+	
+		function Loading(props) {
+			_classCallCheck(this, Loading);
+	
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(Loading).call(this, props));
+		}
+	
+		_createClass(Loading, [{
+			key: 'getRect',
+			value: function getRect() {
+				var items = [];
+	
+				for (var i = 1; i <= this.props.reactNumber; i++) {
+					items.push(_react2.default.createElement('div', { key: i, className: 'react' + i, style: {
+							'backgroundColor': this.props.reactColor,
+							'WebkitAnimationDelay': -1.2 + this.props.reactDelay * i + 's',
+							'animationDelay': -1.2 + this.props.reactDelay * i + 's'
+						} }));
+				}
+	
+				return items;
+			}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				/** give it 1 sec to render */
+				setTimeout(function () {
+					this.refs.loading.style.display = 'block';
+					setTimeout(function () {
+						this.refs.loading.style.opacity = 1;
+					}.bind(this), 500);
+				}.bind(this), 1000);
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(
+					'div',
+					{ className: 'loading', ref: 'loading' },
+					this.getRect()
+				);
+			}
+		}]);
+	
+		return Loading;
+	}(_react2.default.Component);
+	
+	Loading.defaultProps = {
+		reactNumber: 5,
+		reactDelay: 0.12,
+		reactColor: '#000'
+	};
+
+/***/ },
+/* 470 */
+/*!********************************************!*\
+  !*** ./src/components/loading/loading.css ***!
+  \********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./player.css */ 470);
+	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./loading.css */ 471);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(/*! ./../../../~/style-loader/addStyles.js */ 472)(content, {});
+	var update = __webpack_require__(/*! ./../../../~/style-loader/addStyles.js */ 473)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?sourceMap!./player.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?sourceMap!./player.css");
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?sourceMap!./loading.css", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?sourceMap!./loading.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -30958,24 +31079,24 @@
 	}
 
 /***/ },
-/* 470 */
-/*!*******************************************************************!*\
-  !*** ./~/css-loader?sourceMap!./src/components/player/player.css ***!
-  \*******************************************************************/
+/* 471 */
+/*!*********************************************************************!*\
+  !*** ./~/css-loader?sourceMap!./src/components/loading/loading.css ***!
+  \*********************************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(/*! ./../../../~/css-loader/lib/css-base.js */ 471)();
+	exports = module.exports = __webpack_require__(/*! ./../../../~/css-loader/lib/css-base.js */ 472)();
 	// imports
 	
 	
 	// module
-	exports.push([module.id, "/*******************************************************\n *\n *\n * Component Player\n *\n * \n */\n\n.player__container {\n\tmargin: 0 10%;\n}\n\n.player__prev,\n.player__next {\n\tfont-size: 30px;\n\tposition: absolute;\n    top: 50%;\n    line-height: 60px;\n    color: rgba(0, 0, 0, 0.1);\n    height: 60px;\n    margin-top: -30px;\n    cursor: pointer;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.player__prev:hover,\n.player__next:hover {\n\tcolor: rgba(0, 0, 0, 1);\n}\n\n.player__prev {\n\tleft: -25px;\n}\n\n.player__next {\n\tright: -25px;\n}\n", "", {"version":3,"sources":["/./src/components/player/player.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;CACC,cAAc;CACd;;AAED;;CAEC,gBAAgB;CAChB,mBAAmB;IAChB,SAAS;IACT,kBAAkB;IAClB,0BAA0B;IAC1B,aAAa;IACb,kBAAkB;IAClB,gBAAgB;;IAEhB,6BAA6B;IAC7B,wBAAwB;IACxB,qBAAqB;CACxB;;AAED;;CAEC,wBAAwB;CACxB;;AAED;CACC,YAAY;CACZ;;AAED;CACC,aAAa;CACb","file":"player.css","sourcesContent":["/*******************************************************\n *\n *\n * Component Player\n *\n * \n */\n\n.player__container {\n\tmargin: 0 10%;\n}\n\n.player__prev,\n.player__next {\n\tfont-size: 30px;\n\tposition: absolute;\n    top: 50%;\n    line-height: 60px;\n    color: rgba(0, 0, 0, 0.1);\n    height: 60px;\n    margin-top: -30px;\n    cursor: pointer;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.player__prev:hover,\n.player__next:hover {\n\tcolor: rgba(0, 0, 0, 1);\n}\n\n.player__prev {\n\tleft: -25px;\n}\n\n.player__next {\n\tright: -25px;\n}\n"],"sourceRoot":"webpack://"}]);
+	exports.push([module.id, "/*******************************************************\n *\n *\n * Component Loading\n *\n * \n */\n\n.loading {\n    opacity: 0;\n    display: none;\n    width: 50px;\n    height: 50px;\n    font-size: 10px;\n    top: 50%;\n    text-align: center;\n    position: absolute;\n    left: 50%;\n    margin-top: -25px;\n    margin-left: -25px;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.loading > div {\n    height: 100%;\n    width: 3px;\n    margin: 0 0.5px;\n    display: inline-block;\n    -webkit-animation: stretchdelay 1.2s infinite ease-in-out;\n    animation: stretchdelay 1.2s infinite ease-in-out;\n}\n\n@-webkit-keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        -webkit-transform: scaleY(0.4)\n    }\n    20% {\n        -webkit-transform: scaleY(1.0)\n    }\n}\n\n@keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        transform: scaleY(0.4);\n        -webkit-transform: scaleY(0.4);\n    }\n    20% {\n        transform: scaleY(1.0);\n        -webkit-transform: scaleY(1.0);\n    }\n}\n\n", "", {"version":3,"sources":["/./src/components/loading/loading.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;IACI,WAAW;IACX,cAAc;IACd,YAAY;IACZ,aAAa;IACb,gBAAgB;IAChB,SAAS;IACT,mBAAmB;IACnB,mBAAmB;IACnB,UAAU;IACV,kBAAkB;IAClB,mBAAmB;;IAEnB,6BAA6B;IAC7B,wBAAwB;IACxB,qBAAqB;CACxB;;AAED;IACI,aAAa;IACb,WAAW;IACX,gBAAgB;IAChB,sBAAsB;IACtB,0DAA0D;IAC1D,kDAAkD;CACrD;;AAED;IACI;;;QAGI,8BAA8B;KACjC;IACD;QACI,8BAA8B;KACjC;CACJ;;AAED;IACI;;;QAGI,uBAAuB;QACvB,+BAA+B;KAClC;IACD;QACI,uBAAuB;QACvB,+BAA+B;KAClC;CACJ","file":"loading.css","sourcesContent":["/*******************************************************\n *\n *\n * Component Loading\n *\n * \n */\n\n.loading {\n    opacity: 0;\n    display: none;\n    width: 50px;\n    height: 50px;\n    font-size: 10px;\n    top: 50%;\n    text-align: center;\n    position: absolute;\n    left: 50%;\n    margin-top: -25px;\n    margin-left: -25px;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.loading > div {\n    height: 100%;\n    width: 3px;\n    margin: 0 0.5px;\n    display: inline-block;\n    -webkit-animation: stretchdelay 1.2s infinite ease-in-out;\n    animation: stretchdelay 1.2s infinite ease-in-out;\n}\n\n@-webkit-keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        -webkit-transform: scaleY(0.4)\n    }\n    20% {\n        -webkit-transform: scaleY(1.0)\n    }\n}\n\n@keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        transform: scaleY(0.4);\n        -webkit-transform: scaleY(0.4);\n    }\n    20% {\n        transform: scaleY(1.0);\n        -webkit-transform: scaleY(1.0);\n    }\n}\n\n"],"sourceRoot":"webpack://"}]);
 	
 	// exports
 
 
 /***/ },
-/* 471 */
+/* 472 */
 /*!**************************************!*\
   !*** ./~/css-loader/lib/css-base.js ***!
   \**************************************/
@@ -31034,7 +31155,7 @@
 
 
 /***/ },
-/* 472 */
+/* 473 */
 /*!*************************************!*\
   !*** ./~/style-loader/addStyles.js ***!
   \*************************************/
@@ -31289,459 +31410,7 @@
 
 
 /***/ },
-/* 473 */
-/*!*********************************************!*\
-  !*** ./src/components/player/wave/wave.jsx ***!
-  \*********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	exports.Wave = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _react = __webpack_require__(/*! react */ 298);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _wave = __webpack_require__(/*! ./wave.css */ 474);
-	
-	var _wave2 = _interopRequireDefault(_wave);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var Wave = exports.Wave = function (_React$Component) {
-		_inherits(Wave, _React$Component);
-	
-		function Wave(props) {
-			_classCallCheck(this, Wave);
-	
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Wave).call(this, props));
-	
-			_this.state = {
-				waveBufferData: _this.props.sound.getBufferData(_this.props.px)
-			};
-	
-			_this.prev = _this.prev.bind(_this);
-			_this.next = _this.next.bind(_this);
-			return _this;
-		}
-	
-		_createClass(Wave, [{
-			key: 'getWave',
-			value: function getWave() {
-				var data = this.state.waveBufferData;
-				return data.map(function (elem, index) {
-					return _react2.default.createElement('rect', { key: index, ref: 'wave__tag' + index, x: index / data.length * 100 + '%', y: (this.props.height - elem.pcmData * 1000) / 2 + 'px', width: 1, height: elem.pcmData * 1000 + 'px', fill: elem.fill });
-				}.bind(this));
-			}
-		}, {
-			key: 'formatTime',
-			value: function formatTime(time) {
-				var min = Math.floor(time / 60);
-				var sec = Math.floor(time - min * 60);
-				return (min < 10 ? '0' + min : min) + ':' + (sec < 10 ? '0' + sec : sec);
-			}
-		}, {
-			key: 'loadingUp',
-			value: function loadingUp() {
-				document.querySelectorAll('.loading')[0].style.top = '50%';
-			}
-		}, {
-			key: 'loadingDown',
-			value: function loadingDown() {
-				document.querySelectorAll('.loading')[0].style.top = '10%';
-			}
-		}, {
-			key: 'prev',
-			value: function prev() {
-				this.loadingUp();
-	
-				/** try to avoid blocking UI thread */
-				setTimeout(function () {
-					this.props.sound.prev();
-				}.bind(this), 500);
-			}
-		}, {
-			key: 'next',
-			value: function next() {
-				this.loadingUp();
-	
-				/** try to avoid blocking UI thread */
-				setTimeout(function () {
-					this.props.sound.next();
-				}.bind(this), 500);
-			}
-		}, {
-			key: 'componentDidUpdate',
-			value: function componentDidUpdate() {
-				/** [for: clear all wave tag] */
-				for (var i = 0; i < this.props.px; i++) {
-					this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 0.1)');
-				}
-	
-				this.props.updateTitle(this.props.sound.getTitle());
-	
-				this.loadingDown();
-			}
-		}, {
-			key: 'componentDidMount',
-			value: function componentDidMount() {
-				/** give it 1 sec to render */
-				setTimeout(function () {
-					/** play when component mount */
-					this.props.updateTitle(this.props.sound.getTitle());
-	
-					this.refs.wave__container.style.opacity = 1;
-	
-					this.props.sound.onended(function () {
-						this.next();
-					}.bind(this)).onloaded(function () {
-						this.setState({
-							waveBufferData: this.props.sound.getBufferData(this.props.px)
-						});
-					}.bind(this)).onplaying(function () {
-						/** Wave Update */
-						var item = Math.floor(this.props.sound.getCurrentTime() * (this.props.sound.getSampleRate() / (this.props.sound.getDataLength() / this.props.px)));
-						if (typeof this.refs['wave__tag' + item] != 'undefined') {
-							/** ensure not jump too fast */
-							if (item > 2) {
-								this.refs['wave__tag' + (item - 2)].setAttribute('fill', 'rgba(0, 0, 0, 1)');
-							}
-	
-							if (item > 1) {
-								this.refs['wave__tag' + (item - 1)].setAttribute('fill', 'rgba(0, 0, 0, 1)');
-							}
-	
-							this.refs['wave__tag' + item].setAttribute('fill', 'rgba(0, 0, 0, 1)');
-						}
-	
-						/** Time Update */
-						this.props.updateTime(this.formatTime(Math.floor(this.props.sound.getCurrentTime())) + ' / ' + this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate())));
-	
-						/** Triangle Progress Update */
-						this.refs.wave__progress.style.left = this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3 + 'px';
-					}.bind(this)).loop();
-				}.bind(this), 1000);
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				return _react2.default.createElement(
-					'div',
-					{ className: 'wave__container', ref: 'wave__container' },
-					_react2.default.createElement(
-						'div',
-						{ className: 'player__prev', onClick: this.prev },
-						_react2.default.createElement('i', { className: 'fa fa-angle-left' })
-					),
-					_react2.default.createElement('div', { className: 'wave__central_line' }),
-					_react2.default.createElement(
-						'svg',
-						{ className: 'svg__wave', xmlns: 'http://www.w3.org/2000/svg', width: this.props.width, height: this.props.height },
-						this.getWave()
-					),
-					_react2.default.createElement('div', { className: 'wave__progress wave__position-absolute', ref: 'wave__progress' }),
-					_react2.default.createElement(
-						'div',
-						{ className: 'player__next', onClick: this.next },
-						_react2.default.createElement('i', { className: 'fa fa-angle-right' })
-					)
-				);
-			}
-		}]);
-	
-		return Wave;
-	}(_react2.default.Component);
-
-/***/ },
 /* 474 */
-/*!*********************************************!*\
-  !*** ./src/components/player/wave/wave.css ***!
-  \*********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-	
-	// load the styles
-	var content = __webpack_require__(/*! !./../../../../~/css-loader?sourceMap!./wave.css */ 475);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(/*! ./../../../../~/style-loader/addStyles.js */ 472)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?sourceMap!./wave.css", function() {
-				var newContent = require("!!./../../../../node_modules/css-loader/index.js?sourceMap!./wave.css");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 475 */
-/*!**********************************************************************!*\
-  !*** ./~/css-loader?sourceMap!./src/components/player/wave/wave.css ***!
-  \**********************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(/*! ./../../../../~/css-loader/lib/css-base.js */ 471)();
-	// imports
-	
-	
-	// module
-	exports.push([module.id, "/*******************************************************\n *\n *\n * Component Wave\n *\n * \n */\n\n.svg__wave > rect {\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__container {\n\tposition: relative;\n\topacity: 0;\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__position-absolute {\n\tposition: absolute;\n}\n\n.wave__progress {\n    left: -3px;\n    border: 3px solid transparent;\n    border-bottom: 6px solid #000;\n    height: 0;\n    width: 0;\n}\n\n.wave__central_line {\n\twidth: 100%;\n    height: 1px;\n    background-color: rgba(0, 0, 0, 0.05);\n    position: absolute;\n    top: 50%;\n    margin-top: -0.5px;\n}\n", "", {"version":3,"sources":["/./src/components/player/wave/wave.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;CACC,6BAA6B;CAC7B,wBAAwB;CACxB,qBAAqB;CACrB;;AAED;CACC,mBAAmB;CACnB,WAAW;CACX,6BAA6B;CAC7B,wBAAwB;CACxB,qBAAqB;CACrB;;AAED;CACC,mBAAmB;CACnB;;AAED;IACI,WAAW;IACX,8BAA8B;IAC9B,8BAA8B;IAC9B,UAAU;IACV,SAAS;CACZ;;AAED;CACC,YAAY;IACT,YAAY;IACZ,sCAAsC;IACtC,mBAAmB;IACnB,SAAS;IACT,mBAAmB;CACtB","file":"wave.css","sourcesContent":["/*******************************************************\n *\n *\n * Component Wave\n *\n * \n */\n\n.svg__wave > rect {\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__container {\n\tposition: relative;\n\topacity: 0;\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__position-absolute {\n\tposition: absolute;\n}\n\n.wave__progress {\n    left: -3px;\n    border: 3px solid transparent;\n    border-bottom: 6px solid #000;\n    height: 0;\n    width: 0;\n}\n\n.wave__central_line {\n\twidth: 100%;\n    height: 1px;\n    background-color: rgba(0, 0, 0, 0.05);\n    position: absolute;\n    top: 50%;\n    margin-top: -0.5px;\n}\n"],"sourceRoot":"webpack://"}]);
-	
-	// exports
-
-
-/***/ },
-/* 476 */
-/*!*********************************************!*\
-  !*** ./src/components/player/list/list.jsx ***!
-  \*********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	exports.List = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _react = __webpack_require__(/*! react */ 298);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _list = __webpack_require__(/*! ./list.css */ 477);
-	
-	var _list2 = _interopRequireDefault(_list);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var List = exports.List = function (_React$Component) {
-		_inherits(List, _React$Component);
-	
-		function List(props) {
-			_classCallCheck(this, List);
-	
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(List).call(this, props));
-		}
-	
-		_createClass(List, [{
-			key: 'render',
-			value: function render() {
-				return _react2.default.createElement('div', null);
-			}
-		}]);
-	
-		return List;
-	}(_react2.default.Component);
-
-/***/ },
-/* 477 */
-/*!*********************************************!*\
-  !*** ./src/components/player/list/list.css ***!
-  \*********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-	
-	// load the styles
-	var content = __webpack_require__(/*! !./../../../../~/css-loader?sourceMap!./list.css */ 478);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(/*! ./../../../../~/style-loader/addStyles.js */ 472)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?sourceMap!./list.css", function() {
-				var newContent = require("!!./../../../../node_modules/css-loader/index.js?sourceMap!./list.css");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 478 */
-/*!**********************************************************************!*\
-  !*** ./~/css-loader?sourceMap!./src/components/player/list/list.css ***!
-  \**********************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(/*! ./../../../../~/css-loader/lib/css-base.js */ 471)();
-	// imports
-	
-	
-	// module
-	exports.push([module.id, "/*******************************************************\n *\n *\n * Component List\n *\n * \n */\n", "", {"version":3,"sources":["/./src/components/player/list/list.css"],"names":[],"mappings":"AAAA;;;;;;GAMG","file":"list.css","sourcesContent":["/*******************************************************\n *\n *\n * Component List\n *\n * \n */\n"],"sourceRoot":"webpack://"}]);
-	
-	// exports
-
-
-/***/ },
-/* 479 */
-/*!********************************************!*\
-  !*** ./src/components/loading/loading.jsx ***!
-  \********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	exports.Loading = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _react = __webpack_require__(/*! react */ 298);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _loading = __webpack_require__(/*! ./loading.css */ 480);
-	
-	var _loading2 = _interopRequireDefault(_loading);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var Loading = exports.Loading = function (_React$Component) {
-		_inherits(Loading, _React$Component);
-	
-		function Loading(props) {
-			_classCallCheck(this, Loading);
-	
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(Loading).call(this, props));
-		}
-	
-		_createClass(Loading, [{
-			key: 'getRect',
-			value: function getRect() {
-				var items = [];
-	
-				for (var i = 1; i <= this.props.reactNumber; i++) {
-					items.push(_react2.default.createElement('div', { key: i, className: 'react' + i, style: {
-							'backgroundColor': this.props.reactColor,
-							'WebkitAnimationDelay': -1.2 + this.props.reactDelay * i + 's',
-							'animationDelay': -1.2 + this.props.reactDelay * i + 's'
-						} }));
-				}
-	
-				return items;
-			}
-		}, {
-			key: 'componentDidMount',
-			value: function componentDidMount() {
-				/** give it 1 sec to render */
-				setTimeout(function () {
-					this.refs.loading.style.display = 'block';
-					setTimeout(function () {
-						this.refs.loading.style.opacity = 1;
-					}.bind(this), 500);
-				}.bind(this), 1000);
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				return _react2.default.createElement(
-					'div',
-					{ className: 'loading', ref: 'loading' },
-					this.getRect()
-				);
-			}
-		}]);
-	
-		return Loading;
-	}(_react2.default.Component);
-	
-	Loading.defaultProps = {
-		reactNumber: 5,
-		reactDelay: 0.12,
-		reactColor: '#000'
-	};
-
-/***/ },
-/* 480 */
-/*!********************************************!*\
-  !*** ./src/components/loading/loading.css ***!
-  \********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-	
-	// load the styles
-	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./loading.css */ 481);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(/*! ./../../../~/style-loader/addStyles.js */ 472)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?sourceMap!./loading.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?sourceMap!./loading.css");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 481 */
-/*!*********************************************************************!*\
-  !*** ./~/css-loader?sourceMap!./src/components/loading/loading.css ***!
-  \*********************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(/*! ./../../../~/css-loader/lib/css-base.js */ 471)();
-	// imports
-	
-	
-	// module
-	exports.push([module.id, "/*******************************************************\n *\n *\n * Component Loading\n *\n * \n */\n\n.loading {\n    opacity: 0;\n    display: none;\n    width: 50px;\n    height: 50px;\n    font-size: 10px;\n    top: 50%;\n    text-align: center;\n    position: absolute;\n    left: 50%;\n    margin-top: -25px;\n    margin-left: -25px;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.loading > div {\n    height: 100%;\n    width: 3px;\n    margin: 0 0.5px;\n    display: inline-block;\n    -webkit-animation: stretchdelay 1.2s infinite ease-in-out;\n    animation: stretchdelay 1.2s infinite ease-in-out;\n}\n\n@-webkit-keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        -webkit-transform: scaleY(0.4)\n    }\n    20% {\n        -webkit-transform: scaleY(1.0)\n    }\n}\n\n@keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        transform: scaleY(0.4);\n        -webkit-transform: scaleY(0.4);\n    }\n    20% {\n        transform: scaleY(1.0);\n        -webkit-transform: scaleY(1.0);\n    }\n}\n\n", "", {"version":3,"sources":["/./src/components/loading/loading.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;IACI,WAAW;IACX,cAAc;IACd,YAAY;IACZ,aAAa;IACb,gBAAgB;IAChB,SAAS;IACT,mBAAmB;IACnB,mBAAmB;IACnB,UAAU;IACV,kBAAkB;IAClB,mBAAmB;;IAEnB,6BAA6B;IAC7B,wBAAwB;IACxB,qBAAqB;CACxB;;AAED;IACI,aAAa;IACb,WAAW;IACX,gBAAgB;IAChB,sBAAsB;IACtB,0DAA0D;IAC1D,kDAAkD;CACrD;;AAED;IACI;;;QAGI,8BAA8B;KACjC;IACD;QACI,8BAA8B;KACjC;CACJ;;AAED;IACI;;;QAGI,uBAAuB;QACvB,+BAA+B;KAClC;IACD;QACI,uBAAuB;QACvB,+BAA+B;KAClC;CACJ","file":"loading.css","sourcesContent":["/*******************************************************\n *\n *\n * Component Loading\n *\n * \n */\n\n.loading {\n    opacity: 0;\n    display: none;\n    width: 50px;\n    height: 50px;\n    font-size: 10px;\n    top: 50%;\n    text-align: center;\n    position: absolute;\n    left: 50%;\n    margin-top: -25px;\n    margin-left: -25px;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.loading > div {\n    height: 100%;\n    width: 3px;\n    margin: 0 0.5px;\n    display: inline-block;\n    -webkit-animation: stretchdelay 1.2s infinite ease-in-out;\n    animation: stretchdelay 1.2s infinite ease-in-out;\n}\n\n@-webkit-keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        -webkit-transform: scaleY(0.4)\n    }\n    20% {\n        -webkit-transform: scaleY(1.0)\n    }\n}\n\n@keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        transform: scaleY(0.4);\n        -webkit-transform: scaleY(0.4);\n    }\n    20% {\n        transform: scaleY(1.0);\n        -webkit-transform: scaleY(1.0);\n    }\n}\n\n"],"sourceRoot":"webpack://"}]);
-	
-	// exports
-
-
-/***/ },
-/* 482 */
 /*!**********************************************!*\
   !*** ./src/components/typeinfo/typeinfo.jsx ***!
   \**********************************************/
@@ -31760,7 +31429,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _typeinfo = __webpack_require__(/*! ./typeinfo.css */ 483);
+	var _typeinfo = __webpack_require__(/*! ./typeinfo.css */ 475);
 	
 	var _typeinfo2 = _interopRequireDefault(_typeinfo);
 	
@@ -31846,7 +31515,7 @@
 	};
 
 /***/ },
-/* 483 */
+/* 475 */
 /*!**********************************************!*\
   !*** ./src/components/typeinfo/typeinfo.css ***!
   \**********************************************/
@@ -31855,10 +31524,10 @@
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./typeinfo.css */ 484);
+	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./typeinfo.css */ 476);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(/*! ./../../../~/style-loader/addStyles.js */ 472)(content, {});
+	var update = __webpack_require__(/*! ./../../../~/style-loader/addStyles.js */ 473)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -31875,13 +31544,13 @@
 	}
 
 /***/ },
-/* 484 */
+/* 476 */
 /*!***********************************************************************!*\
   !*** ./~/css-loader?sourceMap!./src/components/typeinfo/typeinfo.css ***!
   \***********************************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(/*! ./../../../~/css-loader/lib/css-base.js */ 471)();
+	exports = module.exports = __webpack_require__(/*! ./../../../~/css-loader/lib/css-base.js */ 472)();
 	// imports
 	
 	
@@ -31892,7 +31561,7 @@
 
 
 /***/ },
-/* 485 */
+/* 477 */
 /*!******************************!*\
   !*** ./src/modules/sound.js ***!
   \******************************/
@@ -31900,15 +31569,15 @@
 
 	'use strict';
 	
-	var _common = __webpack_require__(/*! ./common */ 487);
+	var _common = __webpack_require__(/*! ./common */ 478);
 	
 	var _common2 = _interopRequireDefault(_common);
 	
-	var _bufferLoader = __webpack_require__(/*! ./bufferLoader */ 488);
+	var _bufferLoader = __webpack_require__(/*! ./bufferLoader */ 479);
 	
 	var _bufferLoader2 = _interopRequireDefault(_bufferLoader);
 	
-	var _underscore = __webpack_require__(/*! underscore */ 489);
+	var _underscore = __webpack_require__(/*! underscore */ 480);
 	
 	var _underscore2 = _interopRequireDefault(_underscore);
 	
@@ -32180,6 +31849,14 @@
 		return this.bufferList[this.currentIndex].title;
 	};
 	
+	Sound.prototype.getList = function () {
+		return this.songList;
+	};
+	
+	Sound.prototype.getCurrentIndex = function () {
+		return this.currentIndex;
+	};
+	
 	Sound.prototype.getCurrentTime = function () {
 		return this.startTime === 0.0 ? 0 : this.context.currentTime - (this.startTime - this.startContextTime) / 1000;
 	};
@@ -32208,114 +31885,7 @@
 	};
 
 /***/ },
-/* 486 */
-/*!******************************!*\
-  !*** ./assets/songlist.json ***!
-  \******************************/
-/***/ function(module, exports) {
-
-	module.exports = {
-		"data": [
-			"7obu - Colors.mp3",
-			"ATB - Wait For Your Heart.mp3",
-			"Above & Beyond - Black Room Boy (vocals by Tony McGuinness and Richard Bedford) - Original Mix.mp3",
-			"Above & Beyond - Counting Down The Days.mp3",
-			"Above & Beyond - Eternal - Original Mix.mp3",
-			"Above & Beyond - Filmic - Original Mix.mp3",
-			"Above & Beyond - Hello.mp3",
-			"Above & Beyond - Out Of Time.mp3",
-			"Above & Beyond - Prelude - Original Mix.mp3",
-			"Above & Beyond,Justine Suissa - Little Something.mp3",
-			"Above & Beyond,Richard Bedford - Every Little Beat - Original Mix.mp3",
-			"Above & Beyond,Richard Bedford - Thing Called Love - Original Mix.mp3",
-			"Above & Beyond,Zoe Johnston - Alchemy - Original Mix.mp3",
-			"Above & Beyond,Zoe Johnston - Fly To New York.mp3",
-			"Above & Beyond,Zoe Johnston - Sweetest Heart - Original Mix.mp3",
-			"Above & Beyond,Zoë Johnston - Alchemy - Original Mix.mp3",
-			"Above & Beyond,Zoë Johnston - Fly To New York.mp3",
-			"Above & Beyond,Zoë Johnston - Sweetest Heart - Original Mix.mp3",
-			"Alan Walker - Sing Me to Sleep.mp3",
-			"Alesso - Heroes (we could be) ［feat. Tove Lo］.mp3",
-			"Alesso - I Wanna Know.mp3",
-			"Armin van Buuren - Ping Pong.mp3",
-			"Arston Jake Reese - Circle Track (Radio Edit).mp3",
-			"Au5 Danyka Nadeau - Crossroad.mp3",
-			"Axwell Λ Ingrosso - Thinking About You (Festival Mix).mp3",
-			"Basé,Borgeous - Invincible (Basé Remix).mp3",
-			"Bearson,Tristan Prettyman - Song For The Rich (Bearson Remix).mp3",
-			"Beth,Charming Horses - Don't You Worry Child (Charming Horses Remix).mp3",
-			"Borgeous,tyDi - Wanna Lose You (Original Mix).mp3",
-			"Bright Lights Dannic - Dear Life (Bassjackers Remix).mp3",
-			"Calvin Harris - Summer.mp3",
-			"Carly Rae Jepsen - I Really Like You (LYAR Remix).mp3",
-			"Cash Cash - How To Love (Spanish Version).mp3",
-			"Cash Cash,Christina Perri - Hero.mp3",
-			"Codeko,Ashton Palmer - Afterglow (Original Mix).mp3",
-			"DOAN,Wiz Khalifa,Jasmine Thompson - See You Again (DOAN Remix).mp3",
-			"Dash Berlin - Shelter (feat. Roxanne Emery) ［MaRLo Remix］.mp3",
-			"David Guetta - Dangerous (feat. Sam Martin).mp3",
-			"Dimitri Vegas & Like Mike - Stay A While (Extended Mix).mp3",
-			"Dimitri Vegas Martin Garrix Like Mike - Tremor (Original Mix).mp3",
-			"Dreyer,Broiler - Wild Eyes (Dreyer Remix).mp3",
-			"Electus,ILLENIUM - Without You (Electus Remix).mp3",
-			"FlyBoy,Mree - Lift Me Up (FlyBoy Remix).mp3",
-			"Hardwell - Mad World (Radio Edit).mp3",
-			"Hardwell - Nothing Can Hold Us Down.mp3",
-			"Hardwell - Wake Up Call.mp3",
-			"Hardwell Fatman Scoop W&W - Don't Stop The Madness (Original Mix).mp3",
-			"Hook N Sling,Karin Park - Tokyo By Night (Axwell Remix).mp3",
-			"James Carter,Levi,Tula - Wicked Game(James Carter & Levi Remix).mp3",
-			"Janji,Azealia Banks - Chasing Time (Janji Remix).mp3",
-			"July Child - Leave Me Out.mp3",
-			"KLYMVX,Samuraii,Fetty Wap - Trap Queen (KLYMVX & Samuraii Remix).mp3",
-			"Ken Loi,Elle Vee - Believe (Extended Mix).mp3",
-			"Krewella,William Black - Broken Record (William Black Remix).mp3",
-			"Kygo - Fallen (Kygo Rework).mp3",
-			"Kygo - ID (Ultra Music Festival Anthem) (纯音乐).mp3",
-			"Kygo,Coldplay - Midnight (Kygo Remix).mp3",
-			"Kygo,Kiki Rowe - Got Me Thinkin (Kygo Remix).mp3",
-			"Kygo,M83 - Wait (Kygo Remix).mp3",
-			"Kygo,Marvin Gaye - Sexual Healing (Kygo Remix).mp3",
-			"LVNDSCAPE,IIO - Rapture (LVNDSCAPE Remix).mp3",
-			"LYAR,Oh Wonder - All We Do (LYAR Remix).mp3",
-			"LYAR,Patrick Baker - Gone (LYAR Remix).mp3",
-			"LYAR,Redfoo - New Thang (LYAR Remix).mp3",
-			"Lana Del Rey - Ultraviolence (Hook N Sling Remix).mp3",
-			"Martin Garrix  MOTI - Virus (How About Now) (Original Mix).mp3",
-			"Martin Garrix - Dont Crack Under Pressure (Official Music Video HD).mp3",
-			"Martin Garrix - Oops.mp3",
-			"Martin Garrix,Matisse & Sadko - Dragon (Original Mix).mp3",
-			"Matoma,Family Force 5 - This Is My Year (Matoma Remix).mp3",
-			"Matthew Heyer,Novo Amor - Weather (Matthew Heyer Remix).mp3",
-			"Michael Calfan - Mercy (Original Mix).mp3",
-			"Mike Perry - The Ocean (Radio Edit).mp3",
-			"Nicky Romero Vicetone When We Are Wild - Let Me Feel (Original Mix).mp3",
-			"Odesza,Zyra - Say My Name (Jai Wolf Remix).mp3",
-			"Oh Wonder,Matthew Heyer - Heart Hope (Matthew Heyer Remix).mp3",
-			"Oliver Heldens,Shaun Frank,Delaney Jane - Shades Of Grey (Original Mix).mp3",
-			"Omnia Jonny Rose - Two Hands.mp3",
-			"Paris Blohm - Something About You (Conro’s Ultra Miami 2016 Remix).mp3",
-			"Patrick Lite,Tom Bailey,Zedd - Find You[Feat. Tom Bailey](Patrick Lite Remix).mp3",
-			"Pegato,SNBRN,Andrew Watt - Beat The Sunrise feat. Andrew Watt (Pegato Remix).mp3",
-			"Pegato,Twilight Meadow - The Worlds We Discovered (Pegato Remix).mp3",
-			"Rain Man - Bring Back the Summer.mp3",
-			"Rob Thomas - Pieces (Sam Feldt Remix).mp3",
-			"Sam Feldt,Kimberly Anne,EDX's Indian Summer - Show Me Love (EDX's Indian Summer Remix).mp3",
-			"Sander Van Doorn Martin Garrix DVBBS Aleesia - Gold Skies.mp3",
-			"Selena Gomez - Kill Em With Kindness (Felix Cartal Remix).mp3",
-			"THALLIE ANN SEENYEN Felix Jaehn - Dance With Me (Original Mix).mp3",
-			"Taylor Swift - Wildest Dreams (R3hab Remix).mp3",
-			"Tiësto Kaaze - Rocky (Original Mix).mp3",
-			"Tiësto;John Legend - Summer Nights.mp3",
-			"Tove Lo - Talking Body (Gryffin Remix).mp3",
-			"Vicetone - Nevada (Original Mix).mp3",
-			"Vicetone D. Brown - What I've Waited for (feat. D. Brown).mp3",
-			"Vijay & Sofia Zlatko,Sonnengruss - Storyteller (Vijay & Sofia Zlatko Remix).mp3"
-		]
-	};
-
-/***/ },
-/* 487 */
+/* 478 */
 /*!*******************************!*\
   !*** ./src/modules/common.js ***!
   \*******************************/
@@ -32362,7 +31932,7 @@
 	};
 
 /***/ },
-/* 488 */
+/* 479 */
 /*!*************************************!*\
   !*** ./src/modules/bufferLoader.js ***!
   \*************************************/
@@ -32370,7 +31940,7 @@
 
 	'use strict';
 	
-	var _common = __webpack_require__(/*! ./common */ 487);
+	var _common = __webpack_require__(/*! ./common */ 478);
 	
 	var _common2 = _interopRequireDefault(_common);
 	
@@ -32447,7 +32017,7 @@
 	};
 
 /***/ },
-/* 489 */
+/* 480 */
 /*!************************************!*\
   !*** ./~/underscore/underscore.js ***!
   \************************************/
@@ -34001,6 +33571,552 @@
 	    }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  }
 	}.call(this));
+
+
+/***/ },
+/* 481 */
+/*!******************************!*\
+  !*** ./assets/songlist.json ***!
+  \******************************/
+/***/ function(module, exports) {
+
+	module.exports = {
+		"data": [
+			"7obu - Colors.mp3",
+			"ATB - Wait For Your Heart.mp3",
+			"Above & Beyond - Black Room Boy (vocals by Tony McGuinness and Richard Bedford) - Original Mix.mp3",
+			"Above & Beyond - Counting Down The Days.mp3",
+			"Above & Beyond - Eternal - Original Mix.mp3",
+			"Above & Beyond - Filmic - Original Mix.mp3",
+			"Above & Beyond - Hello.mp3",
+			"Above & Beyond - Out Of Time.mp3",
+			"Above & Beyond - Prelude - Original Mix.mp3",
+			"Above & Beyond,Justine Suissa - Little Something.mp3",
+			"Above & Beyond,Richard Bedford - Every Little Beat - Original Mix.mp3",
+			"Above & Beyond,Richard Bedford - Thing Called Love - Original Mix.mp3",
+			"Above & Beyond,Zoe Johnston - Alchemy - Original Mix.mp3",
+			"Above & Beyond,Zoe Johnston - Fly To New York.mp3",
+			"Above & Beyond,Zoe Johnston - Sweetest Heart - Original Mix.mp3",
+			"Above & Beyond,Zoë Johnston - Alchemy - Original Mix.mp3",
+			"Above & Beyond,Zoë Johnston - Fly To New York.mp3",
+			"Above & Beyond,Zoë Johnston - Sweetest Heart - Original Mix.mp3",
+			"Alan Walker - Sing Me to Sleep.mp3",
+			"Alesso - Heroes (we could be) ［feat. Tove Lo］.mp3",
+			"Alesso - I Wanna Know.mp3",
+			"Armin van Buuren - Ping Pong.mp3",
+			"Arston Jake Reese - Circle Track (Radio Edit).mp3",
+			"Au5 Danyka Nadeau - Crossroad.mp3",
+			"Axwell Λ Ingrosso - Thinking About You (Festival Mix).mp3",
+			"Basé,Borgeous - Invincible (Basé Remix).mp3",
+			"Bearson,Tristan Prettyman - Song For The Rich (Bearson Remix).mp3",
+			"Beth,Charming Horses - Don't You Worry Child (Charming Horses Remix).mp3",
+			"Borgeous,tyDi - Wanna Lose You (Original Mix).mp3",
+			"Bright Lights Dannic - Dear Life (Bassjackers Remix).mp3",
+			"Calvin Harris - Summer.mp3",
+			"Carly Rae Jepsen - I Really Like You (LYAR Remix).mp3",
+			"Cash Cash - How To Love (Spanish Version).mp3",
+			"Cash Cash,Christina Perri - Hero.mp3",
+			"Codeko,Ashton Palmer - Afterglow (Original Mix).mp3",
+			"DOAN,Wiz Khalifa,Jasmine Thompson - See You Again (DOAN Remix).mp3",
+			"Dash Berlin - Shelter (feat. Roxanne Emery) ［MaRLo Remix］.mp3",
+			"David Guetta - Dangerous (feat. Sam Martin).mp3",
+			"Dimitri Vegas & Like Mike - Stay A While (Extended Mix).mp3",
+			"Dimitri Vegas Martin Garrix Like Mike - Tremor (Original Mix).mp3",
+			"Dreyer,Broiler - Wild Eyes (Dreyer Remix).mp3",
+			"Electus,ILLENIUM - Without You (Electus Remix).mp3",
+			"FlyBoy,Mree - Lift Me Up (FlyBoy Remix).mp3",
+			"Hardwell - Mad World (Radio Edit).mp3",
+			"Hardwell - Nothing Can Hold Us Down.mp3",
+			"Hardwell - Wake Up Call.mp3",
+			"Hardwell Fatman Scoop W&W - Don't Stop The Madness (Original Mix).mp3",
+			"Hook N Sling,Karin Park - Tokyo By Night (Axwell Remix).mp3",
+			"James Carter,Levi,Tula - Wicked Game(James Carter & Levi Remix).mp3",
+			"Janji,Azealia Banks - Chasing Time (Janji Remix).mp3",
+			"July Child - Leave Me Out.mp3",
+			"KLYMVX,Samuraii,Fetty Wap - Trap Queen (KLYMVX & Samuraii Remix).mp3",
+			"Ken Loi,Elle Vee - Believe (Extended Mix).mp3",
+			"Krewella,William Black - Broken Record (William Black Remix).mp3",
+			"Kygo - Fallen (Kygo Rework).mp3",
+			"Kygo - ID (Ultra Music Festival Anthem) (纯音乐).mp3",
+			"Kygo,Coldplay - Midnight (Kygo Remix).mp3",
+			"Kygo,Kiki Rowe - Got Me Thinkin (Kygo Remix).mp3",
+			"Kygo,M83 - Wait (Kygo Remix).mp3",
+			"Kygo,Marvin Gaye - Sexual Healing (Kygo Remix).mp3",
+			"LVNDSCAPE,IIO - Rapture (LVNDSCAPE Remix).mp3",
+			"LYAR,Oh Wonder - All We Do (LYAR Remix).mp3",
+			"LYAR,Patrick Baker - Gone (LYAR Remix).mp3",
+			"LYAR,Redfoo - New Thang (LYAR Remix).mp3",
+			"Lana Del Rey - Ultraviolence (Hook N Sling Remix).mp3",
+			"Martin Garrix  MOTI - Virus (How About Now) (Original Mix).mp3",
+			"Martin Garrix - Dont Crack Under Pressure (Official Music Video HD).mp3",
+			"Martin Garrix - Oops.mp3",
+			"Martin Garrix,Matisse & Sadko - Dragon (Original Mix).mp3",
+			"Matoma,Family Force 5 - This Is My Year (Matoma Remix).mp3",
+			"Matthew Heyer,Novo Amor - Weather (Matthew Heyer Remix).mp3",
+			"Michael Calfan - Mercy (Original Mix).mp3",
+			"Mike Perry - The Ocean (Radio Edit).mp3",
+			"Nicky Romero Vicetone When We Are Wild - Let Me Feel (Original Mix).mp3",
+			"Odesza,Zyra - Say My Name (Jai Wolf Remix).mp3",
+			"Oh Wonder,Matthew Heyer - Heart Hope (Matthew Heyer Remix).mp3",
+			"Oliver Heldens,Shaun Frank,Delaney Jane - Shades Of Grey (Original Mix).mp3",
+			"Omnia Jonny Rose - Two Hands.mp3",
+			"Paris Blohm - Something About You (Conro’s Ultra Miami 2016 Remix).mp3",
+			"Patrick Lite,Tom Bailey,Zedd - Find You[Feat. Tom Bailey](Patrick Lite Remix).mp3",
+			"Pegato,SNBRN,Andrew Watt - Beat The Sunrise feat. Andrew Watt (Pegato Remix).mp3",
+			"Pegato,Twilight Meadow - The Worlds We Discovered (Pegato Remix).mp3",
+			"Rain Man - Bring Back the Summer.mp3",
+			"Rob Thomas - Pieces (Sam Feldt Remix).mp3",
+			"Sam Feldt,Kimberly Anne,EDX's Indian Summer - Show Me Love (EDX's Indian Summer Remix).mp3",
+			"Sander Van Doorn Martin Garrix DVBBS Aleesia - Gold Skies.mp3",
+			"Selena Gomez - Kill Em With Kindness (Felix Cartal Remix).mp3",
+			"THALLIE ANN SEENYEN Felix Jaehn - Dance With Me (Original Mix).mp3",
+			"Taylor Swift - Wildest Dreams (R3hab Remix).mp3",
+			"Tiësto Kaaze - Rocky (Original Mix).mp3",
+			"Tiësto;John Legend - Summer Nights.mp3",
+			"Tove Lo - Talking Body (Gryffin Remix).mp3",
+			"Vicetone - Nevada (Original Mix).mp3",
+			"Vicetone D. Brown - What I've Waited for (feat. D. Brown).mp3",
+			"Vijay & Sofia Zlatko,Sonnengruss - Storyteller (Vijay & Sofia Zlatko Remix).mp3"
+		]
+	};
+
+/***/ },
+/* 482 */
+/*!******************************************!*\
+  !*** ./src/components/player/player.css ***!
+  \******************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./player.css */ 483);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(/*! ./../../../~/style-loader/addStyles.js */ 473)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?sourceMap!./player.css", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?sourceMap!./player.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 483 */
+/*!*******************************************************************!*\
+  !*** ./~/css-loader?sourceMap!./src/components/player/player.css ***!
+  \*******************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(/*! ./../../../~/css-loader/lib/css-base.js */ 472)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, "/*******************************************************\n *\n *\n * Component Player\n *\n * \n */\n\n.player__container {\n\tmargin: 0 10%;\n}\n\n.player__prev,\n.player__next {\n\tfont-size: 30px;\n\tposition: absolute;\n    top: 50%;\n    line-height: 60px;\n    color: rgba(0, 0, 0, 0.1);\n    height: 60px;\n    margin-top: -30px;\n    cursor: pointer;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.player__prev:hover,\n.player__next:hover {\n\tcolor: rgba(0, 0, 0, 1);\n}\n\n.player__prev {\n\tleft: -25px;\n}\n\n.player__next {\n\tright: -25px;\n}\n", "", {"version":3,"sources":["/./src/components/player/player.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;CACC,cAAc;CACd;;AAED;;CAEC,gBAAgB;CAChB,mBAAmB;IAChB,SAAS;IACT,kBAAkB;IAClB,0BAA0B;IAC1B,aAAa;IACb,kBAAkB;IAClB,gBAAgB;;IAEhB,6BAA6B;IAC7B,wBAAwB;IACxB,qBAAqB;CACxB;;AAED;;CAEC,wBAAwB;CACxB;;AAED;CACC,YAAY;CACZ;;AAED;CACC,aAAa;CACb","file":"player.css","sourcesContent":["/*******************************************************\n *\n *\n * Component Player\n *\n * \n */\n\n.player__container {\n\tmargin: 0 10%;\n}\n\n.player__prev,\n.player__next {\n\tfont-size: 30px;\n\tposition: absolute;\n    top: 50%;\n    line-height: 60px;\n    color: rgba(0, 0, 0, 0.1);\n    height: 60px;\n    margin-top: -30px;\n    cursor: pointer;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.player__prev:hover,\n.player__next:hover {\n\tcolor: rgba(0, 0, 0, 1);\n}\n\n.player__prev {\n\tleft: -25px;\n}\n\n.player__next {\n\tright: -25px;\n}\n"],"sourceRoot":"webpack://"}]);
+	
+	// exports
+
+
+/***/ },
+/* 484 */
+/*!*********************************************!*\
+  !*** ./src/components/player/wave/wave.jsx ***!
+  \*********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.Wave = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 298);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _wave = __webpack_require__(/*! ./wave.css */ 485);
+	
+	var _wave2 = _interopRequireDefault(_wave);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Wave = exports.Wave = function (_React$Component) {
+		_inherits(Wave, _React$Component);
+	
+		function Wave(props) {
+			_classCallCheck(this, Wave);
+	
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Wave).call(this, props));
+	
+			_this.state = {
+				waveBufferData: _this.props.sound.getBufferData(_this.props.px)
+			};
+	
+			_this.prev = _this.prev.bind(_this);
+			_this.next = _this.next.bind(_this);
+			return _this;
+		}
+	
+		_createClass(Wave, [{
+			key: 'getWave',
+			value: function getWave() {
+				var data = this.state.waveBufferData;
+				return data.map(function (elem, index) {
+					return _react2.default.createElement('rect', { key: index, ref: 'wave__tag' + index, x: index / data.length * 100 + '%', y: (this.props.height - elem.pcmData * 1000) / 2 + 'px', width: 1, height: elem.pcmData * 1000 + 'px', fill: elem.fill });
+				}.bind(this));
+			}
+		}, {
+			key: 'formatTime',
+			value: function formatTime(time) {
+				var min = Math.floor(time / 60);
+				var sec = Math.floor(time - min * 60);
+				return (min < 10 ? '0' + min : min) + ':' + (sec < 10 ? '0' + sec : sec);
+			}
+		}, {
+			key: 'loadingUp',
+			value: function loadingUp() {
+				document.querySelectorAll('.loading')[0].style.top = '50%';
+			}
+		}, {
+			key: 'loadingDown',
+			value: function loadingDown() {
+				document.querySelectorAll('.loading')[0].style.top = '10%';
+			}
+		}, {
+			key: 'clearWave',
+			value: function clearWave() {
+				/** [for: clear all wave tag] */
+				for (var i = 0; i < this.props.px; i++) {
+					this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 0.1)');
+				}
+			}
+		}, {
+			key: 'prev',
+			value: function prev() {
+				this.loadingUp();
+	
+				/** try to avoid blocking UI thread */
+				setTimeout(function () {
+					this.props.sound.prev();
+				}.bind(this), 500);
+			}
+		}, {
+			key: 'next',
+			value: function next() {
+				this.loadingUp();
+	
+				/** try to avoid blocking UI thread */
+				setTimeout(function () {
+					this.props.sound.next();
+				}.bind(this), 500);
+			}
+		}, {
+			key: 'componentDidUpdate',
+			value: function componentDidUpdate() {
+				this.clearWave();
+	
+				this.props.updateTitle(this.props.sound.getTitle());
+	
+				this.loadingDown();
+			}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				/** give it 1 sec to render */
+				setTimeout(function () {
+					/** play when component mount */
+					this.props.updateTitle(this.props.sound.getTitle());
+	
+					this.refs.wave__container.style.opacity = 1;
+	
+					this.props.sound.onended(function () {
+						this.next();
+					}.bind(this)).onloaded(function () {
+						/** update active item */
+						this.props.updateItem(this.props.sound.getCurrentIndex());
+	
+						this.setState({
+							waveBufferData: this.props.sound.getBufferData(this.props.px)
+						});
+					}.bind(this)).onplaying(function () {
+						/** Wave Update */
+						var item = Math.floor(this.props.sound.getCurrentTime() * (this.props.sound.getSampleRate() / (this.props.sound.getDataLength() / this.props.px)));
+	
+						if (item >= this.props.px) {
+							return;
+						}
+	
+						if (typeof this.refs['wave__tag' + item] != 'undefined') {
+							/** ensure not jump too fast */
+							if (item > 2) {
+								this.refs['wave__tag' + (item - 2)].setAttribute('fill', 'rgba(0, 0, 0, 1)');
+							}
+	
+							if (item > 1) {
+								this.refs['wave__tag' + (item - 1)].setAttribute('fill', 'rgba(0, 0, 0, 1)');
+							}
+	
+							this.refs['wave__tag' + item].setAttribute('fill', 'rgba(0, 0, 0, 1)');
+						}
+	
+						/** Time Update */
+						this.props.updateTime(this.formatTime(Math.floor(this.props.sound.getCurrentTime())) + ' / ' + this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate())));
+	
+						/** Triangle Progress Update */
+						this.refs.wave__progress.style.left = this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3 + 'px';
+					}.bind(this)).loop();
+				}.bind(this), 1000);
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(
+					'div',
+					{ className: 'wave__container', ref: 'wave__container' },
+					_react2.default.createElement(
+						'div',
+						{ className: 'player__prev', onClick: this.prev },
+						_react2.default.createElement('i', { className: 'fa fa-angle-left' })
+					),
+					_react2.default.createElement('div', { className: 'wave__central_line' }),
+					_react2.default.createElement(
+						'svg',
+						{ className: 'svg__wave', xmlns: 'http://www.w3.org/2000/svg', width: this.props.width, height: this.props.height },
+						this.getWave()
+					),
+					_react2.default.createElement('div', { className: 'wave__progress wave__position-absolute', ref: 'wave__progress' }),
+					_react2.default.createElement(
+						'div',
+						{ className: 'player__next', onClick: this.next },
+						_react2.default.createElement('i', { className: 'fa fa-angle-right' })
+					)
+				);
+			}
+		}]);
+	
+		return Wave;
+	}(_react2.default.Component);
+
+/***/ },
+/* 485 */
+/*!*********************************************!*\
+  !*** ./src/components/player/wave/wave.css ***!
+  \*********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(/*! !./../../../../~/css-loader?sourceMap!./wave.css */ 486);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(/*! ./../../../../~/style-loader/addStyles.js */ 473)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?sourceMap!./wave.css", function() {
+				var newContent = require("!!./../../../../node_modules/css-loader/index.js?sourceMap!./wave.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 486 */
+/*!**********************************************************************!*\
+  !*** ./~/css-loader?sourceMap!./src/components/player/wave/wave.css ***!
+  \**********************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(/*! ./../../../../~/css-loader/lib/css-base.js */ 472)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, "/*******************************************************\n *\n *\n * Component Wave\n *\n * \n */\n\n.svg__wave > rect {\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__container {\n\tposition: relative;\n\topacity: 0;\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__position-absolute {\n\tposition: absolute;\n}\n\n.wave__progress {\n    left: -3px;\n    border: 3px solid transparent;\n    border-bottom: 6px solid #000;\n    height: 0;\n    width: 0;\n}\n\n.wave__central_line {\n\twidth: 100%;\n    height: 1px;\n    background-color: rgba(0, 0, 0, 0.05);\n    position: absolute;\n    top: 50%;\n    margin-top: -0.5px;\n}\n", "", {"version":3,"sources":["/./src/components/player/wave/wave.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;CACC,6BAA6B;CAC7B,wBAAwB;CACxB,qBAAqB;CACrB;;AAED;CACC,mBAAmB;CACnB,WAAW;CACX,6BAA6B;CAC7B,wBAAwB;CACxB,qBAAqB;CACrB;;AAED;CACC,mBAAmB;CACnB;;AAED;IACI,WAAW;IACX,8BAA8B;IAC9B,8BAA8B;IAC9B,UAAU;IACV,SAAS;CACZ;;AAED;CACC,YAAY;IACT,YAAY;IACZ,sCAAsC;IACtC,mBAAmB;IACnB,SAAS;IACT,mBAAmB;CACtB","file":"wave.css","sourcesContent":["/*******************************************************\n *\n *\n * Component Wave\n *\n * \n */\n\n.svg__wave > rect {\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__container {\n\tposition: relative;\n\topacity: 0;\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__position-absolute {\n\tposition: absolute;\n}\n\n.wave__progress {\n    left: -3px;\n    border: 3px solid transparent;\n    border-bottom: 6px solid #000;\n    height: 0;\n    width: 0;\n}\n\n.wave__central_line {\n\twidth: 100%;\n    height: 1px;\n    background-color: rgba(0, 0, 0, 0.05);\n    position: absolute;\n    top: 50%;\n    margin-top: -0.5px;\n}\n"],"sourceRoot":"webpack://"}]);
+	
+	// exports
+
+
+/***/ },
+/* 487 */
+/*!*********************************************!*\
+  !*** ./src/components/player/list/list.jsx ***!
+  \*********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.List = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 298);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _list = __webpack_require__(/*! ./list.css */ 488);
+	
+	var _list2 = _interopRequireDefault(_list);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var List = exports.List = function (_React$Component) {
+		_inherits(List, _React$Component);
+	
+		function List(props) {
+			_classCallCheck(this, List);
+	
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(List).call(this, props));
+		}
+	
+		_createClass(List, [{
+			key: 'loadingUp',
+			value: function loadingUp() {
+				document.querySelectorAll('.loading')[0].style.top = '50%';
+			}
+		}, {
+			key: 'loadingDown',
+			value: function loadingDown() {
+				document.querySelectorAll('.loading')[0].style.top = '10%';
+			}
+		}, {
+			key: 'jump',
+			value: function jump(index) {
+				this.loadingUp();
+	
+				/** try to avoid blocking UI thread */
+				setTimeout(function () {
+					this.props.sound.jump(index);
+				}.bind(this), 500);
+			}
+		}, {
+			key: 'getList',
+			value: function getList() {
+				var _this2 = this;
+	
+				return this.props.sound.getList().map(function (item, i) {
+					if (i === _this2.props.activeIndex) {
+						return _react2.default.createElement(
+							'p',
+							{ className: 'player__list-item--active', onClick: _this2.jump.bind(_this2, i), ref: 'player__list-item-active', key: i },
+							item
+						);
+					} else {
+						return _react2.default.createElement(
+							'p',
+							{ className: 'player__list-item', onClick: _this2.jump.bind(_this2, i), key: i },
+							item
+						);
+					}
+				});
+			}
+		}, {
+			key: 'componentDidUpdate',
+			value: function componentDidUpdate() {
+				this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop - (this.refs['player__list'].clientHeight - 20 * 2 - 18) / 2;
+			}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop - (this.refs['player__list'].clientHeight - 20 * 2 - 18) / 2;
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(
+					'div',
+					{ className: 'player__list', ref: 'player__list' },
+					_react2.default.createElement(
+						'div',
+						{ className: 'player__list-wrapper' },
+						_react2.default.createElement('div', { className: 'player__list-head' }),
+						_react2.default.createElement('div', { className: 'player__list-tail' }),
+						this.getList()
+					)
+				);
+			}
+		}]);
+	
+		return List;
+	}(_react2.default.Component);
+
+/***/ },
+/* 488 */
+/*!*********************************************!*\
+  !*** ./src/components/player/list/list.css ***!
+  \*********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(/*! !./../../../../~/css-loader?sourceMap!./list.css */ 489);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(/*! ./../../../../~/style-loader/addStyles.js */ 473)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?sourceMap!./list.css", function() {
+				var newContent = require("!!./../../../../node_modules/css-loader/index.js?sourceMap!./list.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 489 */
+/*!**********************************************************************!*\
+  !*** ./~/css-loader?sourceMap!./src/components/player/list/list.css ***!
+  \**********************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(/*! ./../../../../~/css-loader/lib/css-base.js */ 472)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, "/*******************************************************\n *\n *\n * Component List\n *\n * \n */\n\n.player__list {\n\twidth: 80%;\n    height: 100px;\n    position: absolute;\n    left: 50%;\n    bottom: 0;\n    overflow: auto;\n    overflow-x: hidden;\n    margin-left: -40%;\n    padding: 20px 0;\n    box-sizing: border-box;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.player__list-wrapper {\n\tposition: relative;\n\tpadding: 20px 0;\n}\n\n.player__list-head,\n.player__list-tail {\n\tposition: fixed;\n    left: 50%;\n    width: 79%;\n    height: 20px;\n    margin-left: -39.5%;\n}\n\n.player__list-head {\n\tbottom: 75px;\n    background: linear-gradient(to bottom, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));\n}\n\n.player__list-head::before {\n\tcontent: '';\n    display: block;\n    height: 5px;\n    margin-top: -5px;\n    background-color: #a10000;\n}\n\n.player__list-tail {\n\tbottom: 5px;\n    background: linear-gradient(to top, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));\n}\n\n.player__list-tail::before {\n\tcontent: '';\n    display: block;\n    height: 5px;\n    margin-top: 20px;\n    background-color: #a10000;\n}\n\n.player__list::-webkit-scrollbar {\n    /** if you want to style your own scroll bar, this pseudo should be written */\n    /** Part 1 */\n    width: 6px;\n    height: 6px;\n}\n\n.player__list::-webkit-scrollbar-button {\n    /** Part 2 */\n    display: none;\n}\n\n.player__list::-webkit-scrollbar-track {\n    /** Part 3 */\n}\n\n.player__list::-webkit-scrollbar-track-piece {\n    /** Part 4 */\n}\n\n.player__list::-webkit-scrollbar-thumb {\n    /** Part 5 */\n    background-color: rgba(0, 0, 0, 1);\n    border-radius: 10px;\n}\n\n.player__list::-webkit-scrollbar-corner {\n    /** Part 6 */\n}\n\n.player__list::-webkit-resizer {\n    /** Part 7 */\n}\n\n.player__list-item {\n\tmargin: 5px 10%;\n\tcolor: rgba(0, 0, 0, 0.3);\n\tcursor: pointer;\n\tposition: relative;\n\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.player__list-item:hover::after {\n\tcontent: \"\\F144\";\n\tfont-family: FontAwesome;\n\n\tposition: absolute;\n\tright: 0;\n}\n\n.player__list-item--active {\n\tcolor: rgba(0, 0, 0, 1);\n}\n", "", {"version":3,"sources":["/./src/components/player/list/list.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;CACC,WAAW;IACR,cAAc;IACd,mBAAmB;IACnB,UAAU;IACV,UAAU;IACV,eAAe;IACf,mBAAmB;IACnB,kBAAkB;IAClB,gBAAgB;IAChB,uBAAuB;;IAEvB,6BAA6B;IAC7B,wBAAwB;IACxB,qBAAqB;CACxB;;AAED;CACC,mBAAmB;CACnB,gBAAgB;CAChB;;AAED;;CAEC,gBAAgB;IACb,UAAU;IACV,WAAW;IACX,aAAa;IACb,oBAAoB;CACvB;;AAED;CACC,aAAa;IACV,6EAA6E;CAChF;;AAED;CACC,YAAY;IACT,eAAe;IACf,YAAY;IACZ,iBAAiB;IACjB,0BAA0B;CAC7B;;AAED;CACC,YAAY;IACT,0EAA0E;CAC7E;;AAED;CACC,YAAY;IACT,eAAe;IACf,YAAY;IACZ,iBAAiB;IACjB,0BAA0B;CAC7B;;AAED;IACI,8EAA8E;IAC9E,aAAa;IACb,WAAW;IACX,YAAY;CACf;;AAED;IACI,aAAa;IACb,cAAc;CACjB;;AAED;IACI,aAAa;CAChB;;AAED;IACI,aAAa;CAChB;;AAED;IACI,aAAa;IACb,mCAAmC;IACnC,oBAAoB;CACvB;;AAED;IACI,aAAa;CAChB;;AAED;IACI,aAAa;CAChB;;AAED;CACC,gBAAgB;CAChB,0BAA0B;CAC1B,gBAAgB;CAChB,mBAAmB;;CAEnB,6BAA6B;CAC7B,wBAAwB;CACxB,qBAAqB;CACrB;;AAED;CACC,iBAAiB;CACjB,yBAAyB;;CAEzB,mBAAmB;CACnB,SAAS;CACT;;AAED;CACC,wBAAwB;CACxB","file":"list.css","sourcesContent":["/*******************************************************\n *\n *\n * Component List\n *\n * \n */\n\n.player__list {\n\twidth: 80%;\n    height: 100px;\n    position: absolute;\n    left: 50%;\n    bottom: 0;\n    overflow: auto;\n    overflow-x: hidden;\n    margin-left: -40%;\n    padding: 20px 0;\n    box-sizing: border-box;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.player__list-wrapper {\n\tposition: relative;\n\tpadding: 20px 0;\n}\n\n.player__list-head,\n.player__list-tail {\n\tposition: fixed;\n    left: 50%;\n    width: 79%;\n    height: 20px;\n    margin-left: -39.5%;\n}\n\n.player__list-head {\n\tbottom: 75px;\n    background: linear-gradient(to bottom, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));\n}\n\n.player__list-head::before {\n\tcontent: '';\n    display: block;\n    height: 5px;\n    margin-top: -5px;\n    background-color: #a10000;\n}\n\n.player__list-tail {\n\tbottom: 5px;\n    background: linear-gradient(to top, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));\n}\n\n.player__list-tail::before {\n\tcontent: '';\n    display: block;\n    height: 5px;\n    margin-top: 20px;\n    background-color: #a10000;\n}\n\n.player__list::-webkit-scrollbar {\n    /** if you want to style your own scroll bar, this pseudo should be written */\n    /** Part 1 */\n    width: 6px;\n    height: 6px;\n}\n\n.player__list::-webkit-scrollbar-button {\n    /** Part 2 */\n    display: none;\n}\n\n.player__list::-webkit-scrollbar-track {\n    /** Part 3 */\n}\n\n.player__list::-webkit-scrollbar-track-piece {\n    /** Part 4 */\n}\n\n.player__list::-webkit-scrollbar-thumb {\n    /** Part 5 */\n    background-color: rgba(0, 0, 0, 1);\n    border-radius: 10px;\n}\n\n.player__list::-webkit-scrollbar-corner {\n    /** Part 6 */\n}\n\n.player__list::-webkit-resizer {\n    /** Part 7 */\n}\n\n.player__list-item {\n\tmargin: 5px 10%;\n\tcolor: rgba(0, 0, 0, 0.3);\n\tcursor: pointer;\n\tposition: relative;\n\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.player__list-item:hover::after {\n\tcontent: \"\\f144\";\n\tfont-family: FontAwesome;\n\n\tposition: absolute;\n\tright: 0;\n}\n\n.player__list-item--active {\n\tcolor: rgba(0, 0, 0, 1);\n}\n"],"sourceRoot":"webpack://"}]);
+	
+	// exports
 
 
 /***/ }

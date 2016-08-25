@@ -49,10 +49,12 @@ ReactDOM.render(
 	document.querySelectorAll('.loading__container')[0]
 );
 
-sound.set(Math.floor(Math.random() * (list.data.length - 1)))
+const setIndex = Math.floor(Math.random() * (list.data.length - 1));
+
+sound.set(setIndex)
 	.onload(function () {
 		ReactDOM.render(
-			<Player soundObject={sound}/>,
+			<Player soundObject={sound} setIndex={setIndex} />,
 			document.querySelectorAll('.container')[0]
 		);
 

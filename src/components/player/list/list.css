@@ -5,3 +5,117 @@
  *
  * 
  */
+
+.player__list {
+	width: 80%;
+    height: 100px;
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    overflow: auto;
+    overflow-x: hidden;
+    margin-left: -40%;
+    padding: 20px 0;
+    box-sizing: border-box;
+
+    -webkit-transition: all 0.5s;
+    -o-transition: all 0.5s;
+    transition: all 0.5s;
+}
+
+.player__list-wrapper {
+	position: relative;
+	padding: 20px 0;
+}
+
+.player__list-head,
+.player__list-tail {
+	position: fixed;
+    left: 50%;
+    width: 79%;
+    height: 20px;
+    margin-left: -39.5%;
+}
+
+.player__list-head {
+	bottom: 75px;
+    background: linear-gradient(to bottom, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));
+}
+
+.player__list-head::before {
+	content: '';
+    display: block;
+    height: 5px;
+    margin-top: -5px;
+    background-color: #a10000;
+}
+
+.player__list-tail {
+	bottom: 5px;
+    background: linear-gradient(to top, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));
+}
+
+.player__list-tail::before {
+	content: '';
+    display: block;
+    height: 5px;
+    margin-top: 20px;
+    background-color: #a10000;
+}
+
+.player__list::-webkit-scrollbar {
+    /** if you want to style your own scroll bar, this pseudo should be written */
+    /** Part 1 */
+    width: 6px;
+    height: 6px;
+}
+
+.player__list::-webkit-scrollbar-button {
+    /** Part 2 */
+    display: none;
+}
+
+.player__list::-webkit-scrollbar-track {
+    /** Part 3 */
+}
+
+.player__list::-webkit-scrollbar-track-piece {
+    /** Part 4 */
+}
+
+.player__list::-webkit-scrollbar-thumb {
+    /** Part 5 */
+    background-color: rgba(0, 0, 0, 1);
+    border-radius: 10px;
+}
+
+.player__list::-webkit-scrollbar-corner {
+    /** Part 6 */
+}
+
+.player__list::-webkit-resizer {
+    /** Part 7 */
+}
+
+.player__list-item {
+	margin: 5px 10%;
+	color: rgba(0, 0, 0, 0.3);
+	cursor: pointer;
+	position: relative;
+
+	-webkit-transition: all 0.5s;
+	-o-transition: all 0.5s;
+	transition: all 0.5s;
+}
+
+.player__list-item:hover::after {
+	content: "\f144";
+	font-family: FontAwesome;
+
+	position: absolute;
+	right: 0;
+}
+
+.player__list-item--active {
+	color: rgba(0, 0, 0, 1);
+}

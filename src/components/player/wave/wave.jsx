@@ -34,6 +34,13 @@ export class Wave extends React.Component {
 		document.querySelectorAll('.loading')[0].style.top = '10%';
 	}
 
+	clearWave() {
+		/** [for: clear all wave tag] */
+		for (let i = 0; i < this.props.px; i++) {
+			this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 0.1)');	
+		}
+	}
+
 	prev() {
 		this.loadingUp();
 
@@ -53,10 +60,7 @@ export class Wave extends React.Component {
 	}
 
 	componentDidUpdate() {
-		/** [for: clear all wave tag] */
-		for (let i = 0; i < this.props.px; i++) {
-			this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 0.1)');	
-		}
+		this.clearWave();
 
 		this.props.updateTitle(this.props.sound.getTitle());
 
@@ -76,6 +80,9 @@ export class Wave extends React.Component {
 					this.next();
 				}.bind(this))
 				.onloaded(function () {
+					/** update active item */
+					this.props.updateItem(this.props.sound.getCurrentIndex());
+
 					this.setState({
 						waveBufferData: this.props.sound.getBufferData(this.props.px)
 					});
@@ -83,6 +90,11 @@ export class Wave extends React.Component {
 				.onplaying(function () {
 					/** Wave Update */
 					const item = Math.floor(this.props.sound.getCurrentTime() * (this.props.sound.getSampleRate() / (this.props.sound.getDataLength() / this.props.px)));
+
+					if (item >= this.props.px) {
+						return;
+					}
+
 					if (typeof this.refs['wave__tag' + item] != 'undefined') {
 						/** ensure not jump too fast */
 						if (item > 2) {

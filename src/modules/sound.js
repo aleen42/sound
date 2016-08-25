@@ -269,6 +269,14 @@ Sound.prototype.getTitle = function () {
 	return this.bufferList[this.currentIndex].title;
 };
 
+Sound.prototype.getList = function () {
+	return this.songList;
+};
+
+Sound.prototype.getCurrentIndex = function () {
+	return this.currentIndex;
+};
+
 Sound.prototype.getCurrentTime = function () {
 	return (this.startTime === 0.0) ? 0 : (this.context.currentTime - (this.startTime - this.startContextTime) / 1000);
 };
