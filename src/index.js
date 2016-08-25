@@ -44,7 +44,7 @@ ReactDOM.render(
 			'WaveForms',
 			'Dancing with Rhythms'
 		]} />
-		<Loading />
+		<Loading className="loading" />
 	</div>,
 	document.querySelectorAll('.loading__container')[0]
 );

@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './list.css'
+import { PlayingIcon } from './../playingicon/playingicon.jsx'
 
 export class List extends React.Component {
 	constructor(props) {
@@ -26,7 +27,7 @@ export class List extends React.Component {
 	getList() {
 		return this.props.sound.getList().map((item, i) => {
 			if (i === this.props.activeIndex) {
-				return <p className="player__list-item--active" onClick={this.jump.bind(this, i)} ref="player__list-item-active" key={i}>{item}</p>
+				return <div className="player__list-item--active" ref="player__list-item-active" key={i}><PlayingIcon />{item}</div>
 			} else {
 				return <p className="player__list-item" onClick={this.jump.bind(this, i)} key={i}>{item}</p>
 			}

@@ -1,7 +1,7 @@
 import React from 'react';
-import styles from './loading.css'
+import styles from './playingicon.css'
 
-export class Loading extends React.Component {
+export class PlayingIcon extends React.Component {
 	constructor(props) {
 		super(props);
 	}
@@ -20,28 +20,18 @@ export class Loading extends React.Component {
 		return items;
 	}
 
-	componentDidMount() {
-		/** give it 1 sec to render */
-		setTimeout(function () {
-			this.refs.loading.style.display = 'block';
-			setTimeout(function () {
-				this.refs.loading.style.opacity = 1;
-			}.bind(this), 500);
-		}.bind(this), 1000);
-	}
-
 	render() {
 		return (
-			<div className="loading" ref="loading" style={{ height: this.props.height }}>
+			<div className="playingicon" ref="playingicon" style={{ height: this.props.height }}>
 				{this.getRect()}
 			</div>
 		);
 	}
 }
 
-Loading.defaultProps = {
-	height: 50,
-	reactNumber: 5,
+PlayingIcon.defaultProps = {
+	height: 18,
+	reactNumber: 3,
 	reactDelay: 0.12,
 	reactColor: '#000'
 };

@@ -6,23 +6,20 @@
  * 
  */
 
-.loading {
-    opacity: 0;
+.playingicon {
     display: none;
     font-size: 10px;
-    top: 50%;
     text-align: center;
-    position: absolute;
-    left: 50%;
-    margin-top: -25px;
-    margin-left: -25px;
+    margin-right: 10px;
+    vertical-align: bottom;
+    display: inline-block;
 
     -webkit-transition: all 0.5s;
     -o-transition: all 0.5s;
     transition: all 0.5s;
 }
 
-.loading > div {
+.playingicon > div {
     height: 100%;
     width: 3px;
     margin: 0 0.5px;
