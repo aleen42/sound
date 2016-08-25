@@ -64,6 +64,19 @@ BufferLoader.prototype.load = function(index) {
         return this;
     }
 
+    /** only one songs */
+    if (this.prevIndex === this.waitIndex) {
+        this.loadBuffer(this.urlList[this.waitIndex], this.waitIndex);
+        return this;
+    }
+
+    /** only two songs */
+    if (this.prevIndex === this.nextIndex) {
+        this.loadBuffer(this.urlList[this.prevIndex], this.prevIndex);
+        this.loadBuffer(this.urlList[this.waitIndex], this.waitIndex);
+        return this;
+    }
+
     /** only load current and its prev and next one */
     this.loadBuffer(this.urlList[this.prevIndex], this.prevIndex);
     this.loadBuffer(this.urlList[this.waitIndex], this.waitIndex);
