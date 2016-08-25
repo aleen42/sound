@@ -35,11 +35,7 @@ import Sound from './modules/sound';
 /** SongsList */
 import list from './../assets/songlist.json';
 
-const songsList = list.data.map((item) => {
-	return './assets/songs/' + item;
-});
-
-const sound = new Sound(songsList);
+const sound = new Sound(list.data, './assets/songs/');
 
 ReactDOM.render(
 	<div>
@@ -53,7 +49,7 @@ ReactDOM.render(
 	document.querySelectorAll('.loading__container')[0]
 );
 
-sound.set(Math.floor(Math.random() * (songsList.length - 1)))
+sound.set(Math.floor(Math.random() * (list.data.length - 1)))
 	.onload(function () {
 		ReactDOM.render(
 			<Player soundObject={sound}/>,

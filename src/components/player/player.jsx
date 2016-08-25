@@ -4,7 +4,8 @@ import React from 'react';
 import styles from './player.css';
 
 /** Components */
-import { Wave } from './../wave/wave.jsx';
+import { Wave } from './wave/wave.jsx';
+import { List } from './list/list.jsx';
 
 
 export class Player extends React.Component {
@@ -35,6 +36,7 @@ export class Player extends React.Component {
 					<p className="value">/</p>
 				</div>
 				<Wave sound={this.props.soundObject} updateTime={this.updateTime} updateTitle={this.updateTitle} width="100%" height={280} px={400} />
+				<List sound={this.props.soundObject} />
 			</div>
 		);
 	}

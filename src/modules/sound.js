@@ -24,15 +24,23 @@ import Common from './common';
 import BufferLoader from './bufferLoader';
 import _ from 'underscore';
 
-const Sound = module.exports = function (url) {
+const Sound = module.exports = function (list, base) {
+	base = base || './';
+
+	/** @type {[type]} [a list of songs with their name] */
+	this.songList = list;
+
 	/** init a Sound instance with its location */
-	this.url = url;
+	this.url = _.isArray(list) ? list.map((item) => { return base + item; }) : base + list;
 
 	/** @type {[type]} [Audio Context Object] */
 	this.context = null;
 
 	/** @type {[type]} [onload function called when loading successfully] */
 	this.loadEvent = null;
+
+	/** @type {[type]} [onloaded function called when loading has been completed] */
+	this.loadedEvent = null;
 
 	/** @type {[type]} [onended function called when a song has been ended] */
 	this.endedEvent = null;
@@ -76,7 +84,7 @@ const Sound = module.exports = function (url) {
 		setTimeout(function () {											/** try to use another thread to kill startTracking thread				*/
 			clearInterval(this.startTrackings[curretTrackingThreadIndex]);	/** clear tracking time interval object for playingEvent				*/
 			this.startTrackings[curretTrackingThreadIndex] = null;											
-		}.bind(this), 20);
+		}.bind(this), 500);
 
 		this.startTime = new Date();										/** refresh startTime 													*/
 	}.bind(this);
@@ -96,6 +104,11 @@ const Sound = module.exports = function (url) {
 
 Sound.prototype.onload = function (callback) {
 	this.loadEvent = callback;
+	return this;
+};
+
+Sound.prototype.onloaded = function (callback) {
+	this.loadedEvent = callback;
 	return this;
 };
 
@@ -169,17 +182,7 @@ Sound.prototype.play = function () {
 
 	this.source = this.context.createBufferSource();						/** create a sound source 												*/
 
-	this.source.onended = this.isLoop ? function () {					
-		const nextIndex = (this.currentIndex + 1) % this.bufferList.length;
-
-		this.loadEvent = function () {
-			this.set(nextIndex)												/** jump to next song 													*/
-				.endedEvent();												/** triger endedEvent 													*/
-			this.play();
-		}.bind(this);
-
-		this.bufferLoader.load(nextIndex);
-	}.bind(this) : null;													/** set ended event listner for loop playing							*/
+	this.source.onended = this.isLoop ? this.endedEvent : null;				/** set ended event listner for loop playing							*/
 
 	this.source.buffer = this.bufferList[this.currentIndex].buffer;     	/** tell the source which sound to play 								*/
 	this.source.connect(this.context.destination);       					/** connect the source to the context's destination (the speakers) 		*/
@@ -198,31 +201,26 @@ Sound.prototype.loop = function () {
 };
 
 Sound.prototype.prev = function () {
-	this.source.onended = null;
-
 	const nextIndex = this.currentIndex === 0 ? this.currentIndex + this.bufferList.length - 1 : this.currentIndex - 1;
-	
-	this.loadEvent = function () {
-		this.set(nextIndex)
-			.endedEvent();
-		this.play();
-	}.bind(this);
-
-	this.bufferLoader.load(nextIndex);
+	this.jump(nextIndex);
 };
 
 Sound.prototype.next = function () {
-	this.source.onended = null;
-
 	const nextIndex = (this.currentIndex + 1) % this.bufferList.length;
+	this.jump(nextIndex);
+};
+
+Sound.prototype.jump = function (index) {
+	this.source.onended = null;
 	
 	this.loadEvent = function () {
-		this.set(nextIndex)
-			.endedEvent();
+		this.set(index)
+			.loadedEvent();
+
 		this.play();
 	}.bind(this);
 
-	this.bufferLoader.load(nextIndex);
+	this.bufferLoader.load(index);
 };
 
 /**

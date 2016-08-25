@@ -61,11 +61,11 @@
 	
 	var _player = __webpack_require__(/*! ./components/player/player.jsx */ 468);
 	
-	var _loading = __webpack_require__(/*! ./components/loading/loading.jsx */ 476);
+	var _loading = __webpack_require__(/*! ./components/loading/loading.jsx */ 479);
 	
-	var _typeinfo = __webpack_require__(/*! ./components/typeinfo/typeinfo.jsx */ 479);
+	var _typeinfo = __webpack_require__(/*! ./components/typeinfo/typeinfo.jsx */ 482);
 	
-	var _sound = __webpack_require__(/*! ./modules/sound */ 482);
+	var _sound = __webpack_require__(/*! ./modules/sound */ 485);
 	
 	var _sound2 = _interopRequireDefault(_sound);
 	
@@ -98,17 +98,13 @@
 	 *
 	 **********************************************************************/
 	
-	var songsList = _songlist2.default.data.map(function (item) {
-		return './assets/songs/' + item;
-	});
+	var sound = new _sound2.default(_songlist2.default.data, './assets/songs/');
 	
 	/** SongsList */
 	
 	
 	/** Components */
 	
-	
-	var sound = new _sound2.default(songsList);
 	
 	_reactDom2.default.render(_react2.default.createElement(
 		'div',
@@ -117,7 +113,7 @@
 		_react2.default.createElement(_loading.Loading, null)
 	), document.querySelectorAll('.loading__container')[0]);
 	
-	sound.set(Math.floor(Math.random() * (songsList.length - 1))).onload(function () {
+	sound.set(Math.floor(Math.random() * (_songlist2.default.data.length - 1))).onload(function () {
 		_reactDom2.default.render(_react2.default.createElement(_player.Player, { soundObject: sound }), document.querySelectorAll('.container')[0]);
 	
 		document.querySelectorAll('.loading')[0].style.top = '10%';
@@ -30848,7 +30844,9 @@
 	
 	var _player2 = _interopRequireDefault(_player);
 	
-	var _wave = __webpack_require__(/*! ./../wave/wave.jsx */ 473);
+	var _wave = __webpack_require__(/*! ./wave/wave.jsx */ 473);
+	
+	var _list = __webpack_require__(/*! ./list/list.jsx */ 476);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -30921,7 +30919,8 @@
 							'/'
 						)
 					),
-					_react2.default.createElement(_wave.Wave, { sound: this.props.soundObject, updateTime: this.updateTime, updateTitle: this.updateTitle, width: '100%', height: 280, px: 400 })
+					_react2.default.createElement(_wave.Wave, { sound: this.props.soundObject, updateTime: this.updateTime, updateTitle: this.updateTitle, width: '100%', height: 280, px: 400 }),
+					_react2.default.createElement(_list.List, { sound: this.props.soundObject })
 				);
 			}
 		}]);
@@ -31291,9 +31290,9 @@
 
 /***/ },
 /* 473 */
-/*!**************************************!*\
-  !*** ./src/components/wave/wave.jsx ***!
-  \**************************************/
+/*!*********************************************!*\
+  !*** ./src/components/player/wave/wave.jsx ***!
+  \*********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31367,13 +31366,21 @@
 			key: 'prev',
 			value: function prev() {
 				this.loadingUp();
-				this.props.sound.prev();
+	
+				/** try to avoid blocking UI thread */
+				setTimeout(function () {
+					this.props.sound.prev();
+				}.bind(this), 500);
 			}
 		}, {
 			key: 'next',
 			value: function next() {
 				this.loadingUp();
-				this.props.sound.next();
+	
+				/** try to avoid blocking UI thread */
+				setTimeout(function () {
+					this.props.sound.next();
+				}.bind(this), 500);
 			}
 		}, {
 			key: 'componentDidUpdate',
@@ -31384,6 +31391,8 @@
 				}
 	
 				this.props.updateTitle(this.props.sound.getTitle());
+	
+				this.loadingDown();
 			}
 		}, {
 			key: 'componentDidMount',
@@ -31396,7 +31405,8 @@
 					this.refs.wave__container.style.opacity = 1;
 	
 					this.props.sound.onended(function () {
-						this.loadingDown();
+						this.next();
+					}.bind(this)).onloaded(function () {
 						this.setState({
 							waveBufferData: this.props.sound.getBufferData(this.props.px)
 						});
@@ -31456,25 +31466,25 @@
 
 /***/ },
 /* 474 */
-/*!**************************************!*\
-  !*** ./src/components/wave/wave.css ***!
-  \**************************************/
+/*!*********************************************!*\
+  !*** ./src/components/player/wave/wave.css ***!
+  \*********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./wave.css */ 475);
+	var content = __webpack_require__(/*! !./../../../../~/css-loader?sourceMap!./wave.css */ 475);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(/*! ./../../../~/style-loader/addStyles.js */ 472)(content, {});
+	var update = __webpack_require__(/*! ./../../../../~/style-loader/addStyles.js */ 472)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?sourceMap!./wave.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?sourceMap!./wave.css");
+			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?sourceMap!./wave.css", function() {
+				var newContent = require("!!./../../../../node_modules/css-loader/index.js?sourceMap!./wave.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -31485,23 +31495,120 @@
 
 /***/ },
 /* 475 */
-/*!***************************************************************!*\
-  !*** ./~/css-loader?sourceMap!./src/components/wave/wave.css ***!
-  \***************************************************************/
+/*!**********************************************************************!*\
+  !*** ./~/css-loader?sourceMap!./src/components/player/wave/wave.css ***!
+  \**********************************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(/*! ./../../../~/css-loader/lib/css-base.js */ 471)();
+	exports = module.exports = __webpack_require__(/*! ./../../../../~/css-loader/lib/css-base.js */ 471)();
 	// imports
 	
 	
 	// module
-	exports.push([module.id, "/*******************************************************\n *\n *\n * Component Wave\n *\n * \n */\n\n.svg__wave > rect {\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__container {\n\tposition: relative;\n\topacity: 0;\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__position-absolute {\n\tposition: absolute;\n}\n\n.wave__progress {\n    left: -3px;\n    border: 3px solid transparent;\n    border-bottom: 6px solid #000;\n    height: 0;\n    width: 0;\n}\n\n.wave__central_line {\n\twidth: 100%;\n    height: 1px;\n    background-color: rgba(0, 0, 0, 0.05);\n    position: absolute;\n    top: 50%;\n    margin-top: -0.5px;\n}\n", "", {"version":3,"sources":["/./src/components/wave/wave.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;CACC,6BAA6B;CAC7B,wBAAwB;CACxB,qBAAqB;CACrB;;AAED;CACC,mBAAmB;CACnB,WAAW;CACX,6BAA6B;CAC7B,wBAAwB;CACxB,qBAAqB;CACrB;;AAED;CACC,mBAAmB;CACnB;;AAED;IACI,WAAW;IACX,8BAA8B;IAC9B,8BAA8B;IAC9B,UAAU;IACV,SAAS;CACZ;;AAED;CACC,YAAY;IACT,YAAY;IACZ,sCAAsC;IACtC,mBAAmB;IACnB,SAAS;IACT,mBAAmB;CACtB","file":"wave.css","sourcesContent":["/*******************************************************\n *\n *\n * Component Wave\n *\n * \n */\n\n.svg__wave > rect {\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__container {\n\tposition: relative;\n\topacity: 0;\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__position-absolute {\n\tposition: absolute;\n}\n\n.wave__progress {\n    left: -3px;\n    border: 3px solid transparent;\n    border-bottom: 6px solid #000;\n    height: 0;\n    width: 0;\n}\n\n.wave__central_line {\n\twidth: 100%;\n    height: 1px;\n    background-color: rgba(0, 0, 0, 0.05);\n    position: absolute;\n    top: 50%;\n    margin-top: -0.5px;\n}\n"],"sourceRoot":"webpack://"}]);
+	exports.push([module.id, "/*******************************************************\n *\n *\n * Component Wave\n *\n * \n */\n\n.svg__wave > rect {\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__container {\n\tposition: relative;\n\topacity: 0;\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__position-absolute {\n\tposition: absolute;\n}\n\n.wave__progress {\n    left: -3px;\n    border: 3px solid transparent;\n    border-bottom: 6px solid #000;\n    height: 0;\n    width: 0;\n}\n\n.wave__central_line {\n\twidth: 100%;\n    height: 1px;\n    background-color: rgba(0, 0, 0, 0.05);\n    position: absolute;\n    top: 50%;\n    margin-top: -0.5px;\n}\n", "", {"version":3,"sources":["/./src/components/player/wave/wave.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;CACC,6BAA6B;CAC7B,wBAAwB;CACxB,qBAAqB;CACrB;;AAED;CACC,mBAAmB;CACnB,WAAW;CACX,6BAA6B;CAC7B,wBAAwB;CACxB,qBAAqB;CACrB;;AAED;CACC,mBAAmB;CACnB;;AAED;IACI,WAAW;IACX,8BAA8B;IAC9B,8BAA8B;IAC9B,UAAU;IACV,SAAS;CACZ;;AAED;CACC,YAAY;IACT,YAAY;IACZ,sCAAsC;IACtC,mBAAmB;IACnB,SAAS;IACT,mBAAmB;CACtB","file":"wave.css","sourcesContent":["/*******************************************************\n *\n *\n * Component Wave\n *\n * \n */\n\n.svg__wave > rect {\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__container {\n\tposition: relative;\n\topacity: 0;\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.wave__position-absolute {\n\tposition: absolute;\n}\n\n.wave__progress {\n    left: -3px;\n    border: 3px solid transparent;\n    border-bottom: 6px solid #000;\n    height: 0;\n    width: 0;\n}\n\n.wave__central_line {\n\twidth: 100%;\n    height: 1px;\n    background-color: rgba(0, 0, 0, 0.05);\n    position: absolute;\n    top: 50%;\n    margin-top: -0.5px;\n}\n"],"sourceRoot":"webpack://"}]);
 	
 	// exports
 
 
 /***/ },
 /* 476 */
+/*!*********************************************!*\
+  !*** ./src/components/player/list/list.jsx ***!
+  \*********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.List = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 298);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _list = __webpack_require__(/*! ./list.css */ 477);
+	
+	var _list2 = _interopRequireDefault(_list);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var List = exports.List = function (_React$Component) {
+		_inherits(List, _React$Component);
+	
+		function List(props) {
+			_classCallCheck(this, List);
+	
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(List).call(this, props));
+		}
+	
+		_createClass(List, [{
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement('div', null);
+			}
+		}]);
+	
+		return List;
+	}(_react2.default.Component);
+
+/***/ },
+/* 477 */
+/*!*********************************************!*\
+  !*** ./src/components/player/list/list.css ***!
+  \*********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(/*! !./../../../../~/css-loader?sourceMap!./list.css */ 478);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(/*! ./../../../../~/style-loader/addStyles.js */ 472)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?sourceMap!./list.css", function() {
+				var newContent = require("!!./../../../../node_modules/css-loader/index.js?sourceMap!./list.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 478 */
+/*!**********************************************************************!*\
+  !*** ./~/css-loader?sourceMap!./src/components/player/list/list.css ***!
+  \**********************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(/*! ./../../../../~/css-loader/lib/css-base.js */ 471)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, "/*******************************************************\n *\n *\n * Component List\n *\n * \n */\n", "", {"version":3,"sources":["/./src/components/player/list/list.css"],"names":[],"mappings":"AAAA;;;;;;GAMG","file":"list.css","sourcesContent":["/*******************************************************\n *\n *\n * Component List\n *\n * \n */\n"],"sourceRoot":"webpack://"}]);
+	
+	// exports
+
+
+/***/ },
+/* 479 */
 /*!********************************************!*\
   !*** ./src/components/loading/loading.jsx ***!
   \********************************************/
@@ -31520,7 +31627,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _loading = __webpack_require__(/*! ./loading.css */ 477);
+	var _loading = __webpack_require__(/*! ./loading.css */ 480);
 	
 	var _loading2 = _interopRequireDefault(_loading);
 	
@@ -31588,7 +31695,7 @@
 	};
 
 /***/ },
-/* 477 */
+/* 480 */
 /*!********************************************!*\
   !*** ./src/components/loading/loading.css ***!
   \********************************************/
@@ -31597,7 +31704,7 @@
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./loading.css */ 478);
+	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./loading.css */ 481);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(/*! ./../../../~/style-loader/addStyles.js */ 472)(content, {});
@@ -31617,7 +31724,7 @@
 	}
 
 /***/ },
-/* 478 */
+/* 481 */
 /*!*********************************************************************!*\
   !*** ./~/css-loader?sourceMap!./src/components/loading/loading.css ***!
   \*********************************************************************/
@@ -31634,7 +31741,7 @@
 
 
 /***/ },
-/* 479 */
+/* 482 */
 /*!**********************************************!*\
   !*** ./src/components/typeinfo/typeinfo.jsx ***!
   \**********************************************/
@@ -31653,7 +31760,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _typeinfo = __webpack_require__(/*! ./typeinfo.css */ 480);
+	var _typeinfo = __webpack_require__(/*! ./typeinfo.css */ 483);
 	
 	var _typeinfo2 = _interopRequireDefault(_typeinfo);
 	
@@ -31739,7 +31846,7 @@
 	};
 
 /***/ },
-/* 480 */
+/* 483 */
 /*!**********************************************!*\
   !*** ./src/components/typeinfo/typeinfo.css ***!
   \**********************************************/
@@ -31748,7 +31855,7 @@
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./typeinfo.css */ 481);
+	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./typeinfo.css */ 484);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(/*! ./../../../~/style-loader/addStyles.js */ 472)(content, {});
@@ -31768,7 +31875,7 @@
 	}
 
 /***/ },
-/* 481 */
+/* 484 */
 /*!***********************************************************************!*\
   !*** ./~/css-loader?sourceMap!./src/components/typeinfo/typeinfo.css ***!
   \***********************************************************************/
@@ -31785,7 +31892,7 @@
 
 
 /***/ },
-/* 482 */
+/* 485 */
 /*!******************************!*\
   !*** ./src/modules/sound.js ***!
   \******************************/
@@ -31793,29 +31900,39 @@
 
 	'use strict';
 	
-	var _common = __webpack_require__(/*! ./common */ 483);
+	var _common = __webpack_require__(/*! ./common */ 487);
 	
 	var _common2 = _interopRequireDefault(_common);
 	
-	var _bufferLoader = __webpack_require__(/*! ./bufferLoader */ 484);
+	var _bufferLoader = __webpack_require__(/*! ./bufferLoader */ 488);
 	
 	var _bufferLoader2 = _interopRequireDefault(_bufferLoader);
 	
-	var _underscore = __webpack_require__(/*! underscore */ 485);
+	var _underscore = __webpack_require__(/*! underscore */ 489);
 	
 	var _underscore2 = _interopRequireDefault(_underscore);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var Sound = module.exports = function (url) {
+	var Sound = module.exports = function (list, base) {
+		base = base || './';
+	
+		/** @type {[type]} [a list of songs with their name] */
+		this.songList = list;
+	
 		/** init a Sound instance with its location */
-		this.url = url;
+		this.url = _underscore2.default.isArray(list) ? list.map(function (item) {
+			return base + item;
+		}) : base + list;
 	
 		/** @type {[type]} [Audio Context Object] */
 		this.context = null;
 	
 		/** @type {[type]} [onload function called when loading successfully] */
 		this.loadEvent = null;
+	
+		/** @type {[type]} [onloaded function called when loading has been completed] */
+		this.loadedEvent = null;
 	
 		/** @type {[type]} [onended function called when a song has been ended] */
 		this.endedEvent = null;
@@ -31860,7 +31977,7 @@
 				/** try to use another thread to kill startTracking thread				*/
 				clearInterval(this.startTrackings[curretTrackingThreadIndex]); /** clear tracking time interval object for playingEvent				*/
 				this.startTrackings[curretTrackingThreadIndex] = null;
-			}.bind(this), 20);
+			}.bind(this), 500);
 	
 			this.startTime = new Date(); /** refresh startTime 													*/
 		}.bind(this);
@@ -31900,6 +32017,11 @@
 	
 	Sound.prototype.onload = function (callback) {
 		this.loadEvent = callback;
+		return this;
+	};
+	
+	Sound.prototype.onloaded = function (callback) {
+		this.loadedEvent = callback;
 		return this;
 	};
 	
@@ -31972,17 +32094,7 @@
 	
 		this.source = this.context.createBufferSource(); /** create a sound source 												*/
 	
-		this.source.onended = this.isLoop ? function () {
-			var nextIndex = (this.currentIndex + 1) % this.bufferList.length;
-	
-			this.loadEvent = function () {
-				this.set(nextIndex) /** jump to next song 													*/
-				.endedEvent(); /** triger endedEvent 													*/
-				this.play();
-			}.bind(this);
-	
-			this.bufferLoader.load(nextIndex);
-		}.bind(this) : null; /** set ended event listner for loop playing							*/
+		this.source.onended = this.isLoop ? this.endedEvent : null; /** set ended event listner for loop playing							*/
 	
 		this.source.buffer = this.bufferList[this.currentIndex].buffer; /** tell the source which sound to play 								*/
 		this.source.connect(this.context.destination); /** connect the source to the context's destination (the speakers) 		*/
@@ -32001,29 +32113,25 @@
 	};
 	
 	Sound.prototype.prev = function () {
-		this.source.onended = null;
-	
 		var nextIndex = this.currentIndex === 0 ? this.currentIndex + this.bufferList.length - 1 : this.currentIndex - 1;
-	
-		this.loadEvent = function () {
-			this.set(nextIndex).endedEvent();
-			this.play();
-		}.bind(this);
-	
-		this.bufferLoader.load(nextIndex);
+		this.jump(nextIndex);
 	};
 	
 	Sound.prototype.next = function () {
+		var nextIndex = (this.currentIndex + 1) % this.bufferList.length;
+		this.jump(nextIndex);
+	};
+	
+	Sound.prototype.jump = function (index) {
 		this.source.onended = null;
 	
-		var nextIndex = (this.currentIndex + 1) % this.bufferList.length;
-	
 		this.loadEvent = function () {
-			this.set(nextIndex).endedEvent();
+			this.set(index).loadedEvent();
+	
 			this.play();
 		}.bind(this);
 	
-		this.bufferLoader.load(nextIndex);
+		this.bufferLoader.load(index);
 	};
 	
 	/**
@@ -32100,7 +32208,114 @@
 	};
 
 /***/ },
-/* 483 */
+/* 486 */
+/*!******************************!*\
+  !*** ./assets/songlist.json ***!
+  \******************************/
+/***/ function(module, exports) {
+
+	module.exports = {
+		"data": [
+			"7obu - Colors.mp3",
+			"ATB - Wait For Your Heart.mp3",
+			"Above & Beyond - Black Room Boy (vocals by Tony McGuinness and Richard Bedford) - Original Mix.mp3",
+			"Above & Beyond - Counting Down The Days.mp3",
+			"Above & Beyond - Eternal - Original Mix.mp3",
+			"Above & Beyond - Filmic - Original Mix.mp3",
+			"Above & Beyond - Hello.mp3",
+			"Above & Beyond - Out Of Time.mp3",
+			"Above & Beyond - Prelude - Original Mix.mp3",
+			"Above & Beyond,Justine Suissa - Little Something.mp3",
+			"Above & Beyond,Richard Bedford - Every Little Beat - Original Mix.mp3",
+			"Above & Beyond,Richard Bedford - Thing Called Love - Original Mix.mp3",
+			"Above & Beyond,Zoe Johnston - Alchemy - Original Mix.mp3",
+			"Above & Beyond,Zoe Johnston - Fly To New York.mp3",
+			"Above & Beyond,Zoe Johnston - Sweetest Heart - Original Mix.mp3",
+			"Above & Beyond,Zoë Johnston - Alchemy - Original Mix.mp3",
+			"Above & Beyond,Zoë Johnston - Fly To New York.mp3",
+			"Above & Beyond,Zoë Johnston - Sweetest Heart - Original Mix.mp3",
+			"Alan Walker - Sing Me to Sleep.mp3",
+			"Alesso - Heroes (we could be) ［feat. Tove Lo］.mp3",
+			"Alesso - I Wanna Know.mp3",
+			"Armin van Buuren - Ping Pong.mp3",
+			"Arston Jake Reese - Circle Track (Radio Edit).mp3",
+			"Au5 Danyka Nadeau - Crossroad.mp3",
+			"Axwell Λ Ingrosso - Thinking About You (Festival Mix).mp3",
+			"Basé,Borgeous - Invincible (Basé Remix).mp3",
+			"Bearson,Tristan Prettyman - Song For The Rich (Bearson Remix).mp3",
+			"Beth,Charming Horses - Don't You Worry Child (Charming Horses Remix).mp3",
+			"Borgeous,tyDi - Wanna Lose You (Original Mix).mp3",
+			"Bright Lights Dannic - Dear Life (Bassjackers Remix).mp3",
+			"Calvin Harris - Summer.mp3",
+			"Carly Rae Jepsen - I Really Like You (LYAR Remix).mp3",
+			"Cash Cash - How To Love (Spanish Version).mp3",
+			"Cash Cash,Christina Perri - Hero.mp3",
+			"Codeko,Ashton Palmer - Afterglow (Original Mix).mp3",
+			"DOAN,Wiz Khalifa,Jasmine Thompson - See You Again (DOAN Remix).mp3",
+			"Dash Berlin - Shelter (feat. Roxanne Emery) ［MaRLo Remix］.mp3",
+			"David Guetta - Dangerous (feat. Sam Martin).mp3",
+			"Dimitri Vegas & Like Mike - Stay A While (Extended Mix).mp3",
+			"Dimitri Vegas Martin Garrix Like Mike - Tremor (Original Mix).mp3",
+			"Dreyer,Broiler - Wild Eyes (Dreyer Remix).mp3",
+			"Electus,ILLENIUM - Without You (Electus Remix).mp3",
+			"FlyBoy,Mree - Lift Me Up (FlyBoy Remix).mp3",
+			"Hardwell - Mad World (Radio Edit).mp3",
+			"Hardwell - Nothing Can Hold Us Down.mp3",
+			"Hardwell - Wake Up Call.mp3",
+			"Hardwell Fatman Scoop W&W - Don't Stop The Madness (Original Mix).mp3",
+			"Hook N Sling,Karin Park - Tokyo By Night (Axwell Remix).mp3",
+			"James Carter,Levi,Tula - Wicked Game(James Carter & Levi Remix).mp3",
+			"Janji,Azealia Banks - Chasing Time (Janji Remix).mp3",
+			"July Child - Leave Me Out.mp3",
+			"KLYMVX,Samuraii,Fetty Wap - Trap Queen (KLYMVX & Samuraii Remix).mp3",
+			"Ken Loi,Elle Vee - Believe (Extended Mix).mp3",
+			"Krewella,William Black - Broken Record (William Black Remix).mp3",
+			"Kygo - Fallen (Kygo Rework).mp3",
+			"Kygo - ID (Ultra Music Festival Anthem) (纯音乐).mp3",
+			"Kygo,Coldplay - Midnight (Kygo Remix).mp3",
+			"Kygo,Kiki Rowe - Got Me Thinkin (Kygo Remix).mp3",
+			"Kygo,M83 - Wait (Kygo Remix).mp3",
+			"Kygo,Marvin Gaye - Sexual Healing (Kygo Remix).mp3",
+			"LVNDSCAPE,IIO - Rapture (LVNDSCAPE Remix).mp3",
+			"LYAR,Oh Wonder - All We Do (LYAR Remix).mp3",
+			"LYAR,Patrick Baker - Gone (LYAR Remix).mp3",
+			"LYAR,Redfoo - New Thang (LYAR Remix).mp3",
+			"Lana Del Rey - Ultraviolence (Hook N Sling Remix).mp3",
+			"Martin Garrix  MOTI - Virus (How About Now) (Original Mix).mp3",
+			"Martin Garrix - Dont Crack Under Pressure (Official Music Video HD).mp3",
+			"Martin Garrix - Oops.mp3",
+			"Martin Garrix,Matisse & Sadko - Dragon (Original Mix).mp3",
+			"Matoma,Family Force 5 - This Is My Year (Matoma Remix).mp3",
+			"Matthew Heyer,Novo Amor - Weather (Matthew Heyer Remix).mp3",
+			"Michael Calfan - Mercy (Original Mix).mp3",
+			"Mike Perry - The Ocean (Radio Edit).mp3",
+			"Nicky Romero Vicetone When We Are Wild - Let Me Feel (Original Mix).mp3",
+			"Odesza,Zyra - Say My Name (Jai Wolf Remix).mp3",
+			"Oh Wonder,Matthew Heyer - Heart Hope (Matthew Heyer Remix).mp3",
+			"Oliver Heldens,Shaun Frank,Delaney Jane - Shades Of Grey (Original Mix).mp3",
+			"Omnia Jonny Rose - Two Hands.mp3",
+			"Paris Blohm - Something About You (Conro’s Ultra Miami 2016 Remix).mp3",
+			"Patrick Lite,Tom Bailey,Zedd - Find You[Feat. Tom Bailey](Patrick Lite Remix).mp3",
+			"Pegato,SNBRN,Andrew Watt - Beat The Sunrise feat. Andrew Watt (Pegato Remix).mp3",
+			"Pegato,Twilight Meadow - The Worlds We Discovered (Pegato Remix).mp3",
+			"Rain Man - Bring Back the Summer.mp3",
+			"Rob Thomas - Pieces (Sam Feldt Remix).mp3",
+			"Sam Feldt,Kimberly Anne,EDX's Indian Summer - Show Me Love (EDX's Indian Summer Remix).mp3",
+			"Sander Van Doorn Martin Garrix DVBBS Aleesia - Gold Skies.mp3",
+			"Selena Gomez - Kill Em With Kindness (Felix Cartal Remix).mp3",
+			"THALLIE ANN SEENYEN Felix Jaehn - Dance With Me (Original Mix).mp3",
+			"Taylor Swift - Wildest Dreams (R3hab Remix).mp3",
+			"Tiësto Kaaze - Rocky (Original Mix).mp3",
+			"Tiësto;John Legend - Summer Nights.mp3",
+			"Tove Lo - Talking Body (Gryffin Remix).mp3",
+			"Vicetone - Nevada (Original Mix).mp3",
+			"Vicetone D. Brown - What I've Waited for (feat. D. Brown).mp3",
+			"Vijay & Sofia Zlatko,Sonnengruss - Storyteller (Vijay & Sofia Zlatko Remix).mp3"
+		]
+	};
+
+/***/ },
+/* 487 */
 /*!*******************************!*\
   !*** ./src/modules/common.js ***!
   \*******************************/
@@ -32147,7 +32362,7 @@
 	};
 
 /***/ },
-/* 484 */
+/* 488 */
 /*!*************************************!*\
   !*** ./src/modules/bufferLoader.js ***!
   \*************************************/
@@ -32155,7 +32370,7 @@
 
 	'use strict';
 	
-	var _common = __webpack_require__(/*! ./common */ 483);
+	var _common = __webpack_require__(/*! ./common */ 487);
 	
 	var _common2 = _interopRequireDefault(_common);
 	
@@ -32232,7 +32447,7 @@
 	};
 
 /***/ },
-/* 485 */
+/* 489 */
 /*!************************************!*\
   !*** ./~/underscore/underscore.js ***!
   \************************************/
@@ -33787,113 +34002,6 @@
 	  }
 	}.call(this));
 
-
-/***/ },
-/* 486 */
-/*!******************************!*\
-  !*** ./assets/songlist.json ***!
-  \******************************/
-/***/ function(module, exports) {
-
-	module.exports = {
-		"data": [
-			"7obu - Colors.mp3",
-			"ATB - Wait For Your Heart.mp3",
-			"Above & Beyond - Black Room Boy (vocals by Tony McGuinness and Richard Bedford) - Original Mix.mp3",
-			"Above & Beyond - Counting Down The Days.mp3",
-			"Above & Beyond - Eternal - Original Mix.mp3",
-			"Above & Beyond - Filmic - Original Mix.mp3",
-			"Above & Beyond - Hello.mp3",
-			"Above & Beyond - Out Of Time.mp3",
-			"Above & Beyond - Prelude - Original Mix.mp3",
-			"Above & Beyond,Justine Suissa - Little Something.mp3",
-			"Above & Beyond,Richard Bedford - Every Little Beat - Original Mix.mp3",
-			"Above & Beyond,Richard Bedford - Thing Called Love - Original Mix.mp3",
-			"Above & Beyond,Zoe Johnston - Alchemy - Original Mix.mp3",
-			"Above & Beyond,Zoe Johnston - Fly To New York.mp3",
-			"Above & Beyond,Zoe Johnston - Sweetest Heart - Original Mix.mp3",
-			"Above & Beyond,Zoë Johnston - Alchemy - Original Mix.mp3",
-			"Above & Beyond,Zoë Johnston - Fly To New York.mp3",
-			"Above & Beyond,Zoë Johnston - Sweetest Heart - Original Mix.mp3",
-			"Alan Walker - Sing Me to Sleep.mp3",
-			"Alesso - Heroes (we could be) ［feat. Tove Lo］.mp3",
-			"Alesso - I Wanna Know.mp3",
-			"Armin van Buuren - Ping Pong.mp3",
-			"Arston Jake Reese - Circle Track (Radio Edit).mp3",
-			"Au5 Danyka Nadeau - Crossroad.mp3",
-			"Axwell Λ Ingrosso - Thinking About You (Festival Mix).mp3",
-			"Basé,Borgeous - Invincible (Basé Remix).mp3",
-			"Bearson,Tristan Prettyman - Song For The Rich (Bearson Remix).mp3",
-			"Beth,Charming Horses - Don't You Worry Child (Charming Horses Remix).mp3",
-			"Borgeous,tyDi - Wanna Lose You (Original Mix).mp3",
-			"Bright Lights Dannic - Dear Life (Bassjackers Remix).mp3",
-			"Calvin Harris - Summer.mp3",
-			"Carly Rae Jepsen - I Really Like You (LYAR Remix).mp3",
-			"Cash Cash - How To Love (Spanish Version).mp3",
-			"Cash Cash,Christina Perri - Hero.mp3",
-			"Codeko,Ashton Palmer - Afterglow (Original Mix).mp3",
-			"DOAN,Wiz Khalifa,Jasmine Thompson - See You Again (DOAN Remix).mp3",
-			"Dash Berlin - Shelter (feat. Roxanne Emery) ［MaRLo Remix］.mp3",
-			"David Guetta - Dangerous (feat. Sam Martin).mp3",
-			"Dimitri Vegas & Like Mike - Stay A While (Extended Mix).mp3",
-			"Dimitri Vegas Martin Garrix Like Mike - Tremor (Original Mix).mp3",
-			"Dreyer,Broiler - Wild Eyes (Dreyer Remix).mp3",
-			"Electus,ILLENIUM - Without You (Electus Remix).mp3",
-			"FlyBoy,Mree - Lift Me Up (FlyBoy Remix).mp3",
-			"Hardwell - Mad World (Radio Edit).mp3",
-			"Hardwell - Nothing Can Hold Us Down.mp3",
-			"Hardwell - Wake Up Call.mp3",
-			"Hardwell Fatman Scoop W&W - Don't Stop The Madness (Original Mix).mp3",
-			"Hook N Sling,Karin Park - Tokyo By Night (Axwell Remix).mp3",
-			"James Carter,Levi,Tula - Wicked Game(James Carter & Levi Remix).mp3",
-			"Janji,Azealia Banks - Chasing Time (Janji Remix).mp3",
-			"July Child - Leave Me Out.mp3",
-			"KLYMVX,Samuraii,Fetty Wap - Trap Queen (KLYMVX & Samuraii Remix).mp3",
-			"Ken Loi,Elle Vee - Believe (Extended Mix).mp3",
-			"Krewella,William Black - Broken Record (William Black Remix).mp3",
-			"Kygo - Fallen (Kygo Rework).mp3",
-			"Kygo - ID (Ultra Music Festival Anthem) (纯音乐).mp3",
-			"Kygo,Coldplay - Midnight (Kygo Remix).mp3",
-			"Kygo,Kiki Rowe - Got Me Thinkin (Kygo Remix).mp3",
-			"Kygo,M83 - Wait (Kygo Remix).mp3",
-			"Kygo,Marvin Gaye - Sexual Healing (Kygo Remix).mp3",
-			"LVNDSCAPE,IIO - Rapture (LVNDSCAPE Remix).mp3",
-			"LYAR,Oh Wonder - All We Do (LYAR Remix).mp3",
-			"LYAR,Patrick Baker - Gone (LYAR Remix).mp3",
-			"LYAR,Redfoo - New Thang (LYAR Remix).mp3",
-			"Lana Del Rey - Ultraviolence (Hook N Sling Remix).mp3",
-			"Martin Garrix  MOTI - Virus (How About Now) (Original Mix).mp3",
-			"Martin Garrix - Dont Crack Under Pressure (Official Music Video HD).mp3",
-			"Martin Garrix - Oops.mp3",
-			"Martin Garrix,Matisse & Sadko - Dragon (Original Mix).mp3",
-			"Matoma,Family Force 5 - This Is My Year (Matoma Remix).mp3",
-			"Matthew Heyer,Novo Amor - Weather (Matthew Heyer Remix).mp3",
-			"Michael Calfan - Mercy (Original Mix).mp3",
-			"Mike Perry - The Ocean (Radio Edit).mp3",
-			"Nicky Romero Vicetone When We Are Wild - Let Me Feel (Original Mix).mp3",
-			"Odesza,Zyra - Say My Name (Jai Wolf Remix).mp3",
-			"Oh Wonder,Matthew Heyer - Heart Hope (Matthew Heyer Remix).mp3",
-			"Oliver Heldens,Shaun Frank,Delaney Jane - Shades Of Grey (Original Mix).mp3",
-			"Omnia Jonny Rose - Two Hands.mp3",
-			"Paris Blohm - Something About You (Conro’s Ultra Miami 2016 Remix).mp3",
-			"Patrick Lite,Tom Bailey,Zedd - Find You[Feat. Tom Bailey](Patrick Lite Remix).mp3",
-			"Pegato,SNBRN,Andrew Watt - Beat The Sunrise feat. Andrew Watt (Pegato Remix).mp3",
-			"Pegato,Twilight Meadow - The Worlds We Discovered (Pegato Remix).mp3",
-			"Rain Man - Bring Back the Summer.mp3",
-			"Rob Thomas - Pieces (Sam Feldt Remix).mp3",
-			"Sam Feldt,Kimberly Anne,EDX's Indian Summer - Show Me Love (EDX's Indian Summer Remix).mp3",
-			"Sander Van Doorn Martin Garrix DVBBS Aleesia - Gold Skies.mp3",
-			"Selena Gomez - Kill Em With Kindness (Felix Cartal Remix).mp3",
-			"THALLIE ANN SEENYEN Felix Jaehn - Dance With Me (Original Mix).mp3",
-			"Taylor Swift - Wildest Dreams (R3hab Remix).mp3",
-			"Tiësto Kaaze - Rocky (Original Mix).mp3",
-			"Tiësto;John Legend - Summer Nights.mp3",
-			"Tove Lo - Talking Body (Gryffin Remix).mp3",
-			"Vicetone - Nevada (Original Mix).mp3",
-			"Vicetone D. Brown - What I've Waited for (feat. D. Brown).mp3",
-			"Vijay & Sofia Zlatko,Sonnengruss - Storyteller (Vijay & Sofia Zlatko Remix).mp3"
-		]
-	};
 
 /***/ }
 /******/ ]);
