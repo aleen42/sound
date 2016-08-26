@@ -6,7 +6,7 @@ A JavaScript project for using Web Audio API to do something awesome.
 
 ![](./1.png)
 
-#### Installation
+### Installation
 
 Before installation, you are supposed to install Webpack, which is used to bundle this project:
 
@@ -36,7 +36,7 @@ npm run build
 npm run server 9000
 ```
 
-#### Usage
+### Usage
 
 If you want to load songs locally, you can just paste files with a `.mp3` format into the folder: `assets/songs/`. After that, remember to run `npm run build` again to build this project.
 
@@ -61,10 +61,10 @@ const base = [
 ***Notice that: remember to make a soft link to a path, which is under root of this project. It will go wrong if you use relative path to point to a path outside the current root of this project like `./../music/`***
 
 
-#### :fuelpump: How to contribute
+### :fuelpump: How to contribute
 
 Have an idea? Found a bug? See [how to contribute](https://aleen42.gitbooks.io/personalwiki/content/contribution.html).
 
-#### :scroll: License
+### :scroll: License
 
 [MIT](https://aleen42.gitbooks.io/personalwiki/content/MIT.html) © aleen42
