@@ -49,9 +49,12 @@ If you don't want to use `assets/songs`, you can just override the variable `bas
 ```js
 const base = [
 	'./assets/songs/',
-    './../music/'
+    './assets/music/'
 ];
 ```
+
+***Notice that: remember to make a soft link to a path, which is under root of this project. It will go wrong if you use relative path to point to a path outside the current root of this project like `./../music/`***
+
 
 #### :fuelpump: How to contribute
 
