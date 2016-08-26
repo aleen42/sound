@@ -58,7 +58,7 @@ const base = [
 ];
 ```
 
-*Notice that: because a resource outside a server root is invisible, so if you are using **Linux/Mac OS**, remember to make a soft link to a path, which is under the root of this project, or this project will have broken down with a relative path like `./../music/`. If you are using **Windows OS**, I'm very sorry to say that, you have to copy your directory into this project, so that it can be loaded.*
+*Notice that: because a resource outside a server root is invisible, so if you are using Linux/Mac OS, remember to make a soft link to a path, which is under the root of this project, or this project will have broken down with a relative path like `./../music/`. If you are using Windows OS, I'm very sorry to say that, you have to copy your directory into this project, so that it can be loaded.*
 
 ### :fuelpump: How to contribute
 
