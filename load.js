@@ -29,8 +29,10 @@ const base = [
 var songlist = [];
 for (var i = 0; i < base.length; i++) {
 	songlist = songlist.concat(fs.readdirSync(base[i]).map(function (item) {
-		return base[i] + item;
-	}));
+			return base[i] + item;
+		}).filter(function (item) {
+			return item.substr(-4).toLowerCase() === '.mp3';
+		}));
 }
 
 fs.writeFile('./assets/songlist.json', JSON.stringify({
