@@ -49,6 +49,8 @@ If you don't want to use `assets/songs`, you can just override the variable `bas
 ```js
 const base = [
 	'./assets/songs/',
+	/** wrong pointer which will cause resources missing error */
+	'./../music',
     './assets/music/'
 ];
 ```
