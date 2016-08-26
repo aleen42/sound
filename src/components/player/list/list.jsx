@@ -8,7 +8,7 @@ export class List extends React.Component {
 
 		this.handleResize = this.handleResize.bind(this);
 		this.state = {
-			height: parseInt(window.innerHeight / 4)
+			height: parseInt(window.innerHeight / 5)
 		};
 	}
 

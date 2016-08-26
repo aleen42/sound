@@ -5,16 +5,12 @@ export class Wave extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {
-			waveBufferData: this.props.sound.getBufferData(this.props.px)
-		};
-
 		this.prev = this.prev.bind(this);
 		this.next = this.next.bind(this);
 	}
 
 	getWave() {
-		const data = this.state.waveBufferData;
+		const data = this.props.sound.getBufferData(this.props.px);
 		return data.map(function(elem, index) {
 			return <rect key={index} ref={'wave__tag' + index} x={index / data.length * 100 + '%'} y={(this.props.height - elem.pcmData * 1000) / 2 + 'px'} width={1} height={elem.pcmData * 1000 + 'px'} fill={elem.fill}></rect>;
 		}.bind(this));
@@ -74,14 +70,12 @@ export class Wave extends React.Component {
 				.onloaded(function () {
 					/** update active item */
 					this.props.updateItem(this.props.sound.getCurrentIndex());
-
-					this.setState({
-						waveBufferData: this.props.sound.getBufferData(this.props.px)
-					});
-
 					this.clearWave();
 					this.props.updateTitle(this.props.sound.getTitle());
 					this.loadingDown();
+
+					/** rerender */
+					this.forceUpdate();
 				}.bind(this))
 				.onplaying(function () {
 					/** Wave Update */
@@ -134,3 +128,7 @@ export class Wave extends React.Component {
 		);
 	}
 }
+
+Wave.defaultProps = {
+	px: parseInt(window.innerWidth / 3.2)
+};

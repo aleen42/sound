@@ -5,13 +5,14 @@
 }
 
 body {
-	background-color: #a10000
+	background-color: #a10000;
+	min-height: 720px;
 }
 
 .container {
 	width: 100%;
 	text-align: center;
-	padding: 10% 0;
+	padding-top: 10%;
 }
 
 .box {

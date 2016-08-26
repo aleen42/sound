@@ -16,11 +16,8 @@ export class Player extends React.Component {
 		this.updateTitle = this.updateTitle.bind(this);
 		this.updateItem = this.updateItem.bind(this);
 
-		this.handleResize = this.handleResize.bind(this);
-
 		this.state = {
-			activeIndex: this.props.setIndex,
-			px: parseInt(window.innerWidth / 3.2)
+			activeIndex: this.props.setIndex
 		};
 	}
 
@@ -34,25 +31,9 @@ export class Player extends React.Component {
 
 	updateItem(index) {
 		this.setState({
-			activeIndex: index,
-			px: this.state.px
+			activeIndex: index
 		});
 	}
-
-	handleResize(e) {
-		this.setState({
-			activeIndex: this.state.activeIndex,
-			px: parseInt(window.innerWidth / 3.2)
-		});
-	}
-
-	componentDidMount() {
-        window.addEventListener('resize', this.handleResize);  
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.handleResize);
-    }
 
 	render() {
 		return (
@@ -65,7 +46,7 @@ export class Player extends React.Component {
 					<p className="name">Name</p>
 					<p className="value">/</p>
 				</div>
-				<Wave sound={this.props.soundObject} updateTime={this.updateTime} updateTitle={this.updateTitle} updateItem={this.updateItem} width="100%" height={280} px={this.state.px} />
+				<Wave sound={this.props.soundObject} updateTime={this.updateTime} updateTitle={this.updateTitle} updateItem={this.updateItem} width="100%" height={280} />
 				<List sound={this.props.soundObject} activeIndex={this.state.activeIndex} />
 			</div>
 		);
