@@ -22,7 +22,10 @@
  **********************************************************************/
 
 const fs = require('fs');
+const base = './assets/songs/';
+
+const songlist = fs.readdirSync(base);
 
 fs.writeFile('./assets/songlist.json', JSON.stringify({
-	data: fs.readdirSync('./assets/songs')
+	data: songlist
 }));
