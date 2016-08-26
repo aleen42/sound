@@ -8,7 +8,6 @@
 
 .player__list {
 	width: 80%;
-    height: 100px;
     position: absolute;
     left: 50%;
     bottom: 0;
@@ -39,7 +38,6 @@
 }
 
 .player__list-head {
-	bottom: 75px;
     background: linear-gradient(to bottom, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));
 }
 

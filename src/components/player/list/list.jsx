@@ -5,6 +5,10 @@ import { PlayingIcon } from './../playingicon/playingicon.jsx'
 export class List extends React.Component {
 	constructor(props) {
 		super(props);
+
+		this.state = {
+			height: parseInt(window.innerHeight / 4)
+		};
 	}
 
 	loadingUp() {
@@ -34,19 +38,30 @@ export class List extends React.Component {
 		});
 	}
 
+	handleResize() {
+		this.setState({
+			height: parseInt(window.innerHeight / 4)
+		});
+	}
+
 	componentDidUpdate() {
-		this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop - (this.refs['player__list'].clientHeight - 20 * 2 - 18) / 2;
+		this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop - (this.state.height - this.refs['player__list-item-active'].clientHeight) / 2;
 	}
 
 	componentDidMount() {
-		this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop - (this.refs['player__list'].clientHeight - 20 * 2 - 18) / 2;
+		this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop - (this.state.height - this.refs['player__list-item-active'].clientHeight) / 2;
+		window.addEventListener('resize', this.handleResize);
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener('resize', this.handleResize);
 	}
 
 	render() {
 		return (
-			<div className="player__list" ref="player__list">
+			<div className="player__list" style={{height: this.state.height}} ref="player__list">
 				<div className="player__list-wrapper">
-					<div className="player__list-head"></div>
+					<div className="player__list-head" style={{bottom: this.state.height - 25}}></div>
 					<div className="player__list-tail"></div>
 					{this.getList()}
 				</div>

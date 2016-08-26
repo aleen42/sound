@@ -112,7 +112,7 @@ export class Wave extends React.Component {
 					this.props.updateTime(this.formatTime(Math.floor(this.props.sound.getCurrentTime())) + ' / ' + this.formatTime(Math.floor(this.props.sound.getDataLength() / this.props.sound.getSampleRate())));
 
 					/** Triangle Progress Update */
-					this.refs.wave__progress.style.left = this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3 + 'px';
+					// this.refs.wave__progress.style.left = this.props.sound.getCurrentTime() / (this.props.sound.getDataLength() / this.props.sound.getSampleRate()) * this.refs.wave__container.clientWidth - 3 + 'px';
 				}.bind(this))
 				.loop();
 		}.bind(this), 1000);
@@ -129,7 +129,7 @@ export class Wave extends React.Component {
 				<svg className="svg__wave" xmlns="http://www.w3.org/2000/svg" width={this.props.width} height={this.props.height}>
 						{this.getWave()}
 				</svg>
-				<div className="wave__progress wave__position-absolute" ref="wave__progress"></div>
+				{/** <div className="wave__progress wave__position-absolute" ref="wave__progress"></div> */}
 
 				<div className="player__next" onClick={this.next}>
 					<i className="fa fa-angle-right"></i>
