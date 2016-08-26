@@ -40,7 +40,7 @@ npm run server 9000
 
 If you want to load songs locally, you can just paste files with a `.mp3` format into the folder: `assets/songs/`. After that, remember to run `npm run build` again to build this project.
 
-***Notice that: this project is temporarily supported MP3 files, and any file without a extension name `.mp3` will not be loaded.***
+*Notice that: this project is temporarily supported MP3 files, and any file without a extension name `.mp3` will not be loaded.*
 
 #### Optional
 
@@ -58,8 +58,7 @@ const base = [
 ];
 ```
 
-***Notice that: remember to make a soft link to a path, which is under root of this project. It will go wrong if you use relative path to point to a path outside the current root of this project like `./../music/`***
-
+*Notice that: If you are using **Linux OS**, remember to make a soft link to a path, which is under root of this project. It will go wrong if you use relative path to point to a path outside the current root of this project like `./../music/`. If you are using **Windows OS**, I'm very sorry to say that, you have to copy your directory into this project, so that it can be loaded.*
 
 ### :fuelpump: How to contribute
 
