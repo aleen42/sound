@@ -16,15 +16,23 @@
  *      - Description: a script for loading file name from a directory,
  *      			   and converted into a json.
  *      - Create Time: Aug 25th, 2016
- *      - Update Time: Aug 25th, 2016
+ *      - Update Time: Aug 26th, 2016
  *
  *
  **********************************************************************/
 
 const fs = require('fs');
-const base = './assets/songs/';
+const base = [
+	'./assets/songs/',
+	'./../songs/'
+];
 
-const songlist = fs.readdirSync(base);
+var songlist = [];
+for (var i = 0; i < base.length; i++) {
+	songlist = songlist.concat(fs.readdirSync(base[i]).map(function (item) {
+		return base[i] + item;
+	}));
+}
 
 fs.writeFile('./assets/songlist.json', JSON.stringify({
 	data: songlist

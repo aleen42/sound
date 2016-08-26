@@ -6,6 +6,7 @@ export class List extends React.Component {
 	constructor(props) {
 		super(props);
 
+		this.handleResize = this.handleResize.bind(this);
 		this.state = {
 			height: parseInt(window.innerHeight / 4)
 		};

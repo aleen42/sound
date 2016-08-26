@@ -16,6 +16,8 @@ export class Player extends React.Component {
 		this.updateTitle = this.updateTitle.bind(this);
 		this.updateItem = this.updateItem.bind(this);
 
+		this.handleResize = this.handleResize.bind(this);
+
 		this.state = {
 			activeIndex: this.props.setIndex,
 			px: parseInt(window.innerWidth / 3.2)
@@ -39,7 +41,7 @@ export class Player extends React.Component {
 
 	handleResize(e) {
 		this.setState({
-			activeIndex: this.state.index,
+			activeIndex: this.state.activeIndex,
 			px: parseInt(window.innerWidth / 3.2)
 		});
 	}

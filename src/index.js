@@ -35,7 +35,7 @@ import Sound from './modules/sound';
 /** SongsList */
 import list from './../assets/songlist.json';
 
-const sound = new Sound(list.data, './assets/songs/');
+const sound = new Sound(list.data);
 
 ReactDOM.render(
 	<div>

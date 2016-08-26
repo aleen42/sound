@@ -61,15 +61,15 @@
 	
 	var _player = __webpack_require__(/*! ./components/player/player.jsx */ 468);
 	
-	var _loading = __webpack_require__(/*! ./components/loading/loading.jsx */ 477);
+	var _loading = __webpack_require__(/*! ./components/loading/loading.jsx */ 482);
 	
-	var _typeinfo = __webpack_require__(/*! ./components/typeinfo/typeinfo.jsx */ 480);
+	var _typeinfo = __webpack_require__(/*! ./components/typeinfo/typeinfo.jsx */ 485);
 	
-	var _sound = __webpack_require__(/*! ./modules/sound */ 483);
+	var _sound = __webpack_require__(/*! ./modules/sound */ 488);
 	
 	var _sound2 = _interopRequireDefault(_sound);
 	
-	var _songlist = __webpack_require__(/*! ./../assets/songlist.json */ 487);
+	var _songlist = __webpack_require__(/*! ./../assets/songlist.json */ 492);
 	
 	var _songlist2 = _interopRequireDefault(_songlist);
 	
@@ -98,7 +98,7 @@
 	 *
 	 **********************************************************************/
 	
-	var sound = new _sound2.default(_songlist2.default.data, './assets/songs/');
+	var sound = new _sound2.default(_songlist2.default.data);
 	
 	/** SongsList */
 	
@@ -30876,6 +30876,8 @@
 			_this.updateTitle = _this.updateTitle.bind(_this);
 			_this.updateItem = _this.updateItem.bind(_this);
 	
+			_this.handleResize = _this.handleResize.bind(_this);
+	
 			_this.state = {
 				activeIndex: _this.props.setIndex,
 				px: parseInt(window.innerWidth / 3.2)
@@ -30905,7 +30907,7 @@
 			key: 'handleResize',
 			value: function handleResize(e) {
 				this.setState({
-					activeIndex: this.state.index,
+					activeIndex: this.state.activeIndex,
 					px: parseInt(window.innerWidth / 3.2)
 				});
 			}
@@ -31425,15 +31427,6 @@
 				}.bind(this), 500);
 			}
 		}, {
-			key: 'componentDidUpdate',
-			value: function componentDidUpdate() {
-				this.clearWave();
-	
-				this.props.updateTitle(this.props.sound.getTitle());
-	
-				this.loadingDown();
-			}
-		}, {
 			key: 'componentDidMount',
 			value: function componentDidMount() {
 				/** give it 1 sec to render */
@@ -31452,6 +31445,10 @@
 						this.setState({
 							waveBufferData: this.props.sound.getBufferData(this.props.px)
 						});
+	
+						this.clearWave();
+						this.props.updateTitle(this.props.sound.getTitle());
+						this.loadingDown();
 					}.bind(this)).onplaying(function () {
 						/** Wave Update */
 						var item = Math.floor(this.props.sound.getCurrentTime() * (this.props.sound.getSampleRate() / (this.props.sound.getDataLength() / this.props.px)));
@@ -31576,11 +31573,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _list = __webpack_require__(/*! ./list.css */ 488);
+	var _list = __webpack_require__(/*! ./list.css */ 477);
 	
 	var _list2 = _interopRequireDefault(_list);
 	
-	var _playingicon = __webpack_require__(/*! ./../playingicon/playingicon.jsx */ 490);
+	var _playingicon = __webpack_require__(/*! ./../playingicon/playingicon.jsx */ 479);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -31598,6 +31595,7 @@
 	
 			var _this = _possibleConstructorReturn(this, (List.__proto__ || Object.getPrototypeOf(List)).call(this, props));
 	
+			_this.handleResize = _this.handleResize.bind(_this);
 			_this.state = {
 				height: parseInt(window.innerHeight / 4)
 			};
@@ -31691,6 +31689,177 @@
 
 /***/ },
 /* 477 */
+/*!*********************************************!*\
+  !*** ./src/components/player/list/list.css ***!
+  \*********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(/*! !./../../../../~/css-loader?sourceMap!./list.css */ 478);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(/*! ./../../../../~/style-loader/addStyles.js */ 472)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?sourceMap!./list.css", function() {
+				var newContent = require("!!./../../../../node_modules/css-loader/index.js?sourceMap!./list.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 478 */
+/*!**********************************************************************!*\
+  !*** ./~/css-loader?sourceMap!./src/components/player/list/list.css ***!
+  \**********************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(/*! ./../../../../~/css-loader/lib/css-base.js */ 471)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, "/*******************************************************\n *\n *\n * Component List\n *\n * \n */\n\n.player__list {\n\twidth: 80%;\n    position: absolute;\n    left: 50%;\n    bottom: 0;\n    overflow: auto;\n    overflow-x: hidden;\n    margin-left: -40%;\n    padding: 20px 0;\n    box-sizing: border-box;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.player__list-wrapper {\n\tposition: relative;\n\tpadding: 20px 0;\n}\n\n.player__list-head,\n.player__list-tail {\n\tposition: fixed;\n    left: 50%;\n    width: 79%;\n    height: 20px;\n    margin-left: -39.5%;\n    z-index: 99;\n}\n\n.player__list-head {\n    background: linear-gradient(to bottom, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));\n}\n\n.player__list-head::before {\n\tcontent: '';\n    display: block;\n    height: 5px;\n    margin-top: -5px;\n    background-color: #a10000;\n}\n\n.player__list-tail {\n\tbottom: 5px;\n    background: linear-gradient(to top, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));\n}\n\n.player__list-tail::before {\n\tcontent: '';\n    display: block;\n    height: 5px;\n    margin-top: 20px;\n    background-color: #a10000;\n}\n\n.player__list::-webkit-scrollbar {\n    /** if you want to style your own scroll bar, this pseudo should be written */\n    /** Part 1 */\n    width: 6px;\n    height: 6px;\n}\n\n.player__list::-webkit-scrollbar-button {\n    /** Part 2 */\n    display: none;\n}\n\n.player__list::-webkit-scrollbar-track {\n    /** Part 3 */\n}\n\n.player__list::-webkit-scrollbar-track-piece {\n    /** Part 4 */\n}\n\n.player__list::-webkit-scrollbar-thumb {\n    /** Part 5 */\n    background-color: rgba(0, 0, 0, 1);\n    border-radius: 10px;\n}\n\n.player__list::-webkit-scrollbar-corner {\n    /** Part 6 */\n}\n\n.player__list::-webkit-resizer {\n    /** Part 7 */\n}\n\n.player__list-item {\n\tmargin: 5px 10px;\n\tcolor: rgba(0, 0, 0, 0.3);\n\tcursor: pointer;\n\tposition: relative;\n\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.player__list-item:hover::after {\n\tcontent: \"\\F144\";\n\tfont-family: FontAwesome;\n\n\tposition: absolute;\n\tright: 0;\n}\n\n.player__list-item--active {\n\tcolor: rgba(0, 0, 0, 1);\n}\n\n.player__list-playing {\n\tposition: relative;\n\ttop: 0;\n    left: 0;\n    vertical-align: bottom;\n    margin-right: 15px;\n    display: inline-block;\n}\n", "", {"version":3,"sources":["/./src/components/player/list/list.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;CACC,WAAW;IACR,mBAAmB;IACnB,UAAU;IACV,UAAU;IACV,eAAe;IACf,mBAAmB;IACnB,kBAAkB;IAClB,gBAAgB;IAChB,uBAAuB;;IAEvB,6BAA6B;IAC7B,wBAAwB;IACxB,qBAAqB;CACxB;;AAED;CACC,mBAAmB;CACnB,gBAAgB;CAChB;;AAED;;CAEC,gBAAgB;IACb,UAAU;IACV,WAAW;IACX,aAAa;IACb,oBAAoB;IACpB,YAAY;CACf;;AAED;IACI,6EAA6E;CAChF;;AAED;CACC,YAAY;IACT,eAAe;IACf,YAAY;IACZ,iBAAiB;IACjB,0BAA0B;CAC7B;;AAED;CACC,YAAY;IACT,0EAA0E;CAC7E;;AAED;CACC,YAAY;IACT,eAAe;IACf,YAAY;IACZ,iBAAiB;IACjB,0BAA0B;CAC7B;;AAED;IACI,8EAA8E;IAC9E,aAAa;IACb,WAAW;IACX,YAAY;CACf;;AAED;IACI,aAAa;IACb,cAAc;CACjB;;AAED;IACI,aAAa;CAChB;;AAED;IACI,aAAa;CAChB;;AAED;IACI,aAAa;IACb,mCAAmC;IACnC,oBAAoB;CACvB;;AAED;IACI,aAAa;CAChB;;AAED;IACI,aAAa;CAChB;;AAED;CACC,iBAAiB;CACjB,0BAA0B;CAC1B,gBAAgB;CAChB,mBAAmB;;CAEnB,6BAA6B;CAC7B,wBAAwB;CACxB,qBAAqB;CACrB;;AAED;CACC,iBAAiB;CACjB,yBAAyB;;CAEzB,mBAAmB;CACnB,SAAS;CACT;;AAED;CACC,wBAAwB;CACxB;;AAED;CACC,mBAAmB;CACnB,OAAO;IACJ,QAAQ;IACR,uBAAuB;IACvB,mBAAmB;IACnB,sBAAsB;CACzB","file":"list.css","sourcesContent":["/*******************************************************\n *\n *\n * Component List\n *\n * \n */\n\n.player__list {\n\twidth: 80%;\n    position: absolute;\n    left: 50%;\n    bottom: 0;\n    overflow: auto;\n    overflow-x: hidden;\n    margin-left: -40%;\n    padding: 20px 0;\n    box-sizing: border-box;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.player__list-wrapper {\n\tposition: relative;\n\tpadding: 20px 0;\n}\n\n.player__list-head,\n.player__list-tail {\n\tposition: fixed;\n    left: 50%;\n    width: 79%;\n    height: 20px;\n    margin-left: -39.5%;\n    z-index: 99;\n}\n\n.player__list-head {\n    background: linear-gradient(to bottom, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));\n}\n\n.player__list-head::before {\n\tcontent: '';\n    display: block;\n    height: 5px;\n    margin-top: -5px;\n    background-color: #a10000;\n}\n\n.player__list-tail {\n\tbottom: 5px;\n    background: linear-gradient(to top, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));\n}\n\n.player__list-tail::before {\n\tcontent: '';\n    display: block;\n    height: 5px;\n    margin-top: 20px;\n    background-color: #a10000;\n}\n\n.player__list::-webkit-scrollbar {\n    /** if you want to style your own scroll bar, this pseudo should be written */\n    /** Part 1 */\n    width: 6px;\n    height: 6px;\n}\n\n.player__list::-webkit-scrollbar-button {\n    /** Part 2 */\n    display: none;\n}\n\n.player__list::-webkit-scrollbar-track {\n    /** Part 3 */\n}\n\n.player__list::-webkit-scrollbar-track-piece {\n    /** Part 4 */\n}\n\n.player__list::-webkit-scrollbar-thumb {\n    /** Part 5 */\n    background-color: rgba(0, 0, 0, 1);\n    border-radius: 10px;\n}\n\n.player__list::-webkit-scrollbar-corner {\n    /** Part 6 */\n}\n\n.player__list::-webkit-resizer {\n    /** Part 7 */\n}\n\n.player__list-item {\n\tmargin: 5px 10px;\n\tcolor: rgba(0, 0, 0, 0.3);\n\tcursor: pointer;\n\tposition: relative;\n\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.player__list-item:hover::after {\n\tcontent: \"\\f144\";\n\tfont-family: FontAwesome;\n\n\tposition: absolute;\n\tright: 0;\n}\n\n.player__list-item--active {\n\tcolor: rgba(0, 0, 0, 1);\n}\n\n.player__list-playing {\n\tposition: relative;\n\ttop: 0;\n    left: 0;\n    vertical-align: bottom;\n    margin-right: 15px;\n    display: inline-block;\n}\n"],"sourceRoot":"webpack://"}]);
+	
+	// exports
+
+
+/***/ },
+/* 479 */
+/*!***********************************************************!*\
+  !*** ./src/components/player/playingicon/playingicon.jsx ***!
+  \***********************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.PlayingIcon = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 298);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _playingicon = __webpack_require__(/*! ./playingicon.css */ 480);
+	
+	var _playingicon2 = _interopRequireDefault(_playingicon);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var PlayingIcon = exports.PlayingIcon = function (_React$Component) {
+		_inherits(PlayingIcon, _React$Component);
+	
+		function PlayingIcon(props) {
+			_classCallCheck(this, PlayingIcon);
+	
+			return _possibleConstructorReturn(this, (PlayingIcon.__proto__ || Object.getPrototypeOf(PlayingIcon)).call(this, props));
+		}
+	
+		_createClass(PlayingIcon, [{
+			key: 'getRect',
+			value: function getRect() {
+				var items = [];
+	
+				for (var i = 1; i <= this.props.reactNumber; i++) {
+					items.push(_react2.default.createElement('div', { key: i, className: 'react' + i, style: {
+							'backgroundColor': this.props.reactColor,
+							'WebkitAnimationDelay': -1.2 + this.props.reactDelay * i + 's',
+							'animation': 'stretchdelay ' + this.props.animateDelay + 's infinite ease-in-out'
+						} }));
+				}
+	
+				return items;
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(
+					'div',
+					{ className: 'playingicon', ref: 'playingicon', style: {
+							height: this.props.height
+						} },
+					this.getRect()
+				);
+			}
+		}]);
+	
+		return PlayingIcon;
+	}(_react2.default.Component);
+	
+	PlayingIcon.defaultProps = {
+		height: 18,
+		reactNumber: 4,
+		reactDelay: 0.12,
+		reactColor: '#000'
+	};
+
+/***/ },
+/* 480 */
+/*!***********************************************************!*\
+  !*** ./src/components/player/playingicon/playingicon.css ***!
+  \***********************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(/*! !./../../../../~/css-loader?sourceMap!./playingicon.css */ 481);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(/*! ./../../../../~/style-loader/addStyles.js */ 472)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?sourceMap!./playingicon.css", function() {
+				var newContent = require("!!./../../../../node_modules/css-loader/index.js?sourceMap!./playingicon.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 481 */
+/*!************************************************************************************!*\
+  !*** ./~/css-loader?sourceMap!./src/components/player/playingicon/playingicon.css ***!
+  \************************************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(/*! ./../../../../~/css-loader/lib/css-base.js */ 471)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, "/*******************************************************\n *\n *\n * Component Loading\n *\n * \n */\n\n.playingicon {\n    display: none;\n    font-size: 10px;\n    text-align: center;\n    margin-right: 10px;\n    display: inline-block;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.playingicon > div {\n    height: 100%;\n    width: 3px;\n    margin: 0 0.5px;\n    display: inline-block;\n\n    -webkit-transform-origin: bottom;\n    -moz-transform-origin: bottom;\n    -ms-transform-origin: bottom;\n    -o-transform-origin: bottom;\n    transform-origin: bottom;\n\n    -webkit-animation: stretchdelay 1.0s infinite ease-in-out;\n    animation: stretchdelay 1.0s infinite ease-in-out;\n}\n\n@-webkit-keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        -webkit-transform: scaleY(0.4)\n    }\n    20% {\n        -webkit-transform: scaleY(1.0)\n    }\n}\n\n@keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        transform: scaleY(0.4);\n        -webkit-transform: scaleY(0.4);\n    }\n    20% {\n        transform: scaleY(1.0);\n        -webkit-transform: scaleY(1.0);\n    }\n}\n", "", {"version":3,"sources":["/./src/components/player/playingicon/playingicon.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;IACI,cAAc;IACd,gBAAgB;IAChB,mBAAmB;IACnB,mBAAmB;IACnB,sBAAsB;;IAEtB,6BAA6B;IAC7B,wBAAwB;IACxB,qBAAqB;CACxB;;AAED;IACI,aAAa;IACb,WAAW;IACX,gBAAgB;IAChB,sBAAsB;;IAEtB,iCAAiC;IACjC,8BAA8B;IAC9B,6BAA6B;IAC7B,4BAA4B;IAC5B,yBAAyB;;IAEzB,0DAA0D;IAC1D,kDAAkD;CACrD;;AAED;IACI;;;QAGI,8BAA8B;KACjC;IACD;QACI,8BAA8B;KACjC;CACJ;;AAED;IACI;;;QAGI,uBAAuB;QACvB,+BAA+B;KAClC;IACD;QACI,uBAAuB;QACvB,+BAA+B;KAClC;CACJ","file":"playingicon.css","sourcesContent":["/*******************************************************\n *\n *\n * Component Loading\n *\n * \n */\n\n.playingicon {\n    display: none;\n    font-size: 10px;\n    text-align: center;\n    margin-right: 10px;\n    display: inline-block;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.playingicon > div {\n    height: 100%;\n    width: 3px;\n    margin: 0 0.5px;\n    display: inline-block;\n\n    -webkit-transform-origin: bottom;\n    -moz-transform-origin: bottom;\n    -ms-transform-origin: bottom;\n    -o-transform-origin: bottom;\n    transform-origin: bottom;\n\n    -webkit-animation: stretchdelay 1.0s infinite ease-in-out;\n    animation: stretchdelay 1.0s infinite ease-in-out;\n}\n\n@-webkit-keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        -webkit-transform: scaleY(0.4)\n    }\n    20% {\n        -webkit-transform: scaleY(1.0)\n    }\n}\n\n@keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        transform: scaleY(0.4);\n        -webkit-transform: scaleY(0.4);\n    }\n    20% {\n        transform: scaleY(1.0);\n        -webkit-transform: scaleY(1.0);\n    }\n}\n"],"sourceRoot":"webpack://"}]);
+	
+	// exports
+
+
+/***/ },
+/* 482 */
 /*!********************************************!*\
   !*** ./src/components/loading/loading.jsx ***!
   \********************************************/
@@ -31709,7 +31878,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _loading = __webpack_require__(/*! ./loading.css */ 478);
+	var _loading = __webpack_require__(/*! ./loading.css */ 483);
 	
 	var _loading2 = _interopRequireDefault(_loading);
 	
@@ -31778,7 +31947,7 @@
 	};
 
 /***/ },
-/* 478 */
+/* 483 */
 /*!********************************************!*\
   !*** ./src/components/loading/loading.css ***!
   \********************************************/
@@ -31787,7 +31956,7 @@
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./loading.css */ 479);
+	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./loading.css */ 484);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(/*! ./../../../~/style-loader/addStyles.js */ 472)(content, {});
@@ -31807,7 +31976,7 @@
 	}
 
 /***/ },
-/* 479 */
+/* 484 */
 /*!*********************************************************************!*\
   !*** ./~/css-loader?sourceMap!./src/components/loading/loading.css ***!
   \*********************************************************************/
@@ -31824,7 +31993,7 @@
 
 
 /***/ },
-/* 480 */
+/* 485 */
 /*!**********************************************!*\
   !*** ./src/components/typeinfo/typeinfo.jsx ***!
   \**********************************************/
@@ -31843,7 +32012,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _typeinfo = __webpack_require__(/*! ./typeinfo.css */ 481);
+	var _typeinfo = __webpack_require__(/*! ./typeinfo.css */ 486);
 	
 	var _typeinfo2 = _interopRequireDefault(_typeinfo);
 	
@@ -31929,7 +32098,7 @@
 	};
 
 /***/ },
-/* 481 */
+/* 486 */
 /*!**********************************************!*\
   !*** ./src/components/typeinfo/typeinfo.css ***!
   \**********************************************/
@@ -31938,7 +32107,7 @@
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./typeinfo.css */ 482);
+	var content = __webpack_require__(/*! !./../../../~/css-loader?sourceMap!./typeinfo.css */ 487);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(/*! ./../../../~/style-loader/addStyles.js */ 472)(content, {});
@@ -31958,7 +32127,7 @@
 	}
 
 /***/ },
-/* 482 */
+/* 487 */
 /*!***********************************************************************!*\
   !*** ./~/css-loader?sourceMap!./src/components/typeinfo/typeinfo.css ***!
   \***********************************************************************/
@@ -31975,7 +32144,7 @@
 
 
 /***/ },
-/* 483 */
+/* 488 */
 /*!******************************!*\
   !*** ./src/modules/sound.js ***!
   \******************************/
@@ -31983,30 +32152,28 @@
 
 	'use strict';
 	
-	var _common = __webpack_require__(/*! ./common */ 484);
+	var _common = __webpack_require__(/*! ./common */ 489);
 	
 	var _common2 = _interopRequireDefault(_common);
 	
-	var _bufferLoader = __webpack_require__(/*! ./bufferLoader */ 485);
+	var _bufferLoader = __webpack_require__(/*! ./bufferLoader */ 490);
 	
 	var _bufferLoader2 = _interopRequireDefault(_bufferLoader);
 	
-	var _underscore = __webpack_require__(/*! underscore */ 486);
+	var _underscore = __webpack_require__(/*! underscore */ 491);
 	
 	var _underscore2 = _interopRequireDefault(_underscore);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var Sound = module.exports = function (list, base) {
-		base = base || './';
-	
+	var Sound = module.exports = function (list) {
 		/** @type {[type]} [a list of songs with their name] */
-		this.songList = list;
+		this.songList = _underscore2.default.isArray(list) ? list.map(function (item) {
+			return _common2.default.extractTitle(item);
+		}) : Comon.extractTitle(list);
 	
 		/** init a Sound instance with its location */
-		this.url = _underscore2.default.isArray(list) ? list.map(function (item) {
-			return base + item;
-		}) : base + list;
+		this.url = list;
 	
 		/** @type {[type]} [Audio Context Object] */
 		this.context = null;
@@ -32159,8 +32326,8 @@
 	 *
 	 *
 	 * player operations
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	Sound.prototype.set = function (index) {
 		this.currentIndex = index;
@@ -32221,7 +32388,7 @@
 	 *
 	 *
 	 * beat operations
-	 * 
+	 *
 	 */
 	
 	Sound.prototype.summarize = function (data, pixels) {
@@ -32253,10 +32420,10 @@
 	
 	/**
 	 *
-	 * 
+	 *
 	 * get operations
 	 *
-	 * 
+	 *
 	 */
 	
 	Sound.prototype.getTitle = function () {
@@ -32299,7 +32466,7 @@
 	};
 
 /***/ },
-/* 484 */
+/* 489 */
 /*!*******************************!*\
   !*** ./src/modules/common.js ***!
   \*******************************/
@@ -32346,7 +32513,7 @@
 	};
 
 /***/ },
-/* 485 */
+/* 490 */
 /*!*************************************!*\
   !*** ./src/modules/bufferLoader.js ***!
   \*************************************/
@@ -32354,7 +32521,7 @@
 
 	'use strict';
 	
-	var _common = __webpack_require__(/*! ./common */ 484);
+	var _common = __webpack_require__(/*! ./common */ 489);
 	
 	var _common2 = _interopRequireDefault(_common);
 	
@@ -32444,7 +32611,7 @@
 	};
 
 /***/ },
-/* 486 */
+/* 491 */
 /*!************************************!*\
   !*** ./~/underscore/underscore.js ***!
   \************************************/
@@ -34001,7 +34168,7 @@
 
 
 /***/ },
-/* 487 */
+/* 492 */
 /*!******************************!*\
   !*** ./assets/songlist.json ***!
   \******************************/
@@ -34009,180 +34176,104 @@
 
 	module.exports = {
 		"data": [
-			"Pegato,SNBRN,Andrew Watt - Beat The Sunrise feat. Andrew Watt (Pegato Remix).mp3"
+			"./assets/songs/Pegato,SNBRN,Andrew Watt - Beat The Sunrise feat. Andrew Watt (Pegato Remix).mp3",
+			"./../songs/7obu - Colors.mp3",
+			"./../songs/ATB - Wait For Your Heart.mp3",
+			"./../songs/Above & Beyond - Black Room Boy (vocals by Tony McGuinness and Richard Bedford) - Original Mix.mp3",
+			"./../songs/Above & Beyond - Counting Down The Days.mp3",
+			"./../songs/Above & Beyond - Eternal - Original Mix.mp3",
+			"./../songs/Above & Beyond - Filmic - Original Mix.mp3",
+			"./../songs/Above & Beyond - Hello.mp3",
+			"./../songs/Above & Beyond - Out Of Time.mp3",
+			"./../songs/Above & Beyond - Prelude - Original Mix.mp3",
+			"./../songs/Above & Beyond,Justine Suissa - Little Something.mp3",
+			"./../songs/Above & Beyond,Richard Bedford - Every Little Beat - Original Mix.mp3",
+			"./../songs/Above & Beyond,Richard Bedford - Thing Called Love - Original Mix.mp3",
+			"./../songs/Above & Beyond,Zoe Johnston - Alchemy - Original Mix.mp3",
+			"./../songs/Above & Beyond,Zoe Johnston - Fly To New York.mp3",
+			"./../songs/Above & Beyond,Zoe Johnston - Sweetest Heart - Original Mix.mp3",
+			"./../songs/Above & Beyond,Zoë Johnston - Alchemy - Original Mix.mp3",
+			"./../songs/Above & Beyond,Zoë Johnston - Fly To New York.mp3",
+			"./../songs/Above & Beyond,Zoë Johnston - Sweetest Heart - Original Mix.mp3",
+			"./../songs/Alan Walker - Sing Me to Sleep.mp3",
+			"./../songs/Alesso - Heroes (we could be) ［feat. Tove Lo］.mp3",
+			"./../songs/Alesso - I Wanna Know.mp3",
+			"./../songs/Armin van Buuren - Ping Pong.mp3",
+			"./../songs/Arston Jake Reese - Circle Track (Radio Edit).mp3",
+			"./../songs/Au5 Danyka Nadeau - Crossroad.mp3",
+			"./../songs/Axwell Λ Ingrosso - Thinking About You (Festival Mix).mp3",
+			"./../songs/Basé,Borgeous - Invincible (Basé Remix).mp3",
+			"./../songs/Bearson,Tristan Prettyman - Song For The Rich (Bearson Remix).mp3",
+			"./../songs/Beth,Charming Horses - Don't You Worry Child (Charming Horses Remix).mp3",
+			"./../songs/Borgeous,tyDi - Wanna Lose You (Original Mix).mp3",
+			"./../songs/Bright Lights Dannic - Dear Life (Bassjackers Remix).mp3",
+			"./../songs/Calvin Harris - Summer.mp3",
+			"./../songs/Carly Rae Jepsen - I Really Like You (LYAR Remix).mp3",
+			"./../songs/Cash Cash - How To Love (Spanish Version).mp3",
+			"./../songs/Cash Cash,Christina Perri - Hero.mp3",
+			"./../songs/Codeko,Ashton Palmer - Afterglow (Original Mix).mp3",
+			"./../songs/DOAN,Wiz Khalifa,Jasmine Thompson - See You Again (DOAN Remix).mp3",
+			"./../songs/Dash Berlin - Shelter (feat. Roxanne Emery) ［MaRLo Remix］.mp3",
+			"./../songs/David Guetta - Dangerous (feat. Sam Martin).mp3",
+			"./../songs/Dimitri Vegas & Like Mike - Stay A While (Extended Mix).mp3",
+			"./../songs/Dimitri Vegas Martin Garrix Like Mike - Tremor (Original Mix).mp3",
+			"./../songs/Dreyer,Broiler - Wild Eyes (Dreyer Remix).mp3",
+			"./../songs/Electus,ILLENIUM - Without You (Electus Remix).mp3",
+			"./../songs/FlyBoy,Mree - Lift Me Up (FlyBoy Remix).mp3",
+			"./../songs/Hardwell - Mad World (Radio Edit).mp3",
+			"./../songs/Hardwell - Nothing Can Hold Us Down.mp3",
+			"./../songs/Hardwell - Wake Up Call.mp3",
+			"./../songs/Hardwell Fatman Scoop W&W - Don't Stop The Madness (Original Mix).mp3",
+			"./../songs/Hook N Sling,Karin Park - Tokyo By Night (Axwell Remix).mp3",
+			"./../songs/James Carter,Levi,Tula - Wicked Game(James Carter & Levi Remix).mp3",
+			"./../songs/Janji,Azealia Banks - Chasing Time (Janji Remix).mp3",
+			"./../songs/July Child - Leave Me Out.mp3",
+			"./../songs/KLYMVX,Samuraii,Fetty Wap - Trap Queen (KLYMVX & Samuraii Remix).mp3",
+			"./../songs/Ken Loi,Elle Vee - Believe (Extended Mix).mp3",
+			"./../songs/Krewella,William Black - Broken Record (William Black Remix).mp3",
+			"./../songs/Kygo - Fallen (Kygo Rework).mp3",
+			"./../songs/Kygo - ID (Ultra Music Festival Anthem) (纯音乐).mp3",
+			"./../songs/Kygo,Coldplay - Midnight (Kygo Remix).mp3",
+			"./../songs/Kygo,Kiki Rowe - Got Me Thinkin (Kygo Remix).mp3",
+			"./../songs/Kygo,M83 - Wait (Kygo Remix).mp3",
+			"./../songs/Kygo,Marvin Gaye - Sexual Healing (Kygo Remix).mp3",
+			"./../songs/LVNDSCAPE,IIO - Rapture (LVNDSCAPE Remix).mp3",
+			"./../songs/LYAR,Oh Wonder - All We Do (LYAR Remix).mp3",
+			"./../songs/LYAR,Patrick Baker - Gone (LYAR Remix).mp3",
+			"./../songs/LYAR,Redfoo - New Thang (LYAR Remix).mp3",
+			"./../songs/Lana Del Rey - Ultraviolence (Hook N Sling Remix).mp3",
+			"./../songs/Martin Garrix  MOTI - Virus (How About Now) (Original Mix).mp3",
+			"./../songs/Martin Garrix - Dont Crack Under Pressure (Official Music Video HD).mp3",
+			"./../songs/Martin Garrix - Oops.mp3",
+			"./../songs/Martin Garrix,Matisse & Sadko - Dragon (Original Mix).mp3",
+			"./../songs/Matoma,Family Force 5 - This Is My Year (Matoma Remix).mp3",
+			"./../songs/Matthew Heyer,Novo Amor - Weather (Matthew Heyer Remix).mp3",
+			"./../songs/Michael Calfan - Mercy (Original Mix).mp3",
+			"./../songs/Mike Perry - The Ocean (Radio Edit).mp3",
+			"./../songs/Nicky Romero Vicetone When We Are Wild - Let Me Feel (Original Mix).mp3",
+			"./../songs/Odesza,Zyra - Say My Name (Jai Wolf Remix).mp3",
+			"./../songs/Oh Wonder,Matthew Heyer - Heart Hope (Matthew Heyer Remix).mp3",
+			"./../songs/Oliver Heldens,Shaun Frank,Delaney Jane - Shades Of Grey (Original Mix).mp3",
+			"./../songs/Omnia Jonny Rose - Two Hands.mp3",
+			"./../songs/Paris Blohm - Something About You (Conro’s Ultra Miami 2016 Remix).mp3",
+			"./../songs/Patrick Lite,Tom Bailey,Zedd - Find You[Feat. Tom Bailey](Patrick Lite Remix).mp3",
+			"./../songs/Pegato,SNBRN,Andrew Watt - Beat The Sunrise feat. Andrew Watt (Pegato Remix).mp3",
+			"./../songs/Pegato,Twilight Meadow - The Worlds We Discovered (Pegato Remix).mp3",
+			"./../songs/Rain Man - Bring Back the Summer.mp3",
+			"./../songs/Rob Thomas - Pieces (Sam Feldt Remix).mp3",
+			"./../songs/Sam Feldt,Kimberly Anne,EDX's Indian Summer - Show Me Love (EDX's Indian Summer Remix).mp3",
+			"./../songs/Sander Van Doorn Martin Garrix DVBBS Aleesia - Gold Skies.mp3",
+			"./../songs/Selena Gomez - Kill Em With Kindness (Felix Cartal Remix).mp3",
+			"./../songs/THALLIE ANN SEENYEN Felix Jaehn - Dance With Me (Original Mix).mp3",
+			"./../songs/Taylor Swift - Wildest Dreams (R3hab Remix).mp3",
+			"./../songs/Tiësto Kaaze - Rocky (Original Mix).mp3",
+			"./../songs/Tiësto;John Legend - Summer Nights.mp3",
+			"./../songs/Tove Lo - Talking Body (Gryffin Remix).mp3",
+			"./../songs/Vicetone - Nevada (Original Mix).mp3",
+			"./../songs/Vicetone D. Brown - What I've Waited for (feat. D. Brown).mp3",
+			"./../songs/Vijay & Sofia Zlatko,Sonnengruss - Storyteller (Vijay & Sofia Zlatko Remix).mp3"
 		]
 	};
-
-/***/ },
-/* 488 */
-/*!*********************************************!*\
-  !*** ./src/components/player/list/list.css ***!
-  \*********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-	
-	// load the styles
-	var content = __webpack_require__(/*! !./../../../../~/css-loader?sourceMap!./list.css */ 489);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(/*! ./../../../../~/style-loader/addStyles.js */ 472)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?sourceMap!./list.css", function() {
-				var newContent = require("!!./../../../../node_modules/css-loader/index.js?sourceMap!./list.css");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 489 */
-/*!**********************************************************************!*\
-  !*** ./~/css-loader?sourceMap!./src/components/player/list/list.css ***!
-  \**********************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(/*! ./../../../../~/css-loader/lib/css-base.js */ 471)();
-	// imports
-	
-	
-	// module
-	exports.push([module.id, "/*******************************************************\n *\n *\n * Component List\n *\n * \n */\n\n.player__list {\n\twidth: 80%;\n    position: absolute;\n    left: 50%;\n    bottom: 0;\n    overflow: auto;\n    overflow-x: hidden;\n    margin-left: -40%;\n    padding: 20px 0;\n    box-sizing: border-box;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.player__list-wrapper {\n\tposition: relative;\n\tpadding: 20px 0;\n}\n\n.player__list-head,\n.player__list-tail {\n\tposition: fixed;\n    left: 50%;\n    width: 79%;\n    height: 20px;\n    margin-left: -39.5%;\n    z-index: 99;\n}\n\n.player__list-head {\n    background: linear-gradient(to bottom, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));\n}\n\n.player__list-head::before {\n\tcontent: '';\n    display: block;\n    height: 5px;\n    margin-top: -5px;\n    background-color: #a10000;\n}\n\n.player__list-tail {\n\tbottom: 5px;\n    background: linear-gradient(to top, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));\n}\n\n.player__list-tail::before {\n\tcontent: '';\n    display: block;\n    height: 5px;\n    margin-top: 20px;\n    background-color: #a10000;\n}\n\n.player__list::-webkit-scrollbar {\n    /** if you want to style your own scroll bar, this pseudo should be written */\n    /** Part 1 */\n    width: 6px;\n    height: 6px;\n}\n\n.player__list::-webkit-scrollbar-button {\n    /** Part 2 */\n    display: none;\n}\n\n.player__list::-webkit-scrollbar-track {\n    /** Part 3 */\n}\n\n.player__list::-webkit-scrollbar-track-piece {\n    /** Part 4 */\n}\n\n.player__list::-webkit-scrollbar-thumb {\n    /** Part 5 */\n    background-color: rgba(0, 0, 0, 1);\n    border-radius: 10px;\n}\n\n.player__list::-webkit-scrollbar-corner {\n    /** Part 6 */\n}\n\n.player__list::-webkit-resizer {\n    /** Part 7 */\n}\n\n.player__list-item {\n\tmargin: 5px 10px;\n\tcolor: rgba(0, 0, 0, 0.3);\n\tcursor: pointer;\n\tposition: relative;\n\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.player__list-item:hover::after {\n\tcontent: \"\\F144\";\n\tfont-family: FontAwesome;\n\n\tposition: absolute;\n\tright: 0;\n}\n\n.player__list-item--active {\n\tcolor: rgba(0, 0, 0, 1);\n}\n\n.player__list-playing {\n\tposition: relative;\n\ttop: 0;\n    left: 0;\n    vertical-align: bottom;\n    margin-right: 15px;\n    display: inline-block;\n}\n", "", {"version":3,"sources":["/./src/components/player/list/list.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;CACC,WAAW;IACR,mBAAmB;IACnB,UAAU;IACV,UAAU;IACV,eAAe;IACf,mBAAmB;IACnB,kBAAkB;IAClB,gBAAgB;IAChB,uBAAuB;;IAEvB,6BAA6B;IAC7B,wBAAwB;IACxB,qBAAqB;CACxB;;AAED;CACC,mBAAmB;CACnB,gBAAgB;CAChB;;AAED;;CAEC,gBAAgB;IACb,UAAU;IACV,WAAW;IACX,aAAa;IACb,oBAAoB;IACpB,YAAY;CACf;;AAED;IACI,6EAA6E;CAChF;;AAED;CACC,YAAY;IACT,eAAe;IACf,YAAY;IACZ,iBAAiB;IACjB,0BAA0B;CAC7B;;AAED;CACC,YAAY;IACT,0EAA0E;CAC7E;;AAED;CACC,YAAY;IACT,eAAe;IACf,YAAY;IACZ,iBAAiB;IACjB,0BAA0B;CAC7B;;AAED;IACI,8EAA8E;IAC9E,aAAa;IACb,WAAW;IACX,YAAY;CACf;;AAED;IACI,aAAa;IACb,cAAc;CACjB;;AAED;IACI,aAAa;CAChB;;AAED;IACI,aAAa;CAChB;;AAED;IACI,aAAa;IACb,mCAAmC;IACnC,oBAAoB;CACvB;;AAED;IACI,aAAa;CAChB;;AAED;IACI,aAAa;CAChB;;AAED;CACC,iBAAiB;CACjB,0BAA0B;CAC1B,gBAAgB;CAChB,mBAAmB;;CAEnB,6BAA6B;CAC7B,wBAAwB;CACxB,qBAAqB;CACrB;;AAED;CACC,iBAAiB;CACjB,yBAAyB;;CAEzB,mBAAmB;CACnB,SAAS;CACT;;AAED;CACC,wBAAwB;CACxB;;AAED;CACC,mBAAmB;CACnB,OAAO;IACJ,QAAQ;IACR,uBAAuB;IACvB,mBAAmB;IACnB,sBAAsB;CACzB","file":"list.css","sourcesContent":["/*******************************************************\n *\n *\n * Component List\n *\n * \n */\n\n.player__list {\n\twidth: 80%;\n    position: absolute;\n    left: 50%;\n    bottom: 0;\n    overflow: auto;\n    overflow-x: hidden;\n    margin-left: -40%;\n    padding: 20px 0;\n    box-sizing: border-box;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.player__list-wrapper {\n\tposition: relative;\n\tpadding: 20px 0;\n}\n\n.player__list-head,\n.player__list-tail {\n\tposition: fixed;\n    left: 50%;\n    width: 79%;\n    height: 20px;\n    margin-left: -39.5%;\n    z-index: 99;\n}\n\n.player__list-head {\n    background: linear-gradient(to bottom, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));\n}\n\n.player__list-head::before {\n\tcontent: '';\n    display: block;\n    height: 5px;\n    margin-top: -5px;\n    background-color: #a10000;\n}\n\n.player__list-tail {\n\tbottom: 5px;\n    background: linear-gradient(to top, rgba(161, 0, 0, 1), rgba(0, 0, 0, 0));\n}\n\n.player__list-tail::before {\n\tcontent: '';\n    display: block;\n    height: 5px;\n    margin-top: 20px;\n    background-color: #a10000;\n}\n\n.player__list::-webkit-scrollbar {\n    /** if you want to style your own scroll bar, this pseudo should be written */\n    /** Part 1 */\n    width: 6px;\n    height: 6px;\n}\n\n.player__list::-webkit-scrollbar-button {\n    /** Part 2 */\n    display: none;\n}\n\n.player__list::-webkit-scrollbar-track {\n    /** Part 3 */\n}\n\n.player__list::-webkit-scrollbar-track-piece {\n    /** Part 4 */\n}\n\n.player__list::-webkit-scrollbar-thumb {\n    /** Part 5 */\n    background-color: rgba(0, 0, 0, 1);\n    border-radius: 10px;\n}\n\n.player__list::-webkit-scrollbar-corner {\n    /** Part 6 */\n}\n\n.player__list::-webkit-resizer {\n    /** Part 7 */\n}\n\n.player__list-item {\n\tmargin: 5px 10px;\n\tcolor: rgba(0, 0, 0, 0.3);\n\tcursor: pointer;\n\tposition: relative;\n\n\t-webkit-transition: all 0.5s;\n\t-o-transition: all 0.5s;\n\ttransition: all 0.5s;\n}\n\n.player__list-item:hover::after {\n\tcontent: \"\\f144\";\n\tfont-family: FontAwesome;\n\n\tposition: absolute;\n\tright: 0;\n}\n\n.player__list-item--active {\n\tcolor: rgba(0, 0, 0, 1);\n}\n\n.player__list-playing {\n\tposition: relative;\n\ttop: 0;\n    left: 0;\n    vertical-align: bottom;\n    margin-right: 15px;\n    display: inline-block;\n}\n"],"sourceRoot":"webpack://"}]);
-	
-	// exports
-
-
-/***/ },
-/* 490 */
-/*!***********************************************************!*\
-  !*** ./src/components/player/playingicon/playingicon.jsx ***!
-  \***********************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	exports.PlayingIcon = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _react = __webpack_require__(/*! react */ 298);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _playingicon = __webpack_require__(/*! ./playingicon.css */ 491);
-	
-	var _playingicon2 = _interopRequireDefault(_playingicon);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var PlayingIcon = exports.PlayingIcon = function (_React$Component) {
-		_inherits(PlayingIcon, _React$Component);
-	
-		function PlayingIcon(props) {
-			_classCallCheck(this, PlayingIcon);
-	
-			return _possibleConstructorReturn(this, (PlayingIcon.__proto__ || Object.getPrototypeOf(PlayingIcon)).call(this, props));
-		}
-	
-		_createClass(PlayingIcon, [{
-			key: 'getRect',
-			value: function getRect() {
-				var items = [];
-	
-				for (var i = 1; i <= this.props.reactNumber; i++) {
-					items.push(_react2.default.createElement('div', { key: i, className: 'react' + i, style: {
-							'backgroundColor': this.props.reactColor,
-							'WebkitAnimationDelay': -1.2 + this.props.reactDelay * i + 's',
-							'animation': 'stretchdelay ' + this.props.animateDelay + 's infinite ease-in-out'
-						} }));
-				}
-	
-				return items;
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				return _react2.default.createElement(
-					'div',
-					{ className: 'playingicon', ref: 'playingicon', style: {
-							height: this.props.height
-						} },
-					this.getRect()
-				);
-			}
-		}]);
-	
-		return PlayingIcon;
-	}(_react2.default.Component);
-	
-	PlayingIcon.defaultProps = {
-		height: 18,
-		reactNumber: 4,
-		reactDelay: 0.12,
-		reactColor: '#000'
-	};
-
-/***/ },
-/* 491 */
-/*!***********************************************************!*\
-  !*** ./src/components/player/playingicon/playingicon.css ***!
-  \***********************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-	
-	// load the styles
-	var content = __webpack_require__(/*! !./../../../../~/css-loader?sourceMap!./playingicon.css */ 492);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(/*! ./../../../../~/style-loader/addStyles.js */ 472)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../../node_modules/css-loader/index.js?sourceMap!./playingicon.css", function() {
-				var newContent = require("!!./../../../../node_modules/css-loader/index.js?sourceMap!./playingicon.css");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 492 */
-/*!************************************************************************************!*\
-  !*** ./~/css-loader?sourceMap!./src/components/player/playingicon/playingicon.css ***!
-  \************************************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(/*! ./../../../../~/css-loader/lib/css-base.js */ 471)();
-	// imports
-	
-	
-	// module
-	exports.push([module.id, "/*******************************************************\n *\n *\n * Component Loading\n *\n * \n */\n\n.playingicon {\n    display: none;\n    font-size: 10px;\n    text-align: center;\n    margin-right: 10px;\n    display: inline-block;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.playingicon > div {\n    height: 100%;\n    width: 3px;\n    margin: 0 0.5px;\n    display: inline-block;\n\n    -webkit-transform-origin: bottom;\n    -moz-transform-origin: bottom;\n    -ms-transform-origin: bottom;\n    -o-transform-origin: bottom;\n    transform-origin: bottom;\n\n    -webkit-animation: stretchdelay 1.0s infinite ease-in-out;\n    animation: stretchdelay 1.0s infinite ease-in-out;\n}\n\n@-webkit-keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        -webkit-transform: scaleY(0.4)\n    }\n    20% {\n        -webkit-transform: scaleY(1.0)\n    }\n}\n\n@keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        transform: scaleY(0.4);\n        -webkit-transform: scaleY(0.4);\n    }\n    20% {\n        transform: scaleY(1.0);\n        -webkit-transform: scaleY(1.0);\n    }\n}\n", "", {"version":3,"sources":["/./src/components/player/playingicon/playingicon.css"],"names":[],"mappings":"AAAA;;;;;;GAMG;;AAEH;IACI,cAAc;IACd,gBAAgB;IAChB,mBAAmB;IACnB,mBAAmB;IACnB,sBAAsB;;IAEtB,6BAA6B;IAC7B,wBAAwB;IACxB,qBAAqB;CACxB;;AAED;IACI,aAAa;IACb,WAAW;IACX,gBAAgB;IAChB,sBAAsB;;IAEtB,iCAAiC;IACjC,8BAA8B;IAC9B,6BAA6B;IAC7B,4BAA4B;IAC5B,yBAAyB;;IAEzB,0DAA0D;IAC1D,kDAAkD;CACrD;;AAED;IACI;;;QAGI,8BAA8B;KACjC;IACD;QACI,8BAA8B;KACjC;CACJ;;AAED;IACI;;;QAGI,uBAAuB;QACvB,+BAA+B;KAClC;IACD;QACI,uBAAuB;QACvB,+BAA+B;KAClC;CACJ","file":"playingicon.css","sourcesContent":["/*******************************************************\n *\n *\n * Component Loading\n *\n * \n */\n\n.playingicon {\n    display: none;\n    font-size: 10px;\n    text-align: center;\n    margin-right: 10px;\n    display: inline-block;\n\n    -webkit-transition: all 0.5s;\n    -o-transition: all 0.5s;\n    transition: all 0.5s;\n}\n\n.playingicon > div {\n    height: 100%;\n    width: 3px;\n    margin: 0 0.5px;\n    display: inline-block;\n\n    -webkit-transform-origin: bottom;\n    -moz-transform-origin: bottom;\n    -ms-transform-origin: bottom;\n    -o-transform-origin: bottom;\n    transform-origin: bottom;\n\n    -webkit-animation: stretchdelay 1.0s infinite ease-in-out;\n    animation: stretchdelay 1.0s infinite ease-in-out;\n}\n\n@-webkit-keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        -webkit-transform: scaleY(0.4)\n    }\n    20% {\n        -webkit-transform: scaleY(1.0)\n    }\n}\n\n@keyframes stretchdelay {\n    0%,\n    40%,\n    100% {\n        transform: scaleY(0.4);\n        -webkit-transform: scaleY(0.4);\n    }\n    20% {\n        transform: scaleY(1.0);\n        -webkit-transform: scaleY(1.0);\n    }\n}\n"],"sourceRoot":"webpack://"}]);
-	
-	// exports
-
 
 /***/ }
 /******/ ]);

@@ -59,14 +59,6 @@ export class Wave extends React.Component {
 		}.bind(this), 500);
 	}
 
-	componentDidUpdate() {
-		this.clearWave();
-
-		this.props.updateTitle(this.props.sound.getTitle());
-
-		this.loadingDown();
-	}
-
 	componentDidMount() {
 		/** give it 1 sec to render */
 		setTimeout(function () {
@@ -86,6 +78,10 @@ export class Wave extends React.Component {
 					this.setState({
 						waveBufferData: this.props.sound.getBufferData(this.props.px)
 					});
+
+					this.clearWave();
+					this.props.updateTitle(this.props.sound.getTitle());
+					this.loadingDown();
 				}.bind(this))
 				.onplaying(function () {
 					/** Wave Update */

@@ -24,14 +24,12 @@ import Common from './common';
 import BufferLoader from './bufferLoader';
 import _ from 'underscore';
 
-const Sound = module.exports = function (list, base) {
-	base = base || './';
-
+const Sound = module.exports = function (list) {
 	/** @type {[type]} [a list of songs with their name] */
-	this.songList = list;
+	this.songList = _.isArray(list) ? list.map((item) => { return Common.extractTitle(item); }) : Comon.extractTitle(list);
 
 	/** init a Sound instance with its location */
-	this.url = _.isArray(list) ? list.map((item) => { return base + item; }) : base + list;
+	this.url = list;
 
 	/** @type {[type]} [Audio Context Object] */
 	this.context = null;
@@ -46,7 +44,7 @@ const Sound = module.exports = function (list, base) {
 	this.endedEvent = null;
 
 	/** @type {[type]} [onplaying function called when a song is playing] */
-	this.playingEvent = null;	
+	this.playingEvent = null;
 
 	/** @type {Array} [a list of buffer] */
 	this.bufferList = [];
@@ -83,7 +81,7 @@ const Sound = module.exports = function (list, base) {
 		const curretTrackingThreadIndex = (this.startTrackings.indexOf(null) + 1) % this.startTrackings.length;
 		setTimeout(function () {											/** try to use another thread to kill startTracking thread				*/
 			clearInterval(this.startTrackings[curretTrackingThreadIndex]);	/** clear tracking time interval object for playingEvent				*/
-			this.startTrackings[curretTrackingThreadIndex] = null;											
+			this.startTrackings[curretTrackingThreadIndex] = null;
 		}.bind(this), 500);
 
 		this.startTime = new Date();										/** refresh startTime 													*/
@@ -145,7 +143,7 @@ Sound.prototype.init = function () {
 			});
 		}.bind(this);
 
-		request.send();	
+		request.send();
 	} else {
 		this.bufferLoader = new BufferLoader(this.context, this.url, function (bufferList) {
 			this.bufferList = bufferList;
@@ -164,8 +162,8 @@ Sound.prototype.init = function () {
  *
  *
  * player operations
- * 
- * 
+ *
+ *
  */
 Sound.prototype.set = function (index) {
 	this.currentIndex = index;
@@ -212,7 +210,7 @@ Sound.prototype.next = function () {
 
 Sound.prototype.jump = function (index) {
 	this.source.onended = null;
-	
+
 	this.loadEvent = function () {
 		this.set(index)
 			.loadedEvent();
@@ -227,7 +225,7 @@ Sound.prototype.jump = function (index) {
  *
  *
  * beat operations
- * 
+ *
  */
 
 Sound.prototype.summarize = function (data, pixels) {
@@ -253,16 +251,16 @@ Sound.prototype.summarize = function (data, pixels) {
 
 		vals.push( [ negSum / pixelLength, posSum / pixelLength ] );
 	}
-	
+
 	return vals;
 }
 
 /**
  *
- * 
+ *
  * get operations
  *
- * 
+ *
  */
 
 Sound.prototype.getTitle = function () {
@@ -301,5 +299,5 @@ Sound.prototype.getBufferData = function (pixels) {
 		returnData.push({ pcmData: waveData[i][1], fill: 'rgba(0, 0, 0, 0.1)'});
 	}
 
-	return returnData;	
+	return returnData;
 };
