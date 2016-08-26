@@ -23,7 +23,7 @@
 
 const fs = require('fs');
 const base = [
-	'./assets/eletronic/'
+	'./assets/electronic/'
 ];
 
 var songlist = [];
