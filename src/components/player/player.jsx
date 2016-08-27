@@ -35,6 +35,10 @@ export class Player extends React.Component {
 		});
 	}
 
+	componentDidMount() {
+		console.log('Player Mounted');
+	}
+
 	render() {
 		return (
 			<div className="player__container">

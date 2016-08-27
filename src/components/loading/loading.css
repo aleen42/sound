@@ -31,6 +31,29 @@
     animation: stretchdelay 1.2s infinite ease-in-out;
 }
 
+.loading__progress,
+.loading__progress-container {
+    height: 5px;
+
+    position: fixed;
+    z-index: 99;
+    top: 0;
+    left: 0;
+}
+
+.loading__progress {
+    width: 0;
+    background-color: rgba(0, 0, 0, 1);
+    -webkit-transition: all 1.0s;
+    -o-transition: all 1.0s;
+    transition: all 1.0s;
+}
+
+.loading__progress-container {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
 @-webkit-keyframes stretchdelay {
     0%,
     40%,

@@ -10,6 +10,8 @@ export class Wave extends React.Component {
 	}
 
 	getWave() {
+		console.log('Wave Getting');
+
 		const data = this.props.sound.getBufferData(this.props.px);
 		return data.map(function(elem, index) {
 			return <rect key={index} ref={'wave__tag' + index} x={index / data.length * 100 + '%'} y={(this.props.height - elem.pcmData * 1000) / 2 + 'px'} width={1} height={elem.pcmData * 1000 + 'px'} fill={elem.fill}></rect>;
@@ -55,7 +57,13 @@ export class Wave extends React.Component {
 		}.bind(this), 500);
 	}
 
+	componentDidUpdate() {
+		console.log('Wave Mounted');
+	}
+
 	componentDidMount() {
+		console.log('Wave Mounted');
+
 		/** give it 1 sec to render */
 		setTimeout(function () {
 			/** play when component mount */

@@ -40,11 +40,20 @@ const Sound = module.exports = function (list) {
 	/** @type {[type]} [onloaded function called when loading has been completed] */
 	this.loadedEvent = null;
 
+	/** @type {[type]} [ondecoded function called when all loading sources has been decoded] */
+	this.decodedEvent = null;
+
 	/** @type {[type]} [onended function called when a song has been ended] */
 	this.endedEvent = null;
 
 	/** @type {[type]} [onplaying function called when a song is playing] */
 	this.playingEvent = null;
+
+	/** @type {[type]} [onplayed function called when a song is played] */
+	this.playedEvent = null;
+
+	/** @type {[type]} [onprogress function called when a source is loading] */
+	this.progressEvent = null;
 
 	/** @type {Array} [a list of buffer] */
 	this.bufferList = [];
@@ -110,6 +119,21 @@ Sound.prototype.onloaded = function (callback) {
 	return this;
 };
 
+Sound.prototype.ondecoded = function (callback) {
+	this.decodedEvent = callback;
+	return this;
+};
+
+Sound.prototype.onprogress = function (callback) {
+	this.progressEvent = callback;
+	return this;
+};
+
+Sound.prototype.onplayed = function (callback) {
+	this.playedEvent = callback;
+	return this;
+};
+
 Sound.prototype.onended = function (callback) {
 	this.endedEvent = callback;
 	return this;
@@ -121,6 +145,9 @@ Sound.prototype.onplaying = function (callback) {
 };
 
 Sound.prototype.init = function () {
+	/** Sound Init */
+	console.log('Sound Init');
+
 	if (!_.isArray(this.url)) {
 		/** only load one source from an url */
 		/** initialize audio object with arrayBuffer type */
@@ -128,15 +155,33 @@ Sound.prototype.init = function () {
 		request.open('GET', this.url, true);
 		request.responseType = 'arraybuffer';
 
+		request.addEventListener('pogress', function (evt) {
+        	if (evt.lengthComputable) {
+				this.progressEvent(evt.loaded / evt.total * 0.7 * 100 + '%');
+			}
+		}, false);
+
 		/** Decode asynchronously */
 		request.onload = function() {
+			console.log('Source has been loaded');
+
 			this.context.decodeAudioData(request.response, function (buffer) {
+				console.log('Source has been decoded');
+				
 				this.bufferList.push({
 					title: Common.extractTitle(this.url),
 					buffer: buffer
 				});
 
-				this.loadEvent();
+				this.progressEvent(evt.loaded / evt.total * 1.0 * 100 + '%');
+
+				if (this.loadEvent) {
+					this.loadEvent();
+				}
+
+				if (this.decodedEvent) {
+					this.decodedEvent();
+				}
 			}.bind(this), function () {
 				/** catch error */
 				Common.errorPrint('Failed to get buffer from this url');
@@ -147,11 +192,21 @@ Sound.prototype.init = function () {
 	} else {
 		this.bufferLoader = new BufferLoader(this.context, this.url, function (bufferList) {
 			this.bufferList = bufferList;
-			this.loadEvent();
+
+			/** Loaded */
+			console.log('Buffer has been loaded');
+
+			if (this.loadEvent) {
+				this.loadEvent();
+			}
+
+			if (this.decodedEvent) {
+				this.decodedEvent();
+			}
 
 			/** clear loadEvent once it's called */
 			this.loadEvent = null;
-		}.bind(this), this.bufferList)
+		}.bind(this), this.bufferList, this.progressEvent)
 			.load(this.currentIndex);
 	}
 
@@ -189,7 +244,15 @@ Sound.prototype.play = function () {
 	this.startTime = new Date();
 	this.status = 'play';													/** update current status to 'play'										*/
 
-	this.startTrackings[this.startTrackings.indexOf(null)] = setInterval(this.playingEvent, 20);
+	if (this.playingEvent) {
+		this.startTrackings[this.startTrackings.indexOf(null)] = setInterval(this.playingEvent, 20);
+	}
+
+	if (this.playedEvent) {
+		this.playedEvent();
+	}
+
+	console.log('Status: Played');
 };
 
 Sound.prototype.loop = function () {
