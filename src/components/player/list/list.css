@@ -131,3 +131,13 @@
     margin-right: 15px;
     display: inline-block;
 }
+
+@media (max-width: 720px) {
+    .player__list-item--active {
+        font-size: 14px;
+    }
+
+    .player__list-item {
+        font-size: 12px;
+    }
+}

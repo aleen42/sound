@@ -41,3 +41,15 @@ body {
 	-o-transition: all 0.5s;
 	transition: all 0.5s;
 }
+
+@media (max-width: 720px) {
+	.name {
+		font-size: 14px;
+		text-indent: 1em;
+	}
+
+	.value {
+		font-size: 12px;
+		text-indent: 1em;
+	}
+}

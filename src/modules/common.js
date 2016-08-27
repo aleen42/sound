@@ -22,6 +22,7 @@
 
 const Common = module.exports = {
 	errorPrint: function (msg) {
+		alert('[Error: ' + msg + ']');
 		console.log('[Error: ' + msg + ']');
 	},
 
