@@ -102,6 +102,8 @@
 	cursor: pointer;
 	position: relative;
 
+    font-size: 16px;
+
 	-webkit-transition: all 0.5s;
 	-o-transition: all 0.5s;
 	transition: all 0.5s;
@@ -117,6 +119,8 @@
 
 .player__list-item--active {
 	color: rgba(0, 0, 0, 1);
+
+    font-size: 18px;
 }
 
 .player__list-playing {
@@ -126,4 +130,14 @@
     vertical-align: bottom;
     margin-right: 15px;
     display: inline-block;
+}
+
+@media (max-width: 720px) {
+    .player__list-item--active {
+        font-size: 14px;
+    }
+
+    .player__list-item {
+        font-size: 12px;
+    }
 }

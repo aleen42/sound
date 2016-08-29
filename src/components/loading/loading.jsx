@@ -4,6 +4,12 @@ import styles from './loading.css'
 export class Loading extends React.Component {
 	constructor(props) {
 		super(props);
+
+		this.updateProgress = this.updateProgress.bind(this);
+
+		this.state = {
+			percent: 0
+		};
 	}
 
 	getRect() {
@@ -20,7 +26,19 @@ export class Loading extends React.Component {
 		return items;
 	}
 
+	updateProgress(percent) {
+		this.setState({
+			percent: percent
+		});
+	}
+
 	componentDidMount() {
+		/** init progress event */
+		this.props.soundObject.onprogress(this.updateProgress)
+			.onplayed(function () {
+				this.updateProgress(0);
+			}.bind(this));
+
 		/** give it 1 sec to render */
 		setTimeout(function () {
 			this.refs.loading.style.display = 'block';
@@ -32,8 +50,12 @@ export class Loading extends React.Component {
 
 	render() {
 		return (
-			<div className="loading" ref="loading" style={{ height: this.props.height }}>
-				{this.getRect()}
+			<div>
+				<div className="loading__progress" style={{ width: this.state.percent }}></div>
+				<div className="loading__progress-container"></div>
+				<div className="loading" ref="loading" style={{ height: this.props.height }}>
+					{this.getRect()}
+				</div>
 			</div>
 		);
 	}

@@ -5,13 +5,13 @@
 }
 
 body {
-	background-color: #a10000
+	background-color: #a10000;
 }
 
 .container {
 	width: 100%;
 	text-align: center;
-	padding: 10% 0;
+	padding-top: 10%;
 }
 
 .box {
@@ -40,4 +40,16 @@ body {
 	-webkit-transition: all 0.5s;
 	-o-transition: all 0.5s;
 	transition: all 0.5s;
+}
+
+@media (max-width: 720px) {
+	.name {
+		font-size: 14px;
+		text-indent: 1em;
+	}
+
+	.value {
+		font-size: 12px;
+		text-indent: 1em;
+	}
 }

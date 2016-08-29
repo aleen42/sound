@@ -6,6 +6,12 @@
  * 
  */
 
+@media (max-width: 720px) {
+    .cursor__container {
+        display: none !important;
+    }
+}
+
 .cursor__container {
 	display: none;
 	opacity: 0;

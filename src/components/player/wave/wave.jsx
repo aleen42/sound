@@ -5,16 +5,14 @@ export class Wave extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {
-			waveBufferData: this.props.sound.getBufferData(this.props.px)
-		};
-
 		this.prev = this.prev.bind(this);
 		this.next = this.next.bind(this);
 	}
 
 	getWave() {
-		const data = this.state.waveBufferData;
+		console.log('Wave Getting');
+
+		const data = this.props.sound.getBufferData(this.props.px);
 		return data.map(function(elem, index) {
 			return <rect key={index} ref={'wave__tag' + index} x={index / data.length * 100 + '%'} y={(this.props.height - elem.pcmData * 1000) / 2 + 'px'} width={1} height={elem.pcmData * 1000 + 'px'} fill={elem.fill}></rect>;
 		}.bind(this));
@@ -59,7 +57,13 @@ export class Wave extends React.Component {
 		}.bind(this), 500);
 	}
 
+	componentDidUpdate() {
+		console.log('Wave Mounted');
+	}
+
 	componentDidMount() {
+		console.log('Wave Mounted');
+
 		/** give it 1 sec to render */
 		setTimeout(function () {
 			/** play when component mount */
@@ -74,14 +78,12 @@ export class Wave extends React.Component {
 				.onloaded(function () {
 					/** update active item */
 					this.props.updateItem(this.props.sound.getCurrentIndex());
-
-					this.setState({
-						waveBufferData: this.props.sound.getBufferData(this.props.px)
-					});
-
 					this.clearWave();
 					this.props.updateTitle(this.props.sound.getTitle());
 					this.loadingDown();
+
+					/** rerender */
+					this.forceUpdate();
 				}.bind(this))
 				.onplaying(function () {
 					/** Wave Update */
@@ -134,3 +136,7 @@ export class Wave extends React.Component {
 		);
 	}
 }
+
+Wave.defaultProps = {
+	px: parseInt(window.innerWidth / 3.2)
+};

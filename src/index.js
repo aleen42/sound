@@ -35,6 +35,15 @@ import Sound from './modules/sound';
 /** SongsList */
 import list from './../assets/songlist.json';
 
+const debugMode = false;
+
+/** overidden console.log */
+if (!debugMode) {
+	console = {
+		log: function () {}
+	};
+}
+
 const sound = new Sound(list.data);
 
 ReactDOM.render(
@@ -44,7 +53,7 @@ ReactDOM.render(
 			'WaveForms',
 			'Dancing with Rhythms'
 		]} />
-		<Loading className="loading" />
+		<Loading className="loading" soundObject={sound} />
 	</div>,
 	document.querySelectorAll('.loading__container')[0]
 );
@@ -53,10 +62,14 @@ const setIndex = Math.floor(Math.random() * (list.data.length - 1));
 
 sound.set(setIndex)
 	.onload(function () {
+		console.log('Rendering...')
+
 		ReactDOM.render(
 			<Player soundObject={sound} setIndex={setIndex} />,
 			document.querySelectorAll('.container')[0]
 		);
+
+		console.log('Rendered...');
 
 		document.querySelectorAll('.loading')[0].style.top = '10%';
 		setTimeout(function () {
