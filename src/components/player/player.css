@@ -38,3 +38,7 @@
 .player__next {
 	right: -25px;
 }
+
+.wave__wrapper {
+    position: relative;
+}

@@ -46,15 +46,13 @@ export class List extends React.Component {
 	}
 
 	componentDidUpdate() {
-		console.log('List Updated');
-
-		this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop - (this.state.height - this.refs['player__list-item-active'].clientHeight) / 2;
+		this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop - (this.state.height - 25 * 2 - this.refs['player__list-item-active'].clientHeight) / 2;
 	}
 
 	componentDidMount() {
 		console.log('List Mounted');
 		
-		this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop - (this.state.height - this.refs['player__list-item-active'].clientHeight) / 2;
+		this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop - (this.state.height - 25 * 2 - this.refs['player__list-item-active'].clientHeight) / 2;
 		window.addEventListener('resize', this.handleResize);
 	}
 

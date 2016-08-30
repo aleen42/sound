@@ -35,15 +35,6 @@ import Sound from './modules/sound';
 /** SongsList */
 import list from './../assets/songlist.json';
 
-const debugMode = false;
-
-/** overidden console.log */
-if (!debugMode) {
-	console = {
-		log: function () {}
-	};
-}
-
 const sound = new Sound(list.data);
 
 ReactDOM.render(
@@ -68,15 +59,5 @@ sound.set(setIndex)
 			<Player soundObject={sound} setIndex={setIndex} />,
 			document.querySelectorAll('.container')[0]
 		);
-
-		console.log('Rendered...');
-
-		document.querySelectorAll('.loading')[0].style.top = '10%';
-		setTimeout(function () {
-			document.querySelectorAll('.cursor__container')[0].style.display = 'block';
-			setTimeout(function () {
-				document.querySelectorAll('.cursor__container')[0].style.opacity = 1;
-			}, 500);
-		}, 500);
 	})
 	.init();
