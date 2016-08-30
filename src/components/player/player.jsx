@@ -32,7 +32,7 @@ export class Player extends React.Component {
 	}
 
 	loadingDown() {
-		document.querySelectorAll('.loading')[0].style.top = '10%';
+		document.querySelectorAll('.loading')[0].style.top = '15%';
 	}
 
 	prev() {
@@ -90,12 +90,17 @@ export class Player extends React.Component {
 				this.updateTitle(this.props.soundObject.getTitle());
 				this.loadingDown();
 			}.bind(this))
-			.onplaying(function (currentIndex, currentTime, currentWaveData) {
+			.onplaying(function (currentIndex, currentTime) {
 				/** Time Update */
-				this.updateTime(this.formatTime(Math.floor(currentTime)) + ' / ' + this.formatTime(Math.floor(this.props.soundObject.getDataLength() / this.props.soundObject.getSampleRate())));
+				if (Math.floor(currentTime) <= Math.floor(this.props.soundObject.getDataLength() / this.props.soundObject.getSampleRate())) {
+					this.updateTime(this.formatTime(Math.floor(currentTime)) + ' / ' + this.formatTime(Math.floor(this.props.soundObject.getDataLength() / this.props.soundObject.getSampleRate())));
+				} 
 
 				/** Wave Update */
 				this.refs.wave.updateWave(currentIndex);
+
+				/** Oscilloscope Update */
+				this.refs.oscilloscope.updateOscilloscope();
 			}.bind(this))
 			.loop();
 	}
@@ -120,7 +125,7 @@ export class Player extends React.Component {
 						<i className="fa fa-angle-right"></i>
 					</div>
 				</div>
-				{/** <Oscilloscope sound={this.props.soundObject} width="100%" height={400} /> */}
+				<Oscilloscope ref="oscilloscope" sound={this.props.soundObject} width="100%" height={200} />
 				<List sound={this.props.soundObject} activeIndex={this.state.activeIndex} />
 			</div>
 		);

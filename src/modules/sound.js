@@ -301,17 +301,10 @@ Sound.prototype.play = function (isJump, isFirst) {
 	if (this.playingEvent) {
 		/** another way of what requestAnimationFrame has done */
 		// this.startTrackings[this.startTrackings.indexOf(null)] = setInterval(this.playingEvent, 20);
-		
-		this.analyser.fftSize = 256;
-		const bufferLength = this.analyser.frequencyBinCount;
-		const dataArray = new Uint8Array(bufferLength);
-
 		const playingUpdate = function () {
 			if (this.status === 'play') {
-				this.analyser.getByteFrequencyData(dataArray);
-
-				/** pass current index, current time, and current wave data */
-				this.playingEvent(this.getCurrentTime() * this.getSampleRate(), this.getCurrentTime(), dataArray);
+				/** pass current index, current time */
+				this.playingEvent(this.getCurrentTime() * this.getSampleRate(), this.getCurrentTime());
 
 				/** use requestAnimationFrame to calling playing event */
 				requestAnimationFrame(playingUpdate);
@@ -433,12 +426,45 @@ Sound.prototype.getChannelData = function (index) {
 	return this.bufferList[this.currentIndex].buffer.getChannelData(index);
 };
 
-Sound.prototype.getBufferData = function (pixels) {
+Sound.prototype.getOscilloscopeData = function (pixels) {
+	this.analyser.fftSize = pixels;
+
+	const bufferLength = this.analyser.frequencyBinCount;
+	const dataArray = new Uint8Array(bufferLength);
+	this.analyser.getByteFrequencyData(dataArray);
+
+	const filterData = [];
+	const returnData = [];
+
+	/** filter frequency data */
+	const periods = [
+		[0.1, 0.3],
+		[0.4, 0.6],
+		[0.7, 0.9]
+	];
+
+	for (let period = 0; period < periods.length; period++) {
+		for (let i = parseInt(periods[period][0] * dataArray.length); i < parseInt(periods[period][1] * dataArray.length); i += 1) {
+			filterData.push(dataArray[i]);
+		}
+	}
+
+	/** get the max value */
+	const max = Math.max(...filterData);
+
+	for (let i = 0; i < filterData.length; i++) {
+		returnData.push({ value: max === 0 ? 0 : filterData[i] / max });
+	}
+
+	return returnData;
+};
+
+Sound.prototype.getWaveData = function (pixels) {
 	const waveData = this.summarize(this.bufferList[this.currentIndex].buffer.getChannelData(0), pixels);
 	const returnData = [];
 
 	for (let i = 0; i < waveData.length; i += 1) {
-		returnData.push({ pcmData: waveData[i][1], fill: 'rgba(0, 0, 0, 0.1)'});
+		returnData.push({ value: waveData[i][1], fill: 'rgba(0, 0, 0, 0.1)' });
 	}
 
 	return returnData;

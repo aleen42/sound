@@ -7,9 +7,9 @@ export class Wave extends React.Component {
 	}
 
 	getWave() {
-		const data = this.props.sound.getBufferData(this.props.px);
+		const data = this.props.sound.getWaveData(this.props.px);
 		return data.map(function(elem, index) {
-			return <rect key={index} ref={'wave__tag' + index} x={index / data.length * 100 + '%'} y={(this.props.height - elem.pcmData * 1000) / 2 + 'px'} width={1} height={elem.pcmData * 1000 + 'px'} fill={elem.fill}></rect>;
+			return <rect key={index} ref={'wave__tag' + index} x={index / data.length * 100 + '%'} y={(this.props.height - elem.value * 1000) / 2 + 'px'} width={1} height={elem.value * 1000 + 'px'} fill={elem.fill}></rect>;
 		}.bind(this));
 	}
 
@@ -36,7 +36,7 @@ export class Wave extends React.Component {
 			/** ensure not jump too fast */
 			for (let i = 0; i <= currentItem; i++) {
 				if (typeof this.refs['wave__tag' + i] !== 'undefined') {
-					this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 1)');	
+					this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 1)');
 				}
 			}
 		}
