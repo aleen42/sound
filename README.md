@@ -66,8 +66,9 @@ const base = [
 
 ### Referer
 
-- Oscilloscope visualization is based on https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Visualizations_with_Web_Audio_API.
-- Wave drawing is based on https://aleen42.gitbooks.io/personalwiki/content/post/drawing_audio_waveforms/drawing_audio_waveforms.html
+- **Oscilloscope visualization** is based on https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Visualizations_with_Web_Audio_API.
+- **Wave drawing** is based on https://aleen42.gitbooks.io/personalwiki/content/post/drawing_audio_waveforms/drawing_audio_waveforms.html
+- **Beat detection** is based on https://aleen42.gitbooks.io/personalwiki/content/post/bpm_detection_with_javascript/bpm_detection_with_javascript.html
 
 ### :fuelpump: How to contribute
 
