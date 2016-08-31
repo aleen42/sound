@@ -64,6 +64,11 @@ const base = [
 
 *Notice that: because a resource outside a server root is invisible, so if you are using Linux/Mac OS, remember to make a soft link to a path, which is under the root of this project, or this project will have broken down with a relative path like `./../music/`. If you are using Windows OS, I'm very sorry to say that, you have to copy your directory into this project, so that it can be loaded.*
 
+### Referer
+
+- Oscilloscope visualization is based on https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Visualizations_with_Web_Audio_API.
+- Wave drawing is based on https://aleen42.gitbooks.io/personalwiki/content/post/drawing_audio_waveforms/drawing_audio_waveforms.html
+
 ### :fuelpump: How to contribute
 
 Have an idea? Found a bug? See [how to contribute](https://aleen42.gitbooks.io/personalwiki/content/contribution.html).
