@@ -438,9 +438,10 @@ Sound.prototype.getOscilloscopeData = function (pixels) {
 
 	/** filter frequency data */
 	const periods = [
-		[0.1, 0.3],
-		[0.4, 0.6],
-		[0.7, 0.9]
+		[0.1, 0.2],
+		[0.3, 0.4],
+		[0.6, 0.7],
+		[0.8, 0.9]
 	];
 
 	for (let period = 0; period < periods.length; period++) {
