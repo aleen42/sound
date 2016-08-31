@@ -24,7 +24,7 @@ import Common from './common';
 import BufferLoader from './bufferLoader';
 import _ from 'underscore';
 
-const debugMode = false;
+const debugMode = true;
 /** overidden console.log */
 if (!debugMode) {
 	console = {
@@ -122,6 +122,8 @@ const Sound = module.exports = function (list) {
 		// 	clearInterval(this.startTrackings[curretTrackingThreadIndex]);	/** clear tracking time interval object for playingEvent				*/
 		// 	this.startTrackings[curretTrackingThreadIndex] = null;
 		// }.bind(this), 500);
+		
+		this.startTime = new Date();		
 	}.bind(this);
 
 	/** initialize context object */
