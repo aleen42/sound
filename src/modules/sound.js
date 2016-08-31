@@ -94,6 +94,9 @@ const Sound = module.exports = function (list) {
 	/** @type {[type]} [a buffer loader object] */
 	this.bufferLoader = null;
 
+	/** @type {Array} [for storing wave data of a song] */
+	this.waveData = [];
+
 	/** [stopSource: clear sources when a source has been stopped] */
 	this.stopSource = function () {
 		if (this.source !== null) {
@@ -135,7 +138,7 @@ Sound.prototype.init = function () {
 	if (!_.isArray(this.url)) {
 		/** only load one source from an url */
 		/** initialize audio object with arrayBuffer type */
-		var request = new XMLHttpRequest();
+		let request = new XMLHttpRequest();
 		request.open('GET', this.url, true);
 		request.responseType = 'arraybuffer';
 
@@ -288,10 +291,13 @@ Sound.prototype.play = function (isJump, isFirst) {
 
 	this.source.buffer = this.bufferList[this.currentIndex].buffer;     	/** tell the source which sound to play 								*/
 
+	/**
+	 * source -> analyser
+	 * 		  -> destination
+	 */
 	/** adding a analyser between the source and the destination */
 	this.source.connect(this.analyser);
-	this.analyser.connect(this.context.destination);
-	// this.source.connect(this.context.destination);       				/** connect the source to the context's destination (the speakers) 		*/
+	this.source.connect(this.context.destination);							/** connect the source to the context's destination (the speakers) 		*/
 
 	this.source.start(0);                           						/** play the source now 												*/
 																			/** note: on older systems, may have to use deprecated noteOn(time); 	*/
@@ -364,17 +370,17 @@ Sound.prototype.jump = function (index) {
  */
 
 Sound.prototype.summarize = function (data, pixels) {
-	var pixelLength = Math.round(data.length/pixels);
-	var vals = [];
+	let pixelLength = Math.round(data.length/pixels);
+	let vals = [];
 
 	/** For each pixel we display */
-	for (var i = 0; i < pixels; i++) {
-		var posSum = 0,
+	for (let i = 0; i < pixels; i++) {
+		let posSum = 0,
 		negSum = 0;
 
 		/** Cycle through the data-points relevant to the pixel */
-		for (var j = 0; j < pixelLength; j++) {
-			var val = data[ i * pixelLength + j ];
+		for (let j = 0; j < pixelLength; j++) {
+			let val = data[ i * pixelLength + j ];
 
 			/** Keep track of positive and negative values separately */
 			if (val > 0) {
@@ -426,46 +432,84 @@ Sound.prototype.getChannelData = function (index) {
 	return this.bufferList[this.currentIndex].buffer.getChannelData(index);
 };
 
-Sound.prototype.getOscilloscopeData = function (pixels) {
+Sound.prototype.getOscilloscopeData = function (pixels, type) {
+	type = type || 'byte';
+
 	this.analyser.fftSize = pixels;
+	this.analyser.maxDecibels = 10;
 
-	const bufferLength = this.analyser.frequencyBinCount;
-	const dataArray = new Uint8Array(bufferLength);
-	this.analyser.getByteFrequencyData(dataArray);
+	let bufferLength = 0;
+	let dataArray = [];
 
-	const filterData = [];
 	const returnData = [];
+	const filterData = [];
 
 	/** filter frequency data */
 	const periods = [
-		[0.1, 0.2],
-		[0.3, 0.4],
-		[0.6, 0.7],
-		[0.8, 0.9]
+		// [0.1, 0.2],
+		// [0.3, 0.4],
+		// [0.6, 0.7],
+		// [0.8, 0.9]
+		[0, 1]
 	];
 
-	for (let period = 0; period < periods.length; period++) {
-		for (let i = parseInt(periods[period][0] * dataArray.length); i < parseInt(periods[period][1] * dataArray.length); i += 1) {
-			filterData.push(dataArray[i]);
+	switch (type) {
+	case 'byte':
+		bufferLength = this.analyser.frequencyBinCount;
+		dataArray = new Uint8Array(bufferLength);
+		this.analyser.getByteFrequencyData(dataArray);
+			
+		for (let period = 0; period < periods.length; period++) {
+			for (let i = parseInt(periods[period][0] * dataArray.length); i < parseInt(periods[period][1] * dataArray.length); i += 1) {
+				if (typeof dataArray[i] !== 'undefined') {
+					filterData.push(dataArray[i]);
+				}
+			}
 		}
+
+		break;
+	case 'float':
+		bufferLength = this.analyser.frequencyBinCount;
+		dataArray = new Float32Array(bufferLength);
+		this.analyser.getFloatFrequencyData(dataArray);
+
+		const min = Math.min(...dataArray);
+
+		for (let period = 0; period < periods.length; period++) {
+			for (let i = parseInt(periods[period][0] * dataArray.length); i < parseInt(periods[period][1] * dataArray.length); i += 1) {
+				filterData.push((dataArray[i] - min) * 2);
+			}
+		}
+		break;
+	default:
+		break;
 	}
+
+	/** consider gain */
+	// const currentItem = Math.floor((this.getCurrentTime() * this.getSampleRate() / this.getDataLength()) * this.waveData.length);
+	// const maxWave = Math.max(...this.waveData);
 
 	/** get the max value */
 	const max = Math.max(...filterData);
 
 	for (let i = 0; i < filterData.length; i++) {
-		returnData.push({ value: max === 0 ? 0 : filterData[i] / max });
+		returnData.push({ value: typeof filterData[i] === 'undefined' || _.isNaN(filterData[i]) ? 0 : filterData[i] });
+		// returnData.push({ value: (max === 0 || typeof filterData[i] === 'undefined' || _.isNaN(filterData[i]) || _.isNaN(max)) ? 0 : filterData[i] / max });
 	}
 
 	return returnData;
 };
 
 Sound.prototype.getWaveData = function (pixels) {
-	const waveData = this.summarize(this.bufferList[this.currentIndex].buffer.getChannelData(0), pixels);
+	this.waveData = this.summarize(this.bufferList[this.currentIndex].buffer.getChannelData(0), pixels)
+						.map(function (wave, i) {
+							return wave[1];
+						});
+
 	const returnData = [];
 
-	for (let i = 0; i < waveData.length; i += 1) {
-		returnData.push({ value: waveData[i][1], fill: 'rgba(0, 0, 0, 0.1)' });
+	for (let i = 0; i < this.waveData.length; i += 1) {
+		returnData.push({ value: this.waveData[i], fill: 'rgba(0, 0, 0, 0.1)' });
 	}
 
 	return returnData;

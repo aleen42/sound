@@ -16,3 +16,9 @@
     z-index: 999;
     border-radius: 10px;
 }
+
+.oscilloscope__animate {
+	-webkit-transition: all 1s;
+	-o-transition: all 1s;
+	transition: all 1s;
+}

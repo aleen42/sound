@@ -9,7 +9,7 @@ export class Oscilloscope extends React.Component {
 	}
 
 	getOscilloscope() {
-		const data = this.props.sound.getOscilloscopeData(this.props.px / 2);
+		const data = this.props.sound.getOscilloscopeData(this.props.px);
 
 		/** @type {Number} [define the space between two oscilloscope, left and the right one] */
 		const space = 5;
@@ -21,15 +21,15 @@ export class Oscilloscope extends React.Component {
 		return data.map(function(elem, index) {
 			return (
 				<g key={index}>
-					<rect key={-index - 1} ref={'oscilloscope__left-tag' + index} x={((50 - space) - index / data.length * (50 - space)) + '%'} y={(this.props.height - elem.value) / 2 + 'px'} width={1} height={100 + 'px'} fill={fillColor}></rect>
-					<rect key={index + 1} ref={'oscilloscope__right-tag' + index} x={((50 + space) + index / data.length * (100 - (50 + space))) + '%'} y={(this.props.height - elem.value) / 2 + 'px'} width={1} height={100 + 'px'} fill={fillColor}></rect>
+					<rect key={-index - 1} ref={'oscilloscope__left-tag' + index} x={((50 - space) - index / data.length * (50 - space)) + '%'} y={(this.props.height - elem.value) / 2 + 'px'} width={1} height={elem.value + 'px'} fill={fillColor}></rect>
+					<rect key={index + 1} ref={'oscilloscope__right-tag' + index} x={((50 + space) + index / data.length * (100 - (50 + space))) + '%'} y={(this.props.height - elem.value) / 2 + 'px'} width={1} height={elem.value + 'px'} fill={fillColor}></rect>
 				</g>
 			);
 		}.bind(this));
 	}
 
 	clearOscilloscope() {
-		for (let i = 0; i < this.props.px / 4; i++) {
+		for (let i = 0; i < this.dataLength; i++) {
 			if (typeof this.refs['oscilloscope__left-tag' + i] !== 'undefined') {
 				this.refs['oscilloscope__left-tag' + i].setAttribute('height', 0 + 'px');
 				this.refs['oscilloscope__left-tag' + i].setAttribute('y', this.props.height / 2 + 'px');
@@ -43,24 +43,20 @@ export class Oscilloscope extends React.Component {
 	}
 
 	updateOscilloscope() {
-		this.clearOscilloscope();
-
-		const data = this.props.sound.getOscilloscopeData(this.props.px / 2);
+		const data = this.props.sound.getOscilloscopeData(this.props.px);
 
 		for (let i = 0; i < this.dataLength; i++) {
 			if (data[i].value === 0) {
 				continue;
 			}
 
-			if (typeof this.refs['oscilloscope__left-tag' + i] !== 'undefined') {
-				this.refs['oscilloscope__left-tag' + i].setAttribute('height', data[i].value * this.props.height + 'px');
-				this.refs['oscilloscope__left-tag' + i].setAttribute('y', (this.props.height - data[i].value * this.props.height) / 2 + 'px');
-			}
+			const setSide = function (side) {
+				this.refs['oscilloscope__' + side + '-tag' + i].setAttribute('height', data[i].value + 'px');
+				this.refs['oscilloscope__' + side + '-tag' + i].setAttribute('y', (this.props.height - data[i].value) / 2 + 'px');
+			}.bind(this);
 
-			if (typeof this.refs['oscilloscope__right-tag' + i] !== 'undefined') {
-				this.refs['oscilloscope__right-tag' + i].setAttribute('height', data[i].value * this.props.height + 'px');
-				this.refs['oscilloscope__right-tag' + i].setAttribute('y', (this.props.height - data[i].value * this.props.height) / 2 + 'px');
-			}
+			setSide('left');
+			setSide('right');
 		}
 	}
 
@@ -76,5 +72,5 @@ export class Oscilloscope extends React.Component {
 }
 
 Oscilloscope.defaultProps = {
-	px: parseInt(Math.pow(2, 9))
+	px: parseInt(Math.pow(2, 7))
 };
