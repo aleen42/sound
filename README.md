@@ -6,6 +6,10 @@ A JavaScript project for using Web Audio API to do something awesome. [[**Demo**
 
 ![](./1.png)
 
+![](./2.png)
+
+![](./3.png)
+
 ### Installation
 
 Before installation, you are supposed to install Webpack, which is used to bundle this project:
