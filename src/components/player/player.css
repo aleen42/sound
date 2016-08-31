@@ -11,32 +11,49 @@
 }
 
 .player__prev,
-.player__next {
-	font-size: 30px;
+.player__next,
+.player__play-pause {
+	font-size: 20px;
 	position: absolute;
-    top: 50%;
-    line-height: 60px;
+    line-height: 100px;
     color: rgba(0, 0, 0, 0.1);
-    height: 60px;
-    margin-top: -30px;
-    cursor: pointer;
+    height: 100px;
+    width: 100px;
+}
 
+.player__prev > i,
+.player__next > i,
+.player__play-pause > i {
     -webkit-transition: all 0.5s;
     -o-transition: all 0.5s;
     transition: all 0.5s;
+    cursor: pointer;
 }
 
-.player__prev:hover,
-.player__next:hover {
+.player__prev > i:hover,
+.player__next > i:hover,
+.player__play-pause > i:hover {
 	color: rgba(0, 0, 0, 1);
 }
 
+.player__prev,
+.player__next,
+.player__play-pause {
+    margin-top: -50px;
+    top: 50%;
+}
+
+.player__play-pause {
+    left: 50%;
+    margin-left: -50px;
+}
+
 .player__prev {
-	left: -25px;
+	left: -75px;
 }
 
 .player__next {
-	right: -25px;
+	right: -75px;
 }
 
 .wave__wrapper {

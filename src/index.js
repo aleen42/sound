@@ -49,7 +49,7 @@ ReactDOM.render(
 	document.querySelectorAll('.loading__container')[0]
 );
 
-const setIndex = Math.floor(Math.random() * (list.data.length - 1));
+const setIndex = Math.floor(Math.random() * (list.data.length));
 
 sound.set(setIndex)
 	.onload(function () {

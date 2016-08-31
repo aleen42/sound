@@ -15,6 +15,8 @@ export class Player extends React.Component {
 
 		this.prev = this.prev.bind(this);
 		this.next = this.next.bind(this);
+		this.pause = this.pause.bind(this);
+		this.resume = this.resume.bind(this);
 
 		this.state = {
 			activeIndex: this.props.setIndex
@@ -53,6 +55,24 @@ export class Player extends React.Component {
 		}.bind(this), 500);
 	}
 
+	pause() {
+		console.log('Pause');
+		this.props.soundObject.pause();
+
+		this.refs['player__play-pause'].children[0].removeEventListener('click', this.pause);
+		this.refs['player__play-pause'].children[0].setAttribute('class', 'fa fa-play');
+		this.refs['player__play-pause'].children[0].addEventListener('click', this.resume);
+	}
+
+	resume() {
+		console.log('Resume');
+		this.props.soundObject.resume();
+
+		this.refs['player__play-pause'].children[0].removeEventListener('click', this.resume);
+		this.refs['player__play-pause'].children[0].setAttribute('class', 'fa fa-pause');
+		this.refs['player__play-pause'].children[0].addEventListener('click', this.pause);
+	}
+
 	updateTime(time) {
 		this.refs.wave__time.children[1].innerText = time;
 	}
@@ -63,6 +83,10 @@ export class Player extends React.Component {
 
 	componentDidMount() {
 		console.log('Player Mounted');
+
+		/** bind listner of play-pause button */
+		this.refs['player__play-pause'].children[0].setAttribute('class', 'fa fa-pause');
+		this.refs['player__play-pause'].children[0].addEventListener('click', this.pause);
 
 		/** play when component mount */
 		this.updateTitle(this.props.soundObject.getTitle());
@@ -118,11 +142,15 @@ export class Player extends React.Component {
 				</div>
 				<div className="wave__wrapper">
 					<div className="player__prev" onClick={this.prev}>
-						<i className="fa fa-angle-left"></i>
+						<i className="fa fa-chevron-left"></i>
 					</div>
 					<Wave sound={this.props.soundObject} ref="wave" currentIndex={0} width="100%" height={280} />
 					<div className="player__next" onClick={this.next}>
-						<i className="fa fa-angle-right"></i>
+						<i className="fa fa-chevron-right"></i>
+					</div>
+
+					<div className="player__play-pause" ref="player__play-pause">
+						<i className=""></i>
 					</div>
 				</div>
 				<Oscilloscope ref="oscilloscope" sound={this.props.soundObject} width="100%" height={200} />

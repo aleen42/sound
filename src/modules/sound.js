@@ -82,6 +82,8 @@ const Sound = module.exports = function (list) {
 	this.startTime = 0.0;
 	this.startContextTime = 0.0;
 
+	this.pauseOffset = 0;
+
 	/** @type {Array} [thread of tracking] */
 	// this.startTrackings = [null, null];
 
@@ -98,14 +100,21 @@ const Sound = module.exports = function (list) {
 	this.waveData = [];
 
 	/** [stopSource: clear sources when a source has been stopped] */
-	this.stopSource = function () {
+	this.stopSource = function (isPause) {
 		if (this.source !== null) {
+			if (isPause) {
+				this.status = 'pause';										/** update current status to 'pause'									*/
+				this.source.onended = null;									/** clear source ended function 										*/
+			} else {
+				this.status = 'stop';										/** update current status to 'stop'										*/
+			}
+
 			this.source.stop();												/** clear source node 													*/
 		}
 
-		this.status = 'stop';												/** update current status to 'stop'										*/
-
-		this.endedEvent();													/** calling ended event 												*/
+		if (!isPause) {
+			this.endedEvent();												/** calling ended event 												*/
+		}
 
 		/** another way of what requestAnimationFrame has done */
 		// const curretTrackingThreadIndex = (this.startTrackings.indexOf(null) + 1) % this.startTrackings.length;
@@ -113,8 +122,6 @@ const Sound = module.exports = function (list) {
 		// 	clearInterval(this.startTrackings[curretTrackingThreadIndex]);	/** clear tracking time interval object for playingEvent				*/
 		// 	this.startTrackings[curretTrackingThreadIndex] = null;
 		// }.bind(this), 500);
-
-		this.startTime = new Date();										/** refresh startTime 													*/
 	}.bind(this);
 
 	/** initialize context object */
@@ -270,6 +277,16 @@ Sound.prototype.set = function (index) {
 	return this;
 };
 
+Sound.prototype.pause = function () {
+	this.pauseOffset = this.getCurrentTime();
+	this.stopSource(true);
+};
+
+Sound.prototype.resume = function () {
+	this.play(false, false);
+	this.pauseOffset = 0;
+};
+
 Sound.prototype.play = function (isJump, isFirst) {
 	isJump = isJump || false;
 	isFirst = isFirst || false;
@@ -283,7 +300,7 @@ Sound.prototype.play = function (isJump, isFirst) {
 		this.source.onended = null;
 	}
 
-	this.stopSource();														/** stop and clear source firstly										*/
+	this.stopSource(false);													/** stop and clear source firstly										*/
 
 	this.source = this.context.createBufferSource();						/** create a sound source 												*/
 
@@ -299,9 +316,10 @@ Sound.prototype.play = function (isJump, isFirst) {
 	this.source.connect(this.analyser);
 	this.source.connect(this.context.destination);							/** connect the source to the context's destination (the speakers) 		*/
 
-	this.source.start(0);                           						/** play the source now 												*/
+	this.source.start(0, this.pauseOffset);            						/** play the source now 												*/
 																			/** note: on older systems, may have to use deprecated noteOn(time); 	*/
-	this.startTime = new Date();
+	/** refresh startTime */																			
+	this.startTime = new Date(new Date().valueOf() - this.pauseOffset * 1000);
 	this.status = 'play';													/** update current status to 'play'										*/
 
 	if (this.playingEvent) {
