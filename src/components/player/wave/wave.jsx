@@ -36,7 +36,7 @@ export class Wave extends React.Component {
 			/** ensure not jump too fast */
 			for (let i = 0; i <= currentItem; i++) {
 				if (typeof this.refs['wave__tag' + i] !== 'undefined') {
-					this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 1)');
+					this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 0.3)');
 				}
 			}
 		}
