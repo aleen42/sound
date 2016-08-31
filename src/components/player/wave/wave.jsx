@@ -27,10 +27,7 @@ export class Wave extends React.Component {
 			return;
 		}
 
-		if (currentItem === 0) {
-			this.clearWave();
-			return;
-		}
+		this.clearWave();
 
 		if (typeof this.refs['wave__tag' + currentItem] != 'undefined') {
 			/** ensure not jump too fast */
