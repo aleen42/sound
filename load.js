@@ -28,14 +28,14 @@ const base = [
 	'./assets/'
 ];
 
-function recusiveRead(path) {
+function recursiveRead(path) {
 	const files = fs.readdirSync(path);
 
 	var list = [];
 
 	files.forEach(function (file) {
 		if (fs.lstatSync(p.join(path, file)).isDirectory()) {
-			list = list.concat(recusiveRead(p.join(path, file)));
+			list = list.concat(recursiveRead(p.join(path, file)));
 		} else {
 			list.push(p.join(path, file));
 		}
@@ -46,7 +46,7 @@ function recusiveRead(path) {
 
 var songlist = [];
 for (var i = 0; i < base.length; i++) {
-	songlist = songlist.concat(recusiveRead(base[i])).filter(function (item) {
+	songlist = songlist.concat(recursiveRead(base[i])).filter(function (item) {
 		return item.substr(-4).toLowerCase() === '.mp3';
 	});
 }
