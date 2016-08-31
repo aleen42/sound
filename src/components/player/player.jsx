@@ -18,8 +18,11 @@ export class Player extends React.Component {
 		this.pause = this.pause.bind(this);
 		this.resume = this.resume.bind(this);
 
+		this.filter = this.filter.bind(this);
+
 		this.state = {
-			activeIndex: this.props.setIndex
+			activeIndex: this.props.setIndex,
+			filterType: this.props.filterDefaultType
 		};
 	}
 
@@ -62,6 +65,13 @@ export class Player extends React.Component {
 		this.refs['player__play-pause'].children[0].removeEventListener('click', this.pause);
 		this.refs['player__play-pause'].children[0].setAttribute('class', 'fa fa-play');
 		this.refs['player__play-pause'].children[0].addEventListener('click', this.resume);
+	}
+
+	filter(e) {
+		this.props.soundObject.setFilterType(e.target.value);
+		this.setState({
+			filterType: e.target.value
+		});
 	}
 
 	resume() {
@@ -140,6 +150,21 @@ export class Player extends React.Component {
 					<p className="name">Name</p>
 					<p className="value">/</p>
 				</div>
+				{  
+				// <div className="filters">
+				// 	<select onChange={this.filter} value={this.state.filterType}>
+				// 		<option value="lowpass">lowpass</option>
+				// 		<option value="highpass">highpass</option>
+				// 		<option value="bandpass">bandpass</option>
+				// 		<option value="lowshelf">lowshelf</option>
+				// 		<option value="highshelf">highshelf</option>
+				// 		<option value="peaking">peaking</option>
+				// 		<option value="notch">notch</option>
+				// 		<option value="allpass">allpass</option>
+				// 	</select>
+				// </div>
+				}
+
 				<div className="wave__wrapper">
 					<div className="player__prev" onClick={this.prev}>
 						<i className="fa fa-chevron-left"></i>
@@ -159,3 +184,7 @@ export class Player extends React.Component {
 		);
 	}
 }
+
+Player.defaultProps = {
+	filterDefaultType: 'lowpass'
+};

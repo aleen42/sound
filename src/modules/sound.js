@@ -42,7 +42,10 @@ const Sound = module.exports = function (list) {
 	/** @type {[type]} [Audio Context Object] */
 	this.context = null;
 
-	/** @type {[type]} [Audio Analyser between the source and the destination] */
+	/** @type {[type]} [Audio filter between the source and the analyser] */
+	this.filter = null;
+
+	/** @type {[type]} [Audio Analyser to generate oscilloscope] */
 	this.analyser = null;
 
 	/** @type {[type]} [onload function will be called when loading successfully] */
@@ -311,11 +314,16 @@ Sound.prototype.play = function (isJump, isFirst) {
 	this.source.buffer = this.bufferList[this.currentIndex].buffer;     	/** tell the source which sound to play 								*/
 
 	/**
-	 * source -> analyser
+	 * source -> filter -> analyser
 	 * 		  -> destination
 	 */
 	/** adding a analyser between the source and the destination */
-	this.source.connect(this.analyser);
+	this.filter = this.context.createBiquadFilter();
+	this.filter.type = 'bandpass';
+
+	this.source.connect(this.filter);
+	this.filter.connect(this.analyser);
+	
 	this.source.connect(this.context.destination);							/** connect the source to the context's destination (the speakers) 		*/
 
 	this.source.start(0, this.pauseOffset);            						/** play the source now 												*/
@@ -416,6 +424,10 @@ Sound.prototype.summarize = function (data, pixels) {
 	return vals;
 }
 
+Sound.prototype.setFilterType = function (type) {
+	this.filter.type = type;
+};
+
 /**
  *
  *
@@ -456,7 +468,7 @@ Sound.prototype.getOscilloscopeData = function (pixels, type) {
 	type = type || 'byte';
 
 	this.analyser.fftSize = pixels;
-	this.analyser.maxDecibels = 20;
+	this.analyser.maxDecibels = 15;
 
 	let bufferLength = 0;
 	let dataArray = [];
