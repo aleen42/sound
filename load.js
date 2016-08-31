@@ -22,17 +22,33 @@
  **********************************************************************/
 
 const fs = require('fs');
+const p = require('path');
+
 const base = [
-	'./assets/songs/'
+	'./assets/'
 ];
+
+function recusiveRead(path) {
+	const files = fs.readdirSync(path);
+
+	var list = [];
+
+	files.forEach(function (file) {
+		if (fs.lstatSync(p.join(path, file)).isDirectory()) {
+			list = list.concat(recusiveRead(p.join(path, file)));
+		} else {
+			list.push(p.join(path, file));
+		}
+	});
+
+	return list;
+}
 
 var songlist = [];
 for (var i = 0; i < base.length; i++) {
-	songlist = songlist.concat(fs.readdirSync(base[i]).map(function (item) {
-			return base[i] + '/' + item;
-		}).filter(function (item) {
-			return item.substr(-4).toLowerCase() === '.mp3';
-		}));
+	songlist = songlist.concat(recusiveRead(base[i])).filter(function (item) {
+		return item.substr(-4).toLowerCase() === '.mp3';
+	});
 }
 
 fs.writeFile('./assets/songlist.json', JSON.stringify({
