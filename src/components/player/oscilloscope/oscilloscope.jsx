@@ -12,7 +12,7 @@ export class Oscilloscope extends React.Component {
 		const data = this.props.sound.getOscilloscopeData(this.props.px);
 
 		/** @type {Number} [define the space between two oscilloscope, left and the right one] */
-		const space = 5;
+		const space = 2;
 
 		const fillColor = 'rgba(0, 0, 0, 0.2)';
 
