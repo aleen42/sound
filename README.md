@@ -6,6 +6,10 @@ A JavaScript project for using Web Audio API to do something awesome. [[**Demo**
 
 ![](./1.png)
 
+![](./2.png)
+
+![](./3.png)
+
 ### Installation
 
 Before installation, you are supposed to install Webpack, which is used to bundle this project:
@@ -44,7 +48,7 @@ If you want to load songs locally, you can just paste files with a `.mp3` format
 
 #### Optional
 
-If you don't want to use `assets/songs`, you can just override the variable `base` array in the file `load.js`:
+If you don't want to use `assets/songs`, you can just override the variable `base` array in the file `load.js`, to specify where to scan mp3 files recursively.
 
 ```js
 const base = [
@@ -59,6 +63,12 @@ const base = [
 ```
 
 *Notice that: because a resource outside a server root is invisible, so if you are using Linux/Mac OS, remember to make a soft link to a path, which is under the root of this project, or this project will have broken down with a relative path like `./../music/`. If you are using Windows OS, I'm very sorry to say that, you have to copy your directory into this project, so that it can be loaded.*
+
+### Referer
+
+- **Oscilloscope visualization** is based on https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Visualizations_with_Web_Audio_API.
+- **Wave drawing** is based on https://aleen42.gitbooks.io/personalwiki/content/post/drawing_audio_waveforms/drawing_audio_waveforms.html
+- **Beat detection** is based on https://aleen42.gitbooks.io/personalwiki/content/post/bpm_detection_with_javascript/bpm_detection_with_javascript.html
 
 ### :fuelpump: How to contribute
 
