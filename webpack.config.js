@@ -34,8 +34,14 @@ module.exports = {
 
             /** json */
             {
-                test: /\.json/,
+                test: /\.json$/,
                 loader: 'json-loader'
+            },
+
+            /** markdown */
+            {
+                test: /\.md$/,
+                loader: 'babel!markdown-loader'
             },
 
             /** babel */
@@ -48,5 +54,10 @@ module.exports = {
                 }
             }
         ]
+    },
+
+    /** For handling errror of fs in the package AV */
+    node: {
+        fs: 'empty'
     }
 };

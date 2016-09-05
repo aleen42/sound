@@ -15,7 +15,7 @@
  *      - Author: aleen42
  *      - Description: core module for sound.js
  *      - Create Time: Aug 22nd, 2016
- *      - Update Time: Aug 22nd, 2016
+ *      - Update Time: Sep 5th, 2016
  *
  *
  **********************************************************************/
@@ -24,7 +24,7 @@ import Common from './common';
 import BufferLoader from './bufferLoader';
 import _ from 'underscore';
 
-const debugMode = true;
+const debugMode = false;
 /** overidden console.log */
 if (!debugMode) {
 	console = {
@@ -164,27 +164,29 @@ Sound.prototype.init = function () {
 		request.onload = function() {
 			console.log('Source has been loaded');
 
-			this.context.decodeAudioData(request.response, function (buffer) {
-				console.log('Source has been decoded');
-				
-				this.bufferList.push({
-					title: Common.extractTitle(this.url),
-					buffer: buffer
+			if (this.url.substr(-4).toLowerCase() === '.mp3') {
+				this.context.decodeAudioData(request.response, function (buffer) {
+					console.log('Source has been decoded');
+					
+					this.bufferList.push({
+						title: Common.extractTitle(this.url),
+						buffer: buffer
+					});
+
+					this.progressEvent(evt.loaded / evt.total * 1.0 * 100 + '%');
+
+					if (this.loadEvent) {
+						this.loadEvent();
+					}
+
+					if (this.decodedEvent) {
+						this.decodedEvent();
+					}
+				}.bind(this), function () {
+					/** catch error */
+					Common.errorPrint('Failed to get buffer from this url');
 				});
-
-				this.progressEvent(evt.loaded / evt.total * 1.0 * 100 + '%');
-
-				if (this.loadEvent) {
-					this.loadEvent();
-				}
-
-				if (this.decodedEvent) {
-					this.decodedEvent();
-				}
-			}.bind(this), function () {
-				/** catch error */
-				Common.errorPrint('Failed to get buffer from this url');
-			});
+			}
 		}.bind(this);
 
 		request.send();

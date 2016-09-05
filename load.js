@@ -16,7 +16,7 @@
  *      - Description: a script for loading file name from a directory,
  *      			   and converted into a json.
  *      - Create Time: Aug 25th, 2016
- *      - Update Time: Aug 26th, 2016
+ *      - Update Time: Sep 5th, 2016
  *
  *
  **********************************************************************/
@@ -47,7 +47,7 @@ function recursiveRead(path) {
 var songlist = [];
 for (var i = 0; i < base.length; i++) {
 	songlist = songlist.concat(recursiveRead(base[i])).filter(function (item) {
-		return item.substr(-4).toLowerCase() === '.mp3';
+		return item.substr(-4).toLowerCase() === '.mp3' || item.substr(-5).toLowerCase() === '.flac';
 	});
 }
 

@@ -1,5 +1,8 @@
 import Common from './common';
 
+import AV from 'av';
+import'./flac.js';
+
 const BufferLoader = module.exports = function (context, urlList, callback, bufferList, progressEvent) {
     this.context = context;
     this.urlList = urlList;
@@ -49,30 +52,71 @@ BufferLoader.prototype.loadBuffer = function(url, index) {
     request.onload = function () {
         console.log('Source ' + index + ' has been loaded');
 
-        /** Asynchronously decode the audio file data in request.response */
-        this.context.decodeAudioData(request.response, function (buffer) {
-            console.log('Source ' + index + ' has been decoded');
+        if (url.substr(-4).toLowerCase() === '.mp3') {
+            /** Asynchronously decode the audio file data in request.response */
+            this.context.decodeAudioData(request.response, function (buffer) {
+                console.log('Source ' + index + ' has been decoded');
 
-            /** audio decoding progress update */
-            calcProgress(1.0);
+                /** audio decoding progress update */
+                calcProgress(1.0);
 
-            /** check whether buffer can be decoded */
-            if (!buffer) {
-                alert('error decoding file data: ' + url);
-                return;
-            }
-            
-            this.bufferList[index] = {
-                title: Common.extractTitle(url),
-                buffer: buffer
-            };
+                /** check whether buffer can be decoded */
+                if (!buffer) {
+                    alert('error decoding file data: ' + url);
+                    return;
+                }
+                
+                this.bufferList[index] = {
+                    title: Common.extractTitle(url),
+                    buffer: buffer
+                };
 
-            if (typeof this.bufferList[this.waitIndex] != 'undefined' && typeof this.bufferList[this.prevIndex] != 'undefined' && typeof this.bufferList[this.nextIndex] != 'undefined') {
-                this.onload(this.bufferList);
-            }
-        }.bind(this), function (error) {
-            console.error('decodeAudioData error', error);
-        });
+                if (typeof this.bufferList[this.waitIndex] != 'undefined' && typeof this.bufferList[this.prevIndex] != 'undefined' && typeof this.bufferList[this.nextIndex] != 'undefined') {
+                    this.onload(this.bufferList);
+                }
+            }.bind(this), function (error) {
+                console.error('decodeAudioData error', error);
+            });    
+        }
+
+        if (url.substr(-5).toLowerCase() === '.flac') {
+            /** Decoding Flac files with AV */
+            const asset = AV.Asset.fromBuffer(request.response);
+
+            asset.decodeToBuffer(function(buffer) {
+                /** check whether buffer can be decoded */
+                if (!buffer) {
+                    alert('error decoding file data: ' + url);
+                    return;
+                }
+
+                var channels = asset.format.channelsPerFrame;
+                var samples = buffer.length/channels;
+                var audioBuf = this.context.createBuffer(channels, samples, asset.format.sampleRate);
+                var audioChans = [];
+
+                for(var i = 0; i < channels; i++) {
+                    audioChans.push(audioBuf.getChannelData(i));
+                }
+
+                for(var i = 0; i < buffer.length; i++) {
+                    audioChans[i % channels][Math.round(i/channels)] = buffer[i];
+                }
+
+                // Do something with your fancy new audioBuffer
+                this.bufferList[index] = {
+                    title: Common.extractTitle(url),
+                    buffer: audioBuf
+                };
+
+                if (typeof this.bufferList[this.waitIndex] != 'undefined' && typeof this.bufferList[this.prevIndex] != 'undefined' && typeof this.bufferList[this.nextIndex] != 'undefined') {
+                    this.onload(this.bufferList);
+                }
+
+                console.log('Source ' + index + ' has been decoded');
+            }.bind(this));
+          
+        }
     }.bind(this);
 
     request.onerror = function () {
