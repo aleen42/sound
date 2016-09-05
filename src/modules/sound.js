@@ -24,6 +24,9 @@ import Common from './common';
 import BufferLoader from './bufferLoader';
 import _ from 'underscore';
 
+import AV from 'av';
+import'./flac.js';
+
 const debugMode = false;
 /** overidden console.log */
 if (!debugMode) {
@@ -187,6 +190,40 @@ Sound.prototype.init = function () {
 					Common.errorPrint('Failed to get buffer from this url');
 				});
 			}
+
+			if (url.substr(-5).toLowerCase() === '.flac') {
+	            /** Decoding Flac files with AV */
+	            const asset = AV.Asset.fromBuffer(request.response);
+
+	            asset.decodeToBuffer(function(buffer) {
+	                /** check whether buffer can be decoded */
+	                if (!buffer) {
+	                    alert('error decoding file data: ' + url);
+	                    return;
+	                }
+
+	                var channels = asset.format.channelsPerFrame;
+	                var samples = buffer.length/channels;
+	                var audioBuf = this.context.createBuffer(channels, samples, asset.format.sampleRate);
+	                var audioChans = [];
+
+	                for(var i = 0; i < channels; i++) {
+	                    audioChans.push(audioBuf.getChannelData(i));
+	                }
+
+	                for(var i = 0; i < buffer.length; i++) {
+	                    audioChans[i % channels][Math.round(i/channels)] = buffer[i];
+	                }
+
+	                // Do something with your fancy new audioBuffer
+	                this.bufferList[index] = {
+	                    title: Common.extractTitle(url),
+	                    buffer: audioBuf
+	                };
+
+	                console.log('Source ' + index + ' has been decoded');
+	            }.bind(this));
+	        }
 		}.bind(this);
 
 		request.send();
@@ -369,16 +406,22 @@ Sound.prototype.loop = function () {
 };
 
 Sound.prototype.prev = function () {
+	this.pauseOffset = 0;
+	
 	const nextIndex = this.currentIndex === 0 ? this.currentIndex + this.songList.length - 1 : this.currentIndex - 1;
 	this.jump(nextIndex);
 };
 
 Sound.prototype.next = function () {
+	this.pauseOffset = 0;
+	
 	const nextIndex = (this.currentIndex + 1) % this.songList.length;
 	this.jump(nextIndex);
 };
 
 Sound.prototype.jump = function (index) {
+	this.pauseOffset = 0;
+
 	this.loadEvent = function () {
 		this.set(index);
 		

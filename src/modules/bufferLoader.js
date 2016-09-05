@@ -114,8 +114,7 @@ BufferLoader.prototype.loadBuffer = function(url, index) {
                 }
 
                 console.log('Source ' + index + ' has been decoded');
-            }.bind(this));
-          
+            }.bind(this));          
         }
     }.bind(this);
 

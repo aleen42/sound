@@ -91,6 +91,14 @@ export class Player extends React.Component {
 		this.refs.wave__title.children[1].innerText = title;
 	}
 
+	componentDidUpdate() {
+		/** bind listner of play-pause button */
+		this.refs['player__play-pause'].children[0].removeEventListener('click', this.resume);
+		this.refs['player__play-pause'].children[0].removeEventListener('click', this.pause);
+		this.refs['player__play-pause'].children[0].setAttribute('class', 'fa fa-pause');
+		this.refs['player__play-pause'].children[0].addEventListener('click', this.pause);		
+	}
+
 	componentDidMount() {
 		console.log('Player Mounted');
 
