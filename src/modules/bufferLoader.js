@@ -1,192 +1,187 @@
-import Common from './common';
-
 import AV from 'av';
-import'./flac.js';
+import 'flac.js';
 
-const BufferLoader = module.exports = function (context, urlList, callback, bufferList, progressEvent) {
-    this.context = context;
-    this.urlList = urlList;
-    this.onload = callback;
-    this.bufferList = bufferList;
+let [waitIndex, prevIndex, nextIndex] = [0, 0, 0];
 
-    this.waitIndex = 0;
-    this.prevIndex = 0;
-    this.nextIndex = 0;
+export default class BufferLoader {
+    constructor(context, [urlList, titles], callback, bufferList, progressEvent) {
+        const self = this;
 
-    /** @type {Number} [the ratio that the process of loading files divided by the whole process] */
-    this.loadRatio = 0.7;
+        self.context = context;
+        self.urlList = urlList;
+        self.titles = titles;
+        self.onload = callback;
+        self.bufferList = bufferList;
 
-    /** @type {[type]} [set loading progress event] */
-    this.onprogress = progressEvent;
+        /** @type {Number} [the ratio that the process of loading files divided by the whole process] */
+        self.loadRatio = 0.7;
 
-    /** @type {Number} [how many elements in the array percents] */
-    this.percentsLength = 0;
+        /** @type {[type]} [set loading progress event] */
+        self.onprogress = progressEvent;
 
-    /** @type {Array} [for storing progress of certain requests] */
-    this.percents = [];
-}
+        /** @type {Number} [how many elements in the array percents] */
+        self.percentsLength = 0;
 
-BufferLoader.prototype.loadBuffer = function(url, index) {
-    /** Load buffer asynchronously */
-    var request = new XMLHttpRequest();
-    request.open('GET', url, true);
-    request.responseType = 'arraybuffer';
+        /** @type {Array} [for storing progress of certain requests] */
+        self.percents = [];
 
-    const calcProgress = function (value) {
-        this.percents[index] = value;
+        return self;
+    }
 
-        const percent = (this.percents.reduce(function (pv, cv) {
-            return pv + cv;
-        }, 0)) / this.percentsLength * 100 + '%';
+    /**
+     * private function for buffer loading
+     * @private
+     * @param url
+     * @param index
+     */
+    _loadBuffer(url, index) {
+        const self = this;
+        /** Load buffer asynchronously */
+        const request = new XMLHttpRequest();
+        request.open('GET', url, true);
+        request.responseType = 'arraybuffer';
 
-        this.onprogress(percent);
-    }.bind(this);
+        const _calcProgress = value => {
+            self.percents[index] = value;
+            self.onprogress(`${(self.percents.reduce((pv, cv) => pv + cv, 0)) / self.percentsLength * 100}%`);
+        };
 
-    request.onprogress = function (evt) {
-        /** file loading progress update */
-        if (evt.lengthComputable) {
-            calcProgress(evt.loaded / evt.total * this.loadRatio);
-        }
-    }.bind(this);
+        request.onprogress = evt => {
+            /** file loading progress update */
+            evt.lengthComputable && _calcProgress(evt.loaded / evt.total * self.loadRatio);
+        };
 
-    request.onload = function () {
-        console.log('Source ' + index + ' has been loaded');
+        request.onload = () => {
+            console.log('Source ' + index + ' has been loaded');
 
-        if (url.substr(-4).toLowerCase() === '.mp3') {
-            /** Asynchronously decode the audio file data in request.response */
-            this.context.decodeAudioData(request.response, function (buffer) {
-                console.log('Source ' + index + ' has been decoded');
+            if (/\.mp3$/gi.test(url)) {
+                /** Asynchronously decode the audio file data in request.response */
+                self.context.decodeAudioData(request.response, buffer => {
+                    console.log('Source ' + index + ' has been decoded');
 
-                /** audio decoding progress update */
-                calcProgress(1.0);
+                    /** audio decoding progress update */
+                    _calcProgress(1.0);
 
-                /** check whether buffer can be decoded */
-                if (!buffer) {
-                    alert('error decoding file data: ' + url);
-                    return;
-                }
-                
-                this.bufferList[index] = {
-                    title: Common.extractTitle(url),
-                    buffer: buffer
-                };
+                    /** check whether buffer can be decoded */
+                    if (!buffer) {
+                        alert('error decoding file data: ' + url);
+                        return;
+                    }
 
-                if (typeof this.bufferList[this.waitIndex] != 'undefined' && typeof this.bufferList[this.prevIndex] != 'undefined' && typeof this.bufferList[this.nextIndex] != 'undefined') {
-                    this.onload(this.bufferList);
-                }
-            }.bind(this), function (error) {
-                console.error('decodeAudioData error', error);
-            });    
-        }
+                    self.bufferList[index] = {
+                        title: self.titles[index],
+                        buffer: buffer
+                    };
 
-        if (url.substr(-5).toLowerCase() === '.flac') {
-            /** Decoding Flac files with AV */
-            const asset = AV.Asset.fromBuffer(request.response);
+                    self.bufferList[waitIndex] && self.bufferList[prevIndex] && self.bufferList[nextIndex]
+                    && self.onload(self.bufferList);
+                }, error => console.log('decodeAudioData error', error));
+            } else if (/\.flac$/gi.test(url)) {
+                /** Decoding Flac files with AV */
+                const asset = AV.Asset.fromBuffer(request.response);
 
-            asset.decodeToBuffer(function(buffer) {
-                /** check whether buffer can be decoded */
-                if (!buffer) {
-                    alert('error decoding file data: ' + url);
-                    return;
-                }
+                asset.decodeToBuffer(buffer => {
+                    /** check whether buffer can be decoded */
+                    if (!buffer) {
+                        alert('error decoding file data: ' + url);
+                        return;
+                    }
 
-                var channels = asset.format.channelsPerFrame;
-                var samples = buffer.length/channels;
-                var audioBuf = this.context.createBuffer(channels, samples, asset.format.sampleRate);
-                var audioChans = [];
+                    const channels = asset.format.channelsPerFrame;
+                    const samples = buffer.length / channels;
+                    const audioBuf = self.context.createBuffer(channels, samples, asset.format.sampleRate);
 
-                for(var i = 0; i < channels; i++) {
-                    audioChans.push(audioBuf.getChannelData(i));
-                }
+                    let j = 0;
+                    const audioChannels = [...Array(channels)].map((empty, index) => audioBuf.getChannelData(index));
+                    buffer.forEach((item, index) => {
+                        audioChannels[index % channels][Math.round(index / channels)] = item;
+                    });
 
-                for(var i = 0; i < buffer.length; i++) {
-                    audioChans[i % channels][Math.round(i/channels)] = buffer[i];
-                }
+                    /** Do something with your fancy new audioBuffer */
+                    self.bufferList[index] = {
+                        title: self.titles[index],
+                        buffer: audioBuf
+                    };
 
-                // Do something with your fancy new audioBuffer
-                this.bufferList[index] = {
-                    title: Common.extractTitle(url),
-                    buffer: audioBuf
-                };
+                    self.bufferList[waitIndex] && self.bufferList[prevIndex] && self.bufferList[nextIndex]
+                    && self.onload(self.bufferList);
 
-                if (typeof this.bufferList[this.waitIndex] != 'undefined' && typeof this.bufferList[this.prevIndex] != 'undefined' && typeof this.bufferList[this.nextIndex] != 'undefined') {
-                    this.onload(this.bufferList);
-                }
-
-                console.log('Source ' + index + ' has been decoded');
-            }.bind(this));          
-        }
-    }.bind(this);
-
-    request.onerror = function () {
-        alert('BufferLoader: XHR error');
-    };
-
-    request.send();
-}
-
-BufferLoader.prototype.load = function(index) {
-    /** clear */
-    this.percentsLength = 0;
-    this.percents = [];
-
-    const initPercentArray = function (indexs) {
-        /** because this.percents.length will not return a real length of this array */
-        var count = 0;
-
-        for (var i = 0; i < indexs.length; i++) {
-            if (typeof this.bufferList[indexs[i]] == 'undefined') {
-                this.percents[indexs[i]] = 0.0;
-                count++;
+                    console.log('Source ' + index + ' has been decoded');
+                });
             }
-        }
+        };
 
-        this.percentsLength = count;
+        request.onerror = alert.bind(self, 'BufferLoader: XHR error');
+        request.send();
+    }
 
-        /** loop to load buffer */
-        for (var i = 0 ; i < indexs.length; i++) {
-            if (typeof this.bufferList[indexs[i]] == 'undefined') {
-                this.loadBuffer(this.urlList[indexs[i]], indexs[i]);
+    /**
+     * public function for buffer loading
+     * @param index
+     * @returns {BufferLoader}
+     */
+    load(index) {
+        const self = this;
+
+        /** clear */
+        self.percentsLength = 0;
+        self.percents = [];
+
+        const _initPercentArray = indexes => {
+            /** because self.percents.length will not return a real length of self array */
+            let count = 0;
+
+            /** loop to load buffer */
+            indexes.forEach(item => {
+                if (!self.bufferList[item]) {
+                    self.percents[item] = 0.0;
+                    count++;
+                    self._loadBuffer(self.urlList[item], item);
+                }
+            });
+
+            self.percentsLength = count;
+        };
+
+        /** set waitIndex as index */
+        [waitIndex, prevIndex, nextIndex] = [
+            index,
+            index === 0 ? index + self.urlList.length - 1 : index - 1,
+            (index + 1) % self.urlList.length,
+        ];
+
+        /** only one songs */
+        if (prevIndex === waitIndex) {
+            /** if all already then onLoad, and return the bufferList */
+            if (self.bufferList[waitIndex]) {
+                self.onload(self.bufferList);
+                return self;
             }
-        }
-    }.bind(this);
 
-    /** set waitIndex as index */
-    this.waitIndex = index;
-    this.prevIndex = index === 0 ? index + this.urlList.length - 1 : index - 1;
-    this.nextIndex = (index + 1) % this.urlList.length;
-
-    /** only one songs */
-    if (this.prevIndex === this.waitIndex) {
-        /** if all already then onload, and return the bufferList */
-        if (typeof this.bufferList[this.waitIndex] != 'undefined') {
-            this.onload(this.bufferList);
-            return this;
+            _initPercentArray([waitIndex]);
+            return self;
         }
 
-        initPercentArray([this.waitIndex]);
-        return this;
-    }
+        /** only two songs */
+        if (prevIndex === nextIndex) {
+            /** if all already then onLoad, and return the bufferList */
+            if (self.bufferList[prevIndex] && self.bufferList[waitIndex]) {
+                self.onload(self.bufferList);
+                return self;
+            }
 
-    /** only two songs */
-    if (this.prevIndex === this.nextIndex) {
-        /** if all already then onload, and return the bufferList */
-        if (typeof this.bufferList[this.prevIndex] != 'undefined' && typeof this.bufferList[this.waitIndex] != 'undefined') {
-            this.onload(this.bufferList);
-            return this;
+            _initPercentArray([prevIndex, waitIndex]);
+            return self;
         }
 
-        initPercentArray([this.prevIndex, this.waitIndex]);
-        return this;
-    }
+        /** only load current and its prev and next one */
+        /** if all already then onLoad, and return the bufferList */
+        if (self.bufferList[waitIndex] && self.bufferList[prevIndex] && self.bufferList[nextIndex]) {
+            self.onload(self.bufferList);
+            return self;
+        }
 
-    /** only load current and its prev and next one */
-    /** if all already then onload, and return the bufferList */
-    if (typeof this.bufferList[this.waitIndex] != 'undefined' && typeof this.bufferList[this.prevIndex] != 'undefined' && typeof this.bufferList[this.nextIndex] != 'undefined') {
-        this.onload(this.bufferList);
-        return this;
+        _initPercentArray([prevIndex, waitIndex, nextIndex]);
+        return self;
     }
-
-    initPercentArray([this.prevIndex, this.waitIndex, this.nextIndex]);
-    return this;
-}
+};

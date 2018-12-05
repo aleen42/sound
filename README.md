@@ -12,37 +12,29 @@ A JavaScript project for using Web Audio API to do something awesome. [[**Demo**
 
 ### Installation
 
-Before installation, you are supposed to install Webpack, which is used to bundle this project:
-
-```bash
-sudo npm install webpack -g
-```
-
-After that, just clone and build it locally:
+Just clone and build it locally:
 
 ```bash
 git clone https://github.com/aleen42/sound.js.git
-
-cd sound.js
-
-# install needed dependencies
-npm install
-
-# this command is used to load songs of the path: assets/songs/,
-# and you can see that a songlist.json will be created at the assets folder.
-npm run load
-
-# build up the project
-npm run build
-
-# build up a local server to run this project, which is going to listen at
-# http://localhost:9000
-npm run server 9000
 ```
+
+Install npm dependencies:
+
+```bash
+cd sound.js && npm i --no-save
+```
+
+Run the application locally:
+
+```bash
+npm run sound
+```
+
+The command above will try to load songs of the path: `assets/songs/` via command `npm run task:load`, after which a file named `songList.json` will be created in the assets folder. Then, the command will also create a local server via `npm run task:server`. By default, the application can be accessed by `http://localhost:9000`.
 
 ### Usage
 
-If you want to load songs locally, you can just paste files with a `.mp3` format into the folder: `assets/songs/`. After that, remember to run `npm run build` again to build this project.
+If you want to load songs locally, you can just paste files with a `.mp3` format into the folder: `assets/songs/`. After that, remember to run `npm run sound` again to build this project.
 
 *Notice that: this project is temporarily supported MP3 files, and any file without a extension name `.mp3` will not be loaded.*
 

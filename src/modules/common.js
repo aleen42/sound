@@ -15,18 +15,18 @@
  *      - Author: aleen42
  *      - Description: common.js is for common static functions
  *      - Create Time: Aug 22nd, 2016
- *      - Update Time: Aug 22nd, 2016
+ *      - Update Time: Nov 26th, 2018
  *
  *
  **********************************************************************/
 
-const Common = module.exports = {
-	errorPrint: function (msg) {
+export default {
+	errorPrint: msg => {
 		alert('[Error: ' + msg + ']');
 		console.log('[Error: ' + msg + ']');
 	},
 
-	extractTitle: function (title) {
+	extractTitle: title => {
 		let reserved = title;
 
 		while (reserved.indexOf('/') >= 0) {
@@ -34,5 +34,5 @@ const Common = module.exports = {
 		}
 
 		return reserved.match(/(.*)\.[a-zA-Z0-9]+/)[1];
-	}
-};
+	},
+}

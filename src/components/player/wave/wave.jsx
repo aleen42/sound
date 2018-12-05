@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './wave.css'
+import './wave.css'
 
 export class Wave extends React.Component {
 	constructor(props) {
@@ -16,7 +16,7 @@ export class Wave extends React.Component {
 	clearWave() {
 		/** [for: clear all wave tag] */
 		for (let i = 0; i < this.props.px; i++) {
-			this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 0.1)');	
+			this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 0.1)');
 		}
 	}
 
@@ -33,7 +33,7 @@ export class Wave extends React.Component {
 			/** ensure not jump too fast */
 			for (let i = 0; i <= currentItem; i++) {
 				if (typeof this.refs['wave__tag' + i] !== 'undefined') {
-					this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 0.3)');
+					this.refs['wave__tag' + i].setAttribute('fill', 'rgba(0, 0, 0, 0.4)');
 				}
 			}
 		}

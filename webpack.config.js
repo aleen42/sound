@@ -1,11 +1,20 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     entry: './src/index.js',
+    devtool: 'cheap-source-map',
     output: {
         path: path.join(__dirname, 'build'),
-        filename: 'index.js'
+        publicPath: '/',
     },
+    plugins: [
+        new HtmlWebpackPlugin({
+            filename: 'index.html',
+            template: 'src/index.html',
+            chunks: ['main'],
+        }),
+    ],
     module: {
         loaders: [
             /** style */
@@ -56,7 +65,7 @@ module.exports = {
         ]
     },
 
-    /** For handling errror of fs in the package AV */
+    /** For handling error of fs in the package AV */
     node: {
         fs: 'empty'
     }

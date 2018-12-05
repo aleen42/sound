@@ -15,44 +15,63 @@
  *      - Author: aleen42
  *      - Description: a script for create a server.
  *      - Create Time: Aug 25th, 2016
- *      - Update Time: Aug 26th, 2016
+ *      - Update Time: Nov 23rd, 2018
  *
  *
  **********************************************************************/
 
-var http = require('http');
-var url = require('url');
-var path = require('path');
-var fs = require('fs');
-var port = process.argv[2] || 9000;
+const express = require('express');
+const webpack = require('webpack');
+const config = require('./webpack.config.js');
 
-http.createServer(function(request, response) {
-    var uri = decodeURI(url.parse(request.url).pathname);
-    var filename = path.join(process.cwd(), uri);
+const port = process.argv[2] || 8080;
 
-    fs.exists(filename, function(exists) {
-        if (!exists) {
-            response.writeHead(404, { 'Content-Type': 'text/plain' });
-            response.write("404 Not Found\n");
-            response.end();
-            return;
+const app = express();
+const devMiddleWare = require('webpack-dev-middleware')(webpack(config), {
+    publicPath: config.output.publicPath,
+    stats: {
+        colors: true,
+        chunks: false,
+    },
+});
+
+/** serve assets */
+const fs = require('fs');
+const p = require('path');
+
+const recursiveRead = path => fs.readdirSync(path).reduce((list, file) => {
+    if (fs.lstatSync(p.resolve(path, file)).isDirectory()) {
+        list = list.concat(recursiveRead(p.join(path, file)))
+    } else {
+        if (/\.(?:mp3|flac)$/gi.test(file)) {
+            list.push([file, escape(file)/* url request */]);
+            /** serve files */
+            app.get(`/${escape(file)}`, (req, res) => fs.createReadStream(p.resolve(path, file)).pipe(res));
         }
+    }
 
-        if (fs.statSync(filename).isDirectory()) filename += '/index.html';
+    return list;
+}, []);
 
-        fs.readFile(filename, 'binary', function(err, file) {
-            if (err) {
-                response.writeHead(500, { 'Content-Type': 'text/plain' });
-                response.write(err + "\n");
-                response.end();
-                return;
-            }
+fs.writeFileSync('./assets/songList.json', JSON.stringify({
+    data: [
+        './assets',
+    ].reduce((songList, path) => songList.concat(
+        recursiveRead(path)
+    ), []),
+}));
 
-            response.writeHead(200);
-            response.write(file, 'binary');
-            response.end();
-        });
-    });
-}).listen(parseInt(port, 10));
+app.use('/favicon.ico', express.static(p.resolve(__dirname, 'src/favicon.ico')));
+app.use('/fonts', express.static(p.resolve(__dirname, 'node_modules/font-awesome/fonts')));
 
-console.log('Listening at\n  => http://localhost:' + port + '/\nCTRL + C to shutdown');
+app.use(devMiddleWare);
+devMiddleWare.waitUntilValid(() => console.log(`Listening at:\n=> http://localhost:${port}\nCTRL + C to shutdown`));
+
+app.listen(port, err => {
+    if (err) {
+        console.log(err);
+        return;
+    }
+
+    console.log('Webpack Compiling...');
+});

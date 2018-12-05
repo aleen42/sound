@@ -8,17 +8,11 @@
 
 .oscilloscope__container {
 	position: absolute;
-    top: 0;
+    top: -120px;
     left: 50%;
     padding: 20px;
     box-sizing: border-box;
-    /*background-color: rgba(0, 0, 0, 0.7);*/
     z-index: 999;
     border-radius: 10px;
-}
-
-.oscilloscope__animate {
-	-webkit-transition: all 1s;
-	-o-transition: all 1s;
-	transition: all 1s;
+    pointer-events: none;
 }

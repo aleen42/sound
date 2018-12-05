@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './list.css'
+import './list.css'
 import { PlayingIcon } from './../playingicon/playingicon.jsx'
 
 export class List extends React.Component {
@@ -21,22 +21,17 @@ export class List extends React.Component {
 	}
 
 	jump(index) {
-		this.loadingUp();
+		const self = this;
+		self.loadingUp();
 
 		/** try to avoid blocking UI thread */
-		setTimeout(function() {
-			this.props.sound.jump(index);
-		}.bind(this), 500);
+		setTimeout(self.props.sound.jump.bind(self.props.sound, index), 500);
 	}
 
 	getList() {
-		return this.props.sound.getList().map((item, i) => {
-			if (i === this.props.activeIndex) {
-				return <div className="player__list-item--active" ref="player__list-item-active" key={i}><PlayingIcon />{item}</div>
-			} else {
-				return <p className="player__list-item" onClick={this.jump.bind(this, i)} key={i}>{item}</p>
-			}
-		});
+		return this.props.sound.getList().map((item, i) => i === this.props.activeIndex
+			? <div className="player__list-item--active" ref="player__list-item-active" key={i}><PlayingIcon />{item}</div>
+			: <p className="player__list-item" onClick={this.jump.bind(this, i)} key={i}>{item}</p>);
 	}
 
 	handleResize() {
@@ -46,13 +41,15 @@ export class List extends React.Component {
 	}
 
 	componentDidUpdate() {
-		this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop - (this.state.height - 25 * 2 - this.refs['player__list-item-active'].clientHeight) / 2;
+		this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop
+			- (this.state.height - 25 * 2 - this.refs['player__list-item-active'].clientHeight) / 2;
 	}
 
 	componentDidMount() {
 		console.log('List Mounted');
-		
-		this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop - (this.state.height - 25 * 2 - this.refs['player__list-item-active'].clientHeight) / 2;
+
+		this.refs['player__list'].scrollTop = this.refs['player__list-item-active'].offsetTop
+			- (this.state.height - 25 * 2 - this.refs['player__list-item-active'].clientHeight) / 2;
 		window.addEventListener('resize', this.handleResize);
 	}
 

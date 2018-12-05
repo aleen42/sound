@@ -38,7 +38,7 @@ jspm_packages
 
 # Assets
 assets
-
-# React
 build
 
+# IDEA
+.idea

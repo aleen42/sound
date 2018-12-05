@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './typeinfo.css'
+import './typeinfo.css'
 
 export class TypeInfo extends React.Component {
 	constructor(props) {
@@ -7,41 +7,42 @@ export class TypeInfo extends React.Component {
 	}
 
 	componentDidMount() {
+		const self = this;
 		let textIndex = 0;
 		let textArrayIndex = 0;
 		let dx = 1;
 		let backInterval = null;
 
-		setInterval(function () {
+		setInterval(() => {
 			if (dx === -1) {
 			  return;
 			}
 
 			textIndex += dx;
-			this.refs.cursor__text.innerText = this.props.text[textArrayIndex].substr(0, textIndex);
+			self.refs.cursor__text.innerText = self.props.text[textArrayIndex].substr(0, textIndex);
 
 			if (textIndex == 0) {
 				dx = 1;
 				textArrayIndex = (textArrayIndex + 1) % text.length;
 			}
 
-			if (textIndex == this.props.text[textArrayIndex].length) {
+			if (textIndex == self.props.text[textArrayIndex].length) {
 				dx = -1;
-				setTimeout(function () {
-					backInterval = setInterval(function () {
+				setTimeout(() => {
+					backInterval = setInterval(() => {
 					    textIndex += dx;
-					    this.refs.cursor__text.innerText = this.props.text[textArrayIndex].substr(0, textIndex);
+					    self.refs.cursor__text.innerText = self.props.text[textArrayIndex].substr(0, textIndex);
 
 					    if (textIndex == 0) {
 							dx = 1;
-							textArrayIndex = (textArrayIndex + 1) % this.props.text.length;
+							textArrayIndex = (textArrayIndex + 1) % self.props.text.length;
 
 							clearInterval(backInterval);
 					    }
-					}.bind(this), this.props.typeBackSpeed);
-				}.bind(this), this.props.typeDelay);
+					}, self.props.typeBackSpeed);
+				}, self.props.typeDelay);
 			}
-		}.bind(this), this.props.typeSpeed);
+		}, self.props.typeSpeed);
 	}
 
 	render() {

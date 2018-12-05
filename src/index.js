@@ -15,10 +15,14 @@
  *      - Author: aleen42
  *      - Description: the main entrance
  *      - Create Time: Aug 22nd, 2016
- *      - Update Time: Aug 22nd, 2016
+ *      - Update Time: Nov 26th, 2018
  *
  *
  **********************************************************************/
+
+/** Style */
+import 'font-awesome/css/font-awesome.css';
+import './style/index.css';
 
 import 'babel-polyfill';
 import React from 'react';
@@ -33,7 +37,7 @@ import { TypeInfo } from './components/typeinfo/typeinfo.jsx';
 import Sound from './modules/sound';
 
 /** SongsList */
-import list from './../assets/songlist.json';
+import list from '../assets/songList.json';
 
 const sound = new Sound(list.data);
 
@@ -52,8 +56,8 @@ ReactDOM.render(
 const setIndex = Math.floor(Math.random() * (list.data.length));
 
 sound.set(setIndex)
-	.onload(function () {
-		console.log('Rendering...')
+	.onload(() => {
+		console.log('Rendering...');
 
 		ReactDOM.render(
 			<Player soundObject={sound} setIndex={setIndex} />,

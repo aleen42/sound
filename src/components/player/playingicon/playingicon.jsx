@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './playingicon.css'
+import './playingicon.css'
 
 export class PlayingIcon extends React.Component {
 	constructor(props) {
@@ -7,17 +7,12 @@ export class PlayingIcon extends React.Component {
 	}
 
 	getRect() {
-		const items = [];
-		
-		for (let i = 1; i <= this.props.reactNumber; i++) {
-			items.push(<div key={i} className={'react' + i} style={{
-				'backgroundColor': this.props.reactColor,
-				'WebkitAnimationDelay': (-1.2 + this.props.reactDelay * i) + 's',
-    			'animation': 'stretchdelay ' + this.props.animateDelay + 's infinite ease-in-out'
-			}} ></div>);
-		}
-
-		return items;
+		const self = this;
+		return [...Array(self.props.reactNumber)].map((empty, index) => <div key={index} className={'react' + index} style={{
+            'backgroundColor': self.props.reactColor,
+            'WebkitAnimationDelay': `${-1.2 + self.props.reactDelay * index}s`,
+            'animation': `stretchdelay ${self.props.animateDelay}s infinite ease-in-out`,
+        }} ></div>)
 	}
 
 	render() {
@@ -35,5 +30,5 @@ PlayingIcon.defaultProps = {
 	height: 18,
 	reactNumber: 4,
 	reactDelay: 0.12,
-	reactColor: '#000'
+	reactColor: '#000',
 };
