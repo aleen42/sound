@@ -42,14 +42,12 @@ If you want to load songs locally, you can just paste files with a `.mp3` format
 
 If you don't want to use `assets/songs`, you can just override the variable `base` array in the file `load.js`, to specify where to scan mp3 files recursively.
 
-```js
+```javascript
 const base = [
-	'./assets/songs/',
-	
-	/** wrong pointer which will cause resources missing error */
-	'./../music',
-
-	/** make a soft link like using `ln -s ./../music ./assets/music` */
+    './assets/songs/',
+    /** wrong pointer which will cause resources missing error */
+    './../music',
+    /** make a soft link like using `ln -s ./../music ./assets/music` */
     './assets/music/'
 ];
 ```
